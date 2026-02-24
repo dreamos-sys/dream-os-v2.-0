@@ -12,6 +12,7 @@ export function init() {
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
 
+        // Validasi field wajib
         if (!data.judul || !data.nominal || !data.unit_kerja || !data.pengaju) {
             document.getElementById('form-result').innerHTML = '<span class="text-red-500">Semua field wajib diisi!</span>';
             return;
