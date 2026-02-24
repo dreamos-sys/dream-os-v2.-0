@@ -2,7 +2,8 @@ import { store } from './store.js';
 import { showToast } from './components.js';
 
 const ROLES = {
-    "012443410": { role: "DEVELOPER", modules: ['booking','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','commandcenter'] },
+    'dana',
+    "012443410": { role: "DEVELOPER", modules: ['booking','dana','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','commandcenter'] },
     "Mr.M_Architect_2025": { role: "MASTER", modules: ['booking','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','commandcenter'] },
     "4dm1n_AF6969@00": { role: "ADMIN", modules: ['booking','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','commandcenter'] },
     "LHPSsec_AF2025": { role: "SEKURITI", modules: ['sekuriti'] },
