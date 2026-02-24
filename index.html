@@ -64,10 +64,11 @@
     window.loadModule = loadModule;
 
     const MODULES = [
-        { id: 'booking', name: 'Booking', icon: '📅' },
-        { id: 'k3', name: 'K3 Report', icon: '⚠️' },
-        { id: 'commandcenter', name: 'Admin Panel', icon: '📊' }
-    ];
+    { id: 'booking', name: 'Booking', icon: '📅' },
+    { id: 'k3', name: 'K3 Report', icon: '⚠️' },
+    { id: 'dana', name: 'Pengajuan Dana', icon: '💰' }, // <-- TAMBAHKAN
+    { id: 'commandcenter', name: 'Admin Panel', icon: '📊' }
+];
 
     function renderGrid(modules) {
         const container = document.getElementById('grid-modules');
