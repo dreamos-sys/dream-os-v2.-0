@@ -2,9 +2,9 @@ import { store } from './store.js';
 import { showToast } from './components.js';
 
 const ROLES = {
-    "012443410": { role: "DEVELOPER", modules: ['booking','dana','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','commandcenter'] },
-    "Mr.M_Architect_2025": { role: "MASTER", modules: ['booking','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','dana','commandcenter'] },
-    "4dm1n_AF6969@00": { role: "ADMIN", modules: ['booking','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','dana','commandcenter'] },
+    "012443410": { role: "DEVELOPER", modules: ['booking','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','dana','commandcenter','qr'] },
+    "Mr.M_Architect_2025": { role: "MASTER", modules: ['booking','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','dana','commandcenter','qr'] },
+    "4dm1n_AF6969@00": { role: "ADMIN", modules: ['booking','k3','sekuriti','janitor-indoor','janitor-outdoor','stok','maintenance','asset','dana','commandcenter','qr'] },
     "LHPSsec_AF2025": { role: "SEKURITI", modules: ['sekuriti'] },
     "CHCS_AF_@003": { role: "JANITOR", modules: ['janitor-indoor','janitor-outdoor'] },
     "SACS_AF@004": { role: "STOK", modules: ['stok'] },
