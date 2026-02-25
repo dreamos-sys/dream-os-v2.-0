@@ -2,9 +2,19 @@ import { store } from './store.js';
 import { showToast, showLoading } from './components.js';
 import { handleError } from './error.js';
 
+// Dynamic imports untuk semua modul (tambah sesuai kebutuhan)
 const modules = {
     booking: () => import('../modules/booking/module.js'),
-    // nanti tambah modul lain
+    k3: () => import('../modules/k3/module.js'),
+    sekuriti: () => import('../modules/sekuriti/module.js'),
+    'janitor-indoor': () => import('../modules/janitor-indoor/module.js'),
+    'janitor-outdoor': () => import('../modules/janitor-outdoor/module.js'),
+    stok: () => import('../modules/stok/module.js'),
+    maintenance: () => import('../modules/maintenance/module.js'),
+    asset: () => import('../modules/asset/module.js'),
+    dana: () => import('../modules/dana/module.js'),
+    commandcenter: () => import('../modules/commandcenter/module.js'),
+    qr: () => import('../modules/qr/module.js')
 };
 
 export async function loadModule(moduleId) {
@@ -26,13 +36,15 @@ export async function loadModule(moduleId) {
         const html = await htmlRes.text();
         contentDiv.innerHTML = html;
 
-        const module = await modules[moduleId]();
-        if (module && typeof module.init === 'function') {
-            module.init();
+        const mod = await modules[moduleId]();
+        if (mod && typeof mod.init === 'function') {
+            mod.init();
+        } else {
+            console.warn(`Modul ${moduleId} tidak memiliki fungsi init()`);
         }
     } catch (err) {
         handleError(err);
-        contentDiv.innerHTML = `<p class="text-center py-20 text-red-500">❌ Gagal memuat modul: ${err.message}</p>`;
+        contentDiv.innerHTML = `<div class="text-center py-20 text-red-400">❌ Gagal memuat modul: ${err.message}</div>`;
     }
 }
 
