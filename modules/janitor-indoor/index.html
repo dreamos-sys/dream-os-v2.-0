@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Janitor Indoor - Dream OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .section-title { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: #0d9488; }
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 0.5rem; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div class="max-w-6xl mx-auto p-4">
+        <div class="text-center mb-6">
+            <h2 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-cyan-600">
+                🧹 Ceklis Harian Janitor Indoor
+            </h2>
+            <p class="text-sm opacity-70">Gedung SD, SMP, SMA – Toilet & Ruangan</p>
+        </div>
+
+        <!-- Tab: Form / Riwayat / Jadwal -->
+        <div class="flex border-b border-gray-300 dark:border-gray-700 mb-4">
+            <button id="tab-form" class="tab-btn active px-4 py-2 font-semibold border-b-2 border-teal-500">📝 Form Ceklis</button>
+            <button id="tab-history" class="tab-btn px-4 py-2 text-gray-500">📋 Riwayat</button>
+            <button id="tab-schedule" class="tab-btn px-4 py-2 text-gray-500">📅 Jadwal Mingguan</button>
+        </div>
+
+        <!-- Panel Form -->
+        <div id="panel-form" class="tab-panel">
+            <form id="janitorIndoorForm" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-1 text-sm font-medium">Tanggal *</label>
+                        <input type="date" id="tanggal" required class="w-full p-2 border rounded dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-sm font-medium">Shift *</label>
+                        <select id="shift" required class="w-full p-2 border rounded dark:bg-gray-700">
+                            <option value="pagi">Pagi</option>
+                            <option value="siang">Siang</option>
+                            <option value="sore">Sore</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-1 text-sm font-medium">Petugas *</label>
+                        <input type="text" id="petugas" required placeholder="Nama petugas" class="w-full p-2 border rounded dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-sm font-medium">Lokasi Gedung *</label>
+                        <select id="lokasi" required class="w-full p-2 border rounded dark:bg-gray-700">
+                            <option value="">Pilih Gedung</option>
+                            <option value="SD">Gedung SD</option>
+                            <option value="SMP">Gedung SMP</option>
+                            <option value="SMA">Gedung SMA</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Bagian TOILET (11 item) -->
+                <div class="border-t pt-4">
+                    <h3 class="section-title">🚽 Toilet</h3>
+                    <div class="checkbox-grid">
+                        <label><input type="checkbox" id="toilet_pintu_utama" class="mr-2"> Pintu Utama</label>
+                        <label><input type="checkbox" id="toilet_pintu_kubikal" class="mr-2"> Pintu Kubikal</label>
+                        <label><input type="checkbox" id="toilet_kaca" class="mr-2"> Kaca / Cermin</label>
+                        <label><input type="checkbox" id="toilet_exhaust" class="mr-2"> Exhaust</label>
+                        <label><input type="checkbox" id="toilet_dinding" class="mr-2"> Dinding</label>
+                        <label><input type="checkbox" id="toilet_tempat_wudhu" class="mr-2"> Tempat Wudhu</label>
+                        <label><input type="checkbox" id="toilet_lantai" class="mr-2"> Lantai</label>
+                        <label><input type="checkbox" id="toilet_floor_drain" class="mr-2"> Floor Drain</label>
+                        <label><input type="checkbox" id="toilet_kloset" class="mr-2"> Kloset</label>
+                        <label><input type="checkbox" id="toilet_plafon" class="mr-2"> Plafon / Flapond</label>
+                        <label><input type="checkbox" id="toilet_tempat_sampah" class="mr-2"> Tempat Sampah</label>
+                    </div>
+                </div>
+
+                <!-- Bagian RUANGAN (daftar 31 area) -->
+                <div class="border-t pt-4">
+                    <h3 class="section-title">🏢 Ruangan & Area Umum</h3>
+                    <div class="checkbox-grid">
+                        <label><input type="checkbox" id="ruang_loby_utama" class="mr-2"> Loby Utama</label>
+                        <label><input type="checkbox" id="ruang_teras" class="mr-2"> Teras</label>
+                        <label><input type="checkbox" id="ruang_lorong_utama" class="mr-2"> Lorong Utama Gedung</label>
+                        <label><input type="checkbox" id="ruang_balkon" class="mr-2"> Balkon</label>
+                        <label><input type="checkbox" id="ruang_pintu_utama" class="mr-2"> Pintu Utama</label>
+                        <label><input type="checkbox" id="ruang_pintu_kelas" class="mr-2"> Pintu Kelas & R Lain</label>
+                        <label><input type="checkbox" id="ruang_jendela" class="mr-2"> Jendela</label>
+                        <label><input type="checkbox" id="ruang_kelas" class="mr-2"> Kelas</label>
+                        <label><input type="checkbox" id="ruang_aula" class="mr-2"> Aula</label>
+                        <label><input type="checkbox" id="ruang_sentra_musik" class="mr-2"> Sentra Musik</label>
+                        <label><input type="checkbox" id="ruang_sentra_kreasi" class="mr-2"> Sentra Kreasi</label>
+                        <label><input type="checkbox" id="ruang_uks" class="mr-2"> UKS</label>
+                        <label><input type="checkbox" id="ruang_psikolog" class="mr-2"> Psikolog</label>
+                        <label><input type="checkbox" id="ruang_lab_kom" class="mr-2"> Lab Kom</label>
+                        <label><input type="checkbox" id="ruang_lab_ipa" class="mr-2"> Lab IPA</label>
+                        <label><input type="checkbox" id="ruang_perpus" class="mr-2"> Perpustakaan</label>
+                        <label><input type="checkbox" id="ruang_kepsek" class="mr-2"> Kepala Sekolah</label>
+                        <label><input type="checkbox" id="ruang_guru_laki" class="mr-2"> R. Guru (Laki)</label>
+                        <label><input type="checkbox" id="ruang_guru_perempuan" class="mr-2"> R. Guru (Perempuan)</label>
+                        <label><input type="checkbox" id="ruang_pemasaran" class="mr-2"> R. Pemasaran</label>
+                        <label><input type="checkbox" id="ruang_admin_tu" class="mr-2"> R. Admin TU</label>
+                        <label><input type="checkbox" id="ruang_rapat" class="mr-2"> R. Rapat</label>
+                        <label><input type="checkbox" id="ruang_ceo" class="mr-2"> R. CEO, Direktur & Yayasan</label>
+                        <label><input type="checkbox" id="ruang_kabid" class="mr-2"> R. Kepala Bidang (Kabid)</label>
+                        <label><input type="checkbox" id="ruang_osis" class="mr-2"> R. Osis</label>
+                        <label><input type="checkbox" id="ruang_mushalla" class="mr-2"> R. Mushalla</label>
+                        <label><input type="checkbox" id="ruang_inklusi" class="mr-2"> R. Inklusi</label>
+                        <label><input type="checkbox" id="ruang_gudang_olahraga" class="mr-2"> R. Gudang Olah Raga</label>
+                        <label><input type="checkbox" id="ruang_serbaguna" class="mr-2"> R. Serbaguna</label>
+                        <label><input type="checkbox" id="ruang_masjid" class="mr-2"> R. Masjid</label>
+                        <label><input type="checkbox" id="ruang_kantin" class="mr-2"> Kantin</label>
+                        <label><input type="checkbox" id="ruang_saung_besar" class="mr-2"> Saung Besar</label>
+                        <label><input type="checkbox" id="ruang_saung_kecil" class="mr-2"> Saung Kecil</label>
+                        <label><input type="checkbox" id="ruang_pos" class="mr-2"> Pos</label>
+                        <label><input type="checkbox" id="ruang_gudang_umum" class="mr-2"> Gudang Umum</label>
+                        <label><input type="checkbox" id="ruang_tangga" class="mr-2"> Tangga</label>
+                        <label><input type="checkbox" id="ruang_lift" class="mr-2"> Lift</label>
+                        <label><input type="checkbox" id="ruang_lainnya" class="mr-2"> Keterangan Dll</label>
+                    </div>
+                </div>
+
+                <!-- Catatan dan Foto -->
+                <div>
+                    <label class="block mb-1 text-sm font-medium">Catatan</label>
+                    <textarea id="catatan" rows="2" placeholder="Catatan tambahan..." class="w-full p-2 border rounded dark:bg-gray-700"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block mb-1 text-sm font-medium">Foto Sebelum</label>
+                        <input type="file" id="foto_sebelum" accept="image/*" class="w-full p-2 border rounded dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-sm font-medium">Foto Sesudah</label>
+                        <input type="file" id="foto_sesudah" accept="image/*" class="w-full p-2 border rounded dark:bg-gray-700">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-xl font-semibold">
+                    Simpan Ceklis Indoor
+                </button>
+                <div id="form-result" class="text-center text-sm"></div>
+            </form>
+        </div>
+
+        <!-- Panel Riwayat -->
+        <div id="panel-history" class="tab-panel hidden">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                <h3 class="text-lg font-semibold mb-4 border-b pb-2 flex justify-between items-center">
+                    <span>Riwayat Ceklis Indoor</span>
+                    <button id="refresh-history" class="text-sm bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded">
+                        🔄 Refresh
+                    </button>
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full table-auto text-sm">
+                        <thead class="bg-gray-100 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-2 py-2">Tanggal</th>
+                                <th class="px-2 py-2">Shift</th>
+                                <th class="px-2 py-2">Petugas</th>
+                                <th class="px-2 py-2">Lokasi</th>
+                                <th class="px-2 py-2">Status</th>
+                                <th class="px-2 py-2">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-body">
+                            <tr><td colspan="6" class="text-center py-4">Memuat...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Jadwal Mingguan -->
+        <div id="panel-schedule" class="tab-panel hidden">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                <h3 class="text-lg font-semibold mb-4 border-b pb-2">📅 Jadwal Piket Mingguan</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full table-auto text-sm">
+                        <thead class="bg-gray-100 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-2 py-2">Hari</th>
+                                <th class="px-2 py-2">Shift Pagi</th>
+                                <th class="px-2 py-2">Shift Siang</th>
+                                <th class="px-2 py-2">Shift Sore</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-body">
+                            <tr><td colspan="4" class="text-center py-4">Jadwal belum tersedia</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-center mt-4 opacity-60">*Jadwal dapat diatur oleh supervisor</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./janitor-indoor.js"></script>
+</body>
+</html>
