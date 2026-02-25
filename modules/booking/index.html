@@ -1,1 +1,59 @@
-
+<div class="max-w-4xl mx-auto p-4">
+    <h2 class="text-2xl font-bold text-emerald-400 mb-6">📅 Booking Sarana</h2>
+    
+    <form id="bookingForm" class="space-y-4 bg-slate-800 p-6 rounded-2xl">
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Nama Peminjam</label>
+            <input type="text" name="nama" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 text-white" required>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Divisi</label>
+            <input type="text" name="divisi" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 text-white">
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">No HP</label>
+            <input type="text" name="no_hp" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 text-white">
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Pilih Sarana</label>
+            <select name="ruang" id="sarana" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 text-white" required>
+                <option value="">-- Pilih Sarana --</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Tanggal</label>
+            <input type="date" name="tanggal" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 text-white" required>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm text-slate-400 mb-2">Jam Mulai</label>
+                <input type="time" name="jam_mulai" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 text-white" required>
+            </div>
+            <div>
+                <label class="block text-sm text-slate-400 mb-2">Jam Selesai</label>
+                <input type="time" name="jam_selesai" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 text-white" required>
+            </div>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Keperluan</label>
+            <textarea name="keperluan" rows="3" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 text-white"></textarea>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Peralatan</label>
+            <textarea name="peralatan" rows="2" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 text-white"></textarea>
+        </div>
+        
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 p-4 rounded-xl font-bold">📤 Ajukan Booking</button>
+    </form>
+    
+    <div id="form-result" class="mt-4 text-center"></div>
+    
+    <button onclick="closeModule()" class="mt-6 w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl font-bold">← Kembali ke Dashboard</button>
+</div>
