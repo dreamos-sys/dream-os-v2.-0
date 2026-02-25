@@ -1,92 +1,378 @@
-<style>
-    /* CRYSTAL ICON DESIGN */
-    .crystal-node {
-        position: relative;
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 28px;
-        padding: 1.5rem 0.5rem;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        overflow: hidden;
-    }
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <title>DREAM OS v2.0 | Crystal Secure Core</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --emerald: #10b981; 
+            --bg: #020617; 
+            --text: #ffffff; 
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
-    .crystal-node:active {
-        transform: scale(0.9) rotate(2deg);
-        background: rgba(16, 185, 129, 0.1);
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Rajdhani', sans-serif; 
+            min-height: 100vh; 
+            transition: background 0.5s ease;
+            overflow: hidden;
+        }
 
-    /* Efek Kilauan Cahaya di Icon */
-    .crystal-node::before {
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        transform: rotate(45deg);
-        pointer-events: none;
-    }
+        /* --- CRYSTAL COMPONENTS --- */
+        .crystal-container {
+            background: var(--glass);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
 
-    /* Icon Melayang (Floating) */
-    .icon-sphere {
-        width: 60px;
-        height: 60px;
-        margin: 0 auto 0.8rem;
-        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        box-shadow: 
-            0 10px 20px rgba(0,0,0,0.3),
-            inset 0 0 15px rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        animation: float 3s ease-in-out infinite;
-    }
+        /* Floating Sphere for Icons */
+        .crystal-sphere {
+            width: 65px; height: 65px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            animation: float 4s ease-in-out infinite;
+        }
 
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-8px); }
-    }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
 
-    .icon-label {
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.7);
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    }
-</style>
+        .module-card {
+            padding: 1.5rem 0.5rem;
+            border-radius: 30px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .module-card:active { transform: scale(0.85); }
+        .module-card:hover .crystal-sphere { 
+            border-color: var(--emerald); 
+            box-shadow: 0 0 20px rgba(16,185,129,0.3);
+        }
+
+        /* Input Styling */
+        .input-glass {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 16px;
+            color: white;
+            text-align: center;
+            letter-spacing: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .input-glass:focus { border-color: var(--emerald); box-shadow: 0 0 15px rgba(16,185,129,0.2); outline: none; }
+
+        /* Fingerprint Pulse */
+        .finger-box {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--emerald);
+            margin: 2rem auto;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            cursor: pointer;
+            background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
+        }
+        .finger-box i { font-size: 2.2rem; color: var(--emerald); text-shadow: 0 0 15px var(--emerald); }
+        .finger-box::after {
+            content: ""; position: absolute; inset: -8px; border-radius: 50%;
+            border: 1px solid var(--emerald); animation: pulse-ring 2s infinite; opacity: 0.5;
+        }
+
+        @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.3); opacity: 0; } }
+
+        .arabic { font-family: 'Amiri', serif; }
+        .hidden { display: none !important; }
+
+        /* Toast UI */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(16, 185, 129, 0.2); backdrop-filter: blur(10px);
+            border: 1px solid var(--emerald); color: white;
+            padding: 12px 24px; border-radius: 50px; z-index: 10000;
+            font-size: 12px; font-weight: bold; letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body id="masterBody">
+
+<div id="loginZone" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-[#020617]">
+    <div class="crystal-container p-10 max-w-sm w-full text-center">
+        <h2 class="text-xl font-bold tracking-[6px] mb-1 italic">DREAM OS <span class="text-emerald-400">v2.0</span></h2>
+        <div class="arabic text-3xl mb-6 text-white text-shadow-lg">بِسْمِ اللَّهِ</div>
+        
+        <div class="finger-box" onclick="simulateFingerprint()">
+            <i class="fas fa-fingerprint"></i>
+        </div>
+        <p class="text-[9px] tracking-[4px] opacity-30 mb-8 uppercase">Listening to Biometric Core</p>
+        
+        <div class="relative mb-6">
+            <input type="password" id="passkey" class="input-glass w-full" placeholder="••••">
+            <button type="button" id="toggleBtn" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 p-2">
+                <i id="eyeIcon" class="fas fa-eye"></i>
+            </button>
+        </div>
+        
+        <button id="loginBtn" class="w-full py-4 rounded-2xl bg-emerald-600 font-bold tracking-widest hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-900/20">
+            UNLOCK CORE
+        </button>
+        <p id="msg" class="text-[10px] mt-4 h-4 text-red-400 font-bold uppercase tracking-tighter"></p>
+        <p class="text-[8px] text-white/20 mt-8 tracking-[5px]">DREAM TEAM PROTOTYPE</p>
+    </div>
+</div>
+
+<div id="dashboard" class="hidden h-full flex flex-col overflow-y-auto">
+    <header class="p-8 text-center border-b border-white/5 bg-white/[0.01] backdrop-blur-md">
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/10">
+                <select id="langSwitch" onchange="changeLang()" class="bg-transparent text-[10px] px-2 text-white outline-none">
+                    <option value="id" class="text-black">🇮🇩 IND</option>
+                    <option value="en" class="text-black">🇺🇸 ENG</option>
+                    <option value="ar" class="text-black">🇸🇦 ARB</option>
+                </select>
+            </div>
+            <div class="w-12 h-6 bg-white/10 rounded-full relative cursor-pointer border border-white/10" onclick="toggleMode()">
+                <div id="modeCircle" class="w-4 h-4 bg-emerald-500 rounded-full absolute top-1 left-1 transition-all duration-300 shadow-lg shadow-emerald-500/50"></div>
+            </div>
+        </div>
+        <div class="arabic text-3xl mb-2 text-white" id="bismillahTxt">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+        <div class="arabic text-xl text-emerald-400 opacity-90" id="shalawatTxt">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</div>
+        <div class="h-[1px] w-20 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent mx-auto mt-4"></div>
+        <p class="text-[8px] tracking-[5px] text-white/20 font-bold mt-4 uppercase italic">The Power Soul Of Shalawat</p>
+    </header>
+
+    <div class="px-6 mt-6">
+        <div class="crystal-container p-4 flex items-center justify-between bg-emerald-500/[0.03]">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div class="w-3 h-3 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
+                    <div class="w-3 h-3 bg-emerald-500 rounded-full absolute top-0 shadow-lg shadow-emerald-500/50"></div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold tracking-widest uppercase">AI Inside Core</p>
+                    <p class="text-[7px] text-emerald-400/60 uppercase">System Status: Optimal</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-mono opacity-50"><span id="sessionTimer">05:00</span></p>
+                <p class="text-[6px] opacity-30 uppercase tracking-tighter">Secure Session</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 p-6 max-w-md mx-auto" id="nodeGrid"></div>
+
+    <footer class="mt-auto pb-10 text-center">
+        <div class="flex justify-center gap-4 mb-4 opacity-20">
+            <span class="text-[7px] border border-white/30 px-2 py-0.5 rounded">ISO 27001</span>
+            <span class="text-[7px] border border-white/30 px-2 py-0.5 rounded">ISO 55001</span>
+            <span class="text-[7px] border border-white/30 px-2 py-0.5 rounded">ISO 9001</span>
+        </div>
+        <p class="text-[8px] tracking-[8px] text-white/10 uppercase">Dream Team Global</p>
+    </footer>
+</div>
+
+<div id="modWindow" class="hidden fixed inset-0 z-50 p-4 bg-black/90 backdrop-blur-[30px]">
+    <div class="max-w-4xl mx-auto h-full flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b border-white/10">
+            <button onclick="closeModule()" class="text-emerald-400 font-bold text-xs tracking-widest uppercase flex items-center gap-2">
+                <i class="fas fa-chevron-left"></i> Core Dashboard
+            </button>
+            <div class="text-[10px] font-bold tracking-[4px] opacity-20">MODULE VIEW</div>
+        </div>
+        <div id="modContent" class="flex-1 overflow-y-auto p-6"></div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
 
 <script>
-// Replace fungsi renderNodes lo dengan yang ini biar Icon Crystal-nya muncul!
+// (JS tetap sama fungsionalitasnya dengan yang lo kasih, gue rapihin dikit logic UI-nya)
+
+const ROLES = {
+    "012443410": { role: "DEVELOPER", mods: ['all'] },
+    "Mr.M_Architect_2025": { role: "MASTER", mods: ['all'] },
+    "4dm1n_AF6969@00": { role: "ADMIN", mods: ['all'] },
+    "LHPSsec_AF2025": { role: "SEKURITI", mods: ['sekuriti'] },
+    "CHCS_AF_@003": { role: "JANITOR", mods: ['janitor-indoor','janitor-outdoor'] },
+    "SACS_AF@004": { role: "STOK", mods: ['stok'] },
+    "M41n_4F@234": { role: "MAINTENANCE", mods: ['maintenance'] },
+    "4dm1n_6969@01": { role: "ASSET", mods: ['asset'] },
+    "4dm1n_9696@02": { role: "GUDANG", mods: ['stok'] },
+    "4553Tumum_AF@1112": { role: "ASSET", mods: ['asset'] },
+    "user_@1234": { role: "USER", mods: ['booking'] },
+    "user_@2345": { role: "USER", mods: ['k3'] }
+};
+
+const MODS = [
+    { id: 'booking', name: 'Booking', icon: '📅' },
+    { id: 'k3', name: 'K3 Report', icon: '⚠️' },
+    { id: 'sekuriti', name: 'Sekuriti', icon: '🛡️' },
+    { id: 'janitor-indoor', name: 'Janitor In', icon: '🧹' },
+    { id: 'janitor-outdoor', name: 'Janitor Out', icon: '🌿' },
+    { id: 'stok', name: 'Alat & Stok', icon: '📦' },
+    { id: 'maintenance', name: 'Maintenance', icon: '🔧' },
+    { id: 'asset', name: 'Asset', icon: '🏢' },
+    { id: 'commandcenter', name: 'Command', icon: '📊' }
+];
+
+const TRANSLATIONS = {
+    id: { b: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ', s: 'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ', mods: ['Booking', 'Laporan K3', 'Sekuriti', 'Janitor In', 'Janitor Out', 'Stok Alat', 'Maintenance', 'Aset', 'Panel Utama'] },
+    en: { b: 'In the name of Allah', s: 'Blessing for Sayyidina Muhammad', mods: ['Booking', 'K3 Report', 'Security', 'Janitor In', 'Janitor Out', 'Stock', 'Maintenance', 'Asset', 'Command Center'] },
+    ar: { b: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ', s: 'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ', mods: ['الحجز', 'تقرير K3', 'الأمن', 'عامل داخلي', 'عامل خارجي', 'المخزن', 'الصيانة', 'الأصول', 'مركز القيادة'] }
+};
+
+let curMods = [], sessionTimer = null, sessionTime = 300;
+
+function toast(msg, ok) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = (ok ? '✓ ' : '✕ ') + msg;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+document.getElementById('toggleBtn').addEventListener('click', () => {
+    const p = document.getElementById('passkey');
+    const i = document.getElementById('eyeIcon');
+    p.type = p.type === 'password' ? 'text' : 'password';
+    i.className = p.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+});
+
+function simulateFingerprint() {
+    const msg = document.getElementById('msg');
+    msg.innerText = "SENSING BIO-METRIC...";
+    msg.style.color = "#10b981";
+    setTimeout(() => {
+        msg.innerText = "HARDWARE NOT LINKED";
+        msg.style.color = "#fbbf24";
+    }, 1500);
+}
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+    const k = document.getElementById('passkey').value.trim();
+    const u = ROLES[k];
+    if (!u) {
+        toast('UNAUTHORIZED ACCESS', false);
+        return;
+    }
+    curMods = u.mods;
+    sessionStorage.setItem('role', u.role);
+    sessionStorage.setItem('mods', JSON.stringify(u.mods));
+    document.getElementById('loginZone').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    toast('CORE UNLOCKED: ' + u.role, true);
+    renderNodes(document.getElementById('langSwitch').value);
+    startSessionTimer();
+});
+
+function startSessionTimer() {
+    sessionTime = 300;
+    const display = document.getElementById('sessionTimer');
+    sessionTimer = setInterval(() => {
+        sessionTime--;
+        let m = Math.floor(sessionTime / 60), s = sessionTime % 60;
+        display.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+        if (sessionTime <= 0) {
+            clearInterval(sessionTimer);
+            location.reload();
+        }
+    }, 1000);
+}
+
 function renderNodes(lang) {
     const grid = document.getElementById('nodeGrid');
     const icons = ['📅', '⚠️', '🛡️', '🧹', '🌿', '📦', '🔧', '🏢', '📊'];
     const modNames = TRANSLATIONS[lang].mods;
-    
     grid.innerHTML = '';
     MODS.forEach((m, i) => {
-        if (curMods.indexOf(m.id) !== -1 || curMods.indexOf('all') !== -1) {
-            const card = document.createElement('div');
-            card.className = 'crystal-node group';
-            card.onclick = () => openMod(m.id);
-            
-            card.innerHTML = `
-                <div class="icon-sphere">
-                    ${icons[i]}
-                </div>
-                <div class="icon-label group-hover:text-emerald-400 transition-colors">
-                    ${modNames[i]}
-                </div>
-                <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500/20 blur-md"></div>
+        if (curMods.includes(m.id) || curMods.includes('all')) {
+            const c = document.createElement('div');
+            c.className = 'module-card';
+            c.onclick = () => openModule(m.id);
+            c.innerHTML = `
+                <div class="crystal-sphere">${icons[i]}</div>
+                <div class="text-[8px] font-bold uppercase tracking-[2px] opacity-70">${modNames[i]}</div>
             `;
-            grid.appendChild(card);
+            grid.appendChild(c);
         }
     });
 }
+
+function openModule(id) {
+    document.getElementById('modWindow').classList.remove('hidden');
+    document.getElementById('modContent').innerHTML = `<div class="text-center py-20 animate-pulse uppercase tracking-[5px] text-xs">Accessing ${id} Node...</div>`;
+    fetch(`./modules/${id}/index.html`).then(r => r.text()).then(h => {
+        document.getElementById('modContent').innerHTML = h;
+    }).catch(() => {
+        document.getElementById('modContent').innerHTML = '<div class="text-center py-20 text-red-400">NODE DISCONNECTED</div>';
+    });
+}
+
+function closeModule() { document.getElementById('modWindow').classList.add('hidden'); }
+
+function toggleMode() {
+    const body = document.getElementById('masterBody');
+    const circle = document.getElementById('modeCircle');
+    body.classList.toggle('bg-slate-100');
+    if(body.classList.contains('bg-slate-100')) {
+        body.style.setProperty('--bg', '#f8fafc');
+        body.style.setProperty('--text', '#020617');
+        circle.style.left = '26px';
+        circle.style.backgroundColor = '#fbbf24';
+    } else {
+        body.style.setProperty('--bg', '#020617');
+        body.style.setProperty('--text', '#ffffff');
+        circle.style.left = '4px';
+        circle.style.backgroundColor = '#10b981';
+    }
+}
+
+function changeLang() {
+    const l = document.getElementById('langSwitch').value;
+    document.getElementById('bismillahTxt').innerText = TRANSLATIONS[l].b;
+    document.getElementById('shalawatTxt').innerText = TRANSLATIONS[l].s;
+    renderNodes(l);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const r = sessionStorage.getItem('role');
+    if (r) {
+        curMods = JSON.parse(sessionStorage.getItem('mods'));
+        document.getElementById('loginZone').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        renderNodes('id');
+        startSessionTimer();
+    }
+});
+
+// Anti-Screenshot (Basic)
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u')) e.preventDefault();
+});
 </script>
+
+</body>
+</html>
