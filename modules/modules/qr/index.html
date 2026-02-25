@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Command Center - Dream OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --emerald: #10b981; --bg: #020617; --text: #ffffff; --card: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.1); }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; min-height: 100vh; }
+        .glass-card { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 24px; }
+        .btn-action { padding: 1rem 1.5rem; border-radius: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; border: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; }
+        .btn-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+        .btn-purple { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: white; }
+        .btn-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .qr-history-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+        .scanner-view { background: #000; border-radius: 16px; overflow: hidden; position: relative; }
+        .scanner-overlay { position: absolute; inset: 0; border: 2px solid var(--emerald); border-radius: 16px; animation: scan-line 2s linear infinite; }
+        @keyframes scan-line { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); } 50% { box-shadow: 0 0 20px 10px rgba(16,185,129,0.3); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--emerald); border-radius: 3px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="p-4">
+
+<div class="glass-card p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold flex items-center gap-3">
+            <i class="fas fa-qrcode text-3xl text-emerald-400"></i>
+            QR Command Center
+        </h1>
+        <button onclick="window.closeModule()" class="text-white/40 hover:text-white">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+    </div>
+    <p class="text-sm text-white/60">Generate, Scan & Manage QR Codes</p>
+</div>
+
+<!-- QR GENERATOR -->
+<div class="glass-card p-6 mb-6">
+    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+        <i class="fas fa-plus-circle text-emerald-400"></i> Generate QR Code
+    </h2>
+    <div class="grid md:grid-cols-2 gap-6">
+        <div>
+            <label class="text-xs text-white/60 mb-2 block">QR Type</label>
+            <select id="qrType" class="w-full p-3 rounded-xl bg-white/5 border border-white/10 mb-4 text-white">
+                <option value="booking">📅 Booking Verification</option>
+                <option value="asset">🏢 Asset Tracking</option>
+                <option value="attendance">👤 Employee Attendance</option>
+                <option value="payment">💰 Payment (QRIS)</option>
+                <option value="document">📄 Document Authentication</option>
+                <option value="access">🔐 Access Control</option>
+                <option value="inventory">📦 Inventory Management</option>
+                <option value="k3">⚠️ K3 Report</option>
+            </select>
+            
+            <label class="text-xs text-white/60 mb-2 block">Data/ID</label>
+            <input type="text" id="qrData" class="w-full p-3 rounded-xl bg-white/5 border border-white/10 mb-4" placeholder="Enter ID, name, or data...">
+            
+            <label class="text-xs text-white/60 mb-2 block">Additional Info (Optional)</label>
+            <textarea id="qrExtra" class="w-full p-3 rounded-xl bg-white/5 border border-white/10 mb-4" rows="2" placeholder="Additional notes..."></textarea>
+            
+            <button onclick="generateQR()" class="btn-action btn-green w-full">
+                <i class="fas fa-qrcode"></i> Generate QR Code
+            </button>
+        </div>
+        
+        <div class="text-center">
+            <label class="text-xs text-white/60 mb-2 block">QR Preview</label>
+            <div id="qrDisplay" class="w-48 h-48 mx-auto bg-white rounded-xl flex items-center justify-center mb-4">
+                <p class="text-black/40 text-sm">QR will appear here</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="downloadQR()" class="btn-action btn-blue flex-1">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button onclick="printQR()" class="btn-action btn-purple flex-1">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR SCANNER -->
+<div class="glass-card p-6 mb-6">
+    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+        <i class="fas fa-camera text-emerald-400"></i> Scan QR Code
+    </h2>
+    <div class="scanner-view mb-4" style="height: 300px;">
+        <video id="qrScanner" class="w-full h-full object-cover"></video>
+        <div class="scanner-overlay"></div>
+    </div>
+    <div class="flex gap-3 mb-4">
+        <button onclick="startScanner()" class="btn-action btn-purple flex-1">
+            <i class="fas fa-camera"></i> Start Scanner
+        </button>
+        <button onclick="stopScanner()" class="btn-action btn-orange flex-1">
+            <i class="fas fa-stop"></i> Stop
+        </button>
+    </div>
+    <div id="scanResult" class="glass-card p-4 hidden">
+        <div class="flex items-start gap-3">
+            <i class="fas fa-check-circle text-emerald-400 text-2xl"></i>
+            <div class="flex-1">
+                <p class="text-sm text-white/60 mb-1">Scan Result:</p>
+                <p id="scanData" class="font-bold text-white mb-2"></p>
+                <div id="scanDetails" class="text-xs text-white/40 space-y-1"></div>
+            </div>
+            <button onclick="closeScanResult()" class="text-white/40 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- QR HISTORY -->
+<div class="glass-card p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold flex items-center gap-2">
+            <i class="fas fa-history text-emerald-400"></i> QR History
+        </h2>
+        <button onclick="clearHistory()" class="text-xs text-red-400 hover:text-red-300">
+            <i class="fas fa-trash mr-1"></i> Clear All
+        </button>
+    </div>
+    <div id="qrHistory" class="space-y-2">
+        <div class="qr-history-item">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-qrcode text-emerald-400"></i>
+                <div>
+                    <div class="text-sm font-bold">No QR scans yet</div>
+                    <div class="text-[10px] text-white/40">Scan your first QR code!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QUICK ACTIONS -->
+<div class="glass-card p-6">
+    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+        <i class="fas fa-bolt text-emerald-400"></i> Quick Actions
+    </h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <button onclick="quickAction('checkin')" class="btn-action btn-green">
+            <i class="fas fa-sign-in-alt"></i> Check-In
+        </button>
+        <button onclick="quickAction('checkout')" class="btn-action btn-orange">
+            <i class="fas fa-sign-out-alt"></i> Check-Out
+        </button>
+        <button onclick="quickAction('verify')" class="btn-action btn-blue">
+            <i class="fas fa-check-double"></i> Verify
+        </button>
+        <button onclick="quickAction('export')" class="btn-action btn-purple">
+            <i class="fas fa-file-export"></i> Export
+        </button>
+    </div>
+</div>
+
+<script type="module" src="./qr.js"></script>
+</body>
+</html>
