@@ -1,0 +1,101 @@
+<div class="glass-card p-6 max-w-4xl mx-auto">
+    <h2 class="title-font text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+        💰 Pengajuan Dana
+    </h2>
+    
+    <form id="danaForm" class="space-y-4">
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Kategori</label>
+            <select name="kategori" class="input-modern w-full" required>
+                <option value="">-- Pilih Kategori --</option>
+                <option value="makan_sekuriti_bulanan">🍱 Makan Sekuriti Bulanan</option>
+                <option value="makan_sahur_sekuriti">🌙 Makan Sahur Sekuriti</option>
+                <option value="makanan_ringan_rapat">🍪 Makanan Ringan Rapat</option>
+                <option value="janitor_taman_bulanan">🌿 Janitor Taman Bulanan</option>
+                <option value="gaji_tukang_harian_mingguan">🛠️ Gaji Tukang Harian/Mingguan</option>
+                <option value="apresiasi_keamanan">🛡️ Apresiasi Keamanan</option>
+                <option value="tip_jasa">💵 Tip Jasa (PLN, Telkom, dll)</option>
+                <option value="urunan_kesehatan">🏥 Urunan Kesehatan</option>
+                <option value="umum">📌 Umum</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Judul</label>
+            <input type="text" name="judul" class="input-modern w-full" required>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Deskripsi</label>
+            <textarea name="deskripsi" rows="3" class="input-modern w-full"></textarea>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Nominal (Rp)</label>
+            <input type="number" name="nominal" class="input-modern w-full" required>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Periode</label>
+            <input type="text" name="periode" class="input-modern w-full" placeholder="Contoh: Januari 2026">
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Pengaju</label>
+            <input type="text" name="pengaju" class="input-modern w-full" required>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Departemen</label>
+            <input type="text" name="departemen" class="input-modern w-full">        </div>
+        
+        <button type="submit" class="btn-primary w-full">
+            <i class="fas fa-money-bill-wave mr-2"></i> Ajukan Dana
+        </button>
+    </form>
+    
+    <div id="form-result" class="mt-4 text-center"></div>
+    
+    <button class="mt-6 w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl font-bold cursor-pointer" onclick="closeMod()">
+        ← Back to Dashboard
+    </button>
+</div>
+
+<script>
+document.getElementById('danaForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    var formData = new FormData(e.target);
+    var data = Object.fromEntries(formData);
+    
+    var btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...';
+    
+    try {
+        var result = await supabase.from('pengajuan_dana').insert([{
+            kategori: data.kategori,
+            judul: data.judul,
+            deskripsi: data.deskripsi || null,
+            nominal: parseFloat(data.nominal),
+            periode: data.periode || null,
+            pengaju: data.pengaju,
+            departemen: data.departemen || null,
+            status: 'pending'
+        }]);
+        
+        if (result.error) throw result.error;
+        
+        document.getElementById('form-result').innerHTML = '<p class="text-green-400 font-bold">✅ Pengajuan dana berhasil!</p>';
+        toast('Dana submitted!', true);
+        e.target.reset();
+        
+    } catch (err) {
+        document.getElementById('form-result').innerHTML = '<p class="text-red-400 font-bold">❌ ' + err.message + '</p>';
+        toast('Error: ' + err.message, false);
+        
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-money-bill-wave mr-2"></i> Ajukan Dana';    }
+});
+</script>
