@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok & Alat Janitor - Dream OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .tab-btn.active {
+            border-bottom: 3px solid #8b5cf6;
+            color: #8b5cf6;
+            font-weight: 700;
+        }
+        .low-stock { border-left: 4px solid #ef4444; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #8b5cf6; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                📦 MANAJEMEN STOK & ALAT JANITOR
+            </h1>
+            <p class="text-sm text-slate-400">Kelola inventaris, pengajuan, dan kondisi alat</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-slate-700 mb-6">
+            <button class="tab-btn active px-6 py-2 text-sm font-medium" data-tab="stok">📋 Daftar Stok</button>
+            <button class="tab-btn px-6 py-2 text-sm font-medium text-slate-400" data-tab="permintaan">📝 Pengajuan Alat</button>
+            <button class="tab-btn px-6 py-2 text-sm font-medium text-slate-400" data-tab="riwayat">📜 Riwayat Permintaan</button>
+            <button class="tab-btn px-6 py-2 text-sm font-medium text-slate-400" data-tab="kondisi">🔧 Kondisi Alat</button>
+        </div>
+
+        <!-- Panel Stok -->
+        <div id="tab-stok" class="tab-panel">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Form Tambah/Edit Stok -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-purple-500/30">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i class="fas fa-plus-circle text-purple-400"></i> Tambah / Update Stok
+                    </h2>
+                    <form id="stokForm" class="space-y-4">
+                        <input type="hidden" id="stok-id">
+                        <div>
+                            <label class="text-xs font-mono text-slate-400">Nama Barang *</label>
+                            <input type="text" id="nama_barang" required class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600 focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="text-xs font-mono text-slate-400">Kategori</label>
+                            <select id="kategori" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600">
+                                <option value="janitor_indoor">🧹 Janitor Indoor</option>
+                                <option value="janitor_outdoor">🌿 Janitor Outdoor</option>
+                                <option value="maintenance">🔧 Maintenance</option>
+                                <option value="kebersihan">🧽 Kebersihan Umum</option>
+                                <option value="taman">🌱 Peralatan Taman</option>
+                                <option value="bahan_habis">🧪 Bahan Habis Pakai</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-mono text-slate-400">Jumlah *</label>
+                                <input type="number" id="jumlah" required class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600">
+                            </div>
+                            <div>
+                                <label class="text-xs font-mono text-slate-400">Satuan</label>
+                                <input type="text" id="satuan" placeholder="pcs, liter, kg" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-mono text-slate-400">Lokasi</label>
+                                <input type="text" id="lokasi" placeholder="Gudang A" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600">
+                            </div>
+                            <div>
+                                <label class="text-xs font-mono text-slate-400">Minimal Stok</label>
+                                <input type="number" id="minimal_stok" value="0" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-mono text-slate-400">Kondisi</label>
+                            <select id="kondisi" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600">
+                                <option value="baik">✅ Baik</option>
+                                <option value="rusak_ringan">⚠️ Rusak Ringan</option>
+                                <option value="rusak_berat">❌ Rusak Berat</option>
+                                <option value="perbaikan">🔧 Dalam Perbaikan</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 p-4 rounded-xl font-bold">
+                            <i class="fas fa-save mr-2"></i> Simpan
+                        </button>
+                        <div id="stok-result" class="text-center text-sm"></div>
+                    </form>
+                </div>
+
+                <!-- Daftar Stok -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-purple-500/30">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            <i class="fas fa-boxes text-purple-400"></i> Daftar Stok
+                        </h2>
+                        <div class="relative">
+                            <input type="text" id="search-stok" placeholder="Cari barang..." class="bg-slate-700 border border-slate-600 rounded-full px-4 py-2 text-sm w-48">
+                            <i class="fas fa-search absolute right-3 top-3 text-slate-400"></i>
+                        </div>
+                    </div>
+                    <div id="stok-list" class="space-y-2 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                        <p class="text-center text-slate-400 py-4">Memuat data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Permintaan Alat -->
+        <div id="tab-permintaan" class="tab-panel hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Form Pengajuan Alat -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-emerald-500/30">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i class="fas fa-clipboard-list text-emerald-400"></i> Pengajuan Alat Janitor
+                    </h2>
+                    <form id="requestForm" class="space-y-4">
+                        <div>
+                            <label class="text-xs font-mono text-slate-400">Nama Petugas *</label>
+                            <input type="text" id="req-petugas" required class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-mono text-slate-400">Area</label>
+                                <select id="req-area" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600">
+                                    <option value="indoor">Indoor (Gedung)</option>
+                                    <option value="outdoor">Outdoor (Taman/Luar)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs font-mono text-slate-400">Tanggal Butuh</label>
+                                <input type="date" id="req-tanggal" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-mono text-slate-400">Daftar Alat</label>
+                            <div id="items-container" class="space-y-2 mb-2">
+                                <div class="item-row flex gap-2">
+                                    <select class="item-select flex-1 p-2 rounded bg-slate-700 border border-slate-600 text-sm">
+                                        <option value="">Pilih Alat</option>
+                                    </select>
+                                    <input type="number" class="item-qty w-20 p-2 rounded bg-slate-700 border border-slate-600 text-sm" placeholder="Jml">
+                                    <button type="button" class="remove-item text-red-400 hover:text-red-300">✖</button>
+                                </div>
+                            </div>
+                            <button type="button" id="add-item" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-full">
+                                + Tambah Alat
+                            </button>
+                        </div>
+                        <div>
+                            <label class="text-xs font-mono text-slate-400">Catatan</label>
+                            <textarea id="req-catatan" rows="2" class="w-full p-3 rounded-xl bg-slate-700 border border-slate-600"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 p-4 rounded-xl font-bold">
+                            <i class="fas fa-paper-plane mr-2"></i> Ajukan
+                        </button>
+                        <div id="request-result" class="text-center text-sm"></div>
+                    </form>
+                </div>
+
+                <!-- Daftar Permintaan -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-emerald-500/30">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            <i class="fas fa-history text-emerald-400"></i> Permintaan Aktif
+                        </h2>
+                        <button id="refresh-requests" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-full">
+                            <i class="fas fa-sync-alt mr-1"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="requests-list" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-2">
+                        <p class="text-center text-slate-400 py-4">Memuat...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Riwayat Permintaan -->
+        <div id="tab-riwayat" class="tab-panel hidden">
+            <div class="bg-slate-800/50 p-6 rounded-2xl border border-blue-500/30">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-archive text-blue-400"></i> Riwayat Semua Permintaan
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-700">
+                            <tr>
+                                <th class="p-2">Tanggal</th>
+                                <th class="p-2">Petugas</th>
+                                <th class="p-2">Area</th>
+                                <th class="p-2">Alat</th>
+                                <th class="p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-requests" class="divide-y divide-slate-700">
+                            <tr><td colspan="5" class="text-center py-4 text-slate-400">Memuat...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Kondisi Alat -->
+        <div id="tab-kondisi" class="tab-panel hidden">
+            <div class="bg-slate-800/50 p-6 rounded-2xl border border-orange-500/30">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-tools text-orange-400"></i> Kondisi Alat & Stok
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-700/50 p-4 rounded-xl">
+                        <p class="text-xs text-slate-400">Alat Rusak Ringan</p>
+                        <p id="kondisi-rusak-ringan" class="text-2xl font-bold text-yellow-400">0</p>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-xl">
+                        <p class="text-xs text-slate-400">Alat Rusak Berat</p>
+                        <p id="kondisi-rusak-berat" class="text-2xl font-bold text-red-400">0</p>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-xl">
+                        <p class="text-xs text-slate-400">Dalam Perbaikan</p>
+                        <p id="kondisi-perbaikan" class="text-2xl font-bold text-orange-400">0</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="font-bold mb-2">Daftar Alat Rusak</h3>
+                    <div id="rusak-list" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                        <p class="text-slate-400">Memuat...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tombol Kembali -->
+        <div class="mt-8 text-center">
+            <button onclick="window.closeModule()" class="px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl transition">
+                ← Kembali ke Dashboard
+            </button>
+        </div>
+    </div>
+
+    <script type="module" src="./stok.js"></script>
+</body>
+</html>
