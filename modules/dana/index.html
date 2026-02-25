@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DREAM OS – PENGAJUAN DANA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: white; }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+    <div class="max-w-6xl mx-auto space-y-6">
+        <!-- Header -->
+        <div class="text-center">
+            <h1 class="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+                💰 PENGAJUAN DANA
+            </h1>
+            <p class="text-xs text-slate-400 font-mono mt-1">Sistem Pengajuan & Approval Dana</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Form Pengajuan -->
+            <div class="glass-card p-6 rounded-3xl border border-purple-500/30">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-file-invoice-dollar text-purple-500"></i> Form Pengajuan Baru
+                </h2>
+
+                <form id="danaForm" class="space-y-4">
+                    <div>
+                        <label class="text-xs font-mono text-slate-400 uppercase">Kategori *</label>
+                        <select id="dana_kategori" required class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white">
+                            <option value="">Pilih Kategori</option>
+                            <option value="makan_sekuriti">🍱 Makan Sekuriti</option>
+                            <option value="makan_sahur">🌙 Makan Sahur</option>
+                            <option value="rapat">🍪 Konsumsi Rapat</option>
+                            <option value="janitor">🌿 Janitor Taman</option>
+                            <option value="tukang">🛠️ Gaji Tukang</option>
+                            <option value="apresiasi">🛡️ Apresiasi Keamanan</option>
+                            <option value="tip_jasa">💵 Tip Jasa</option>
+                            <option value="kesehatan">🏥 Urunan Kesehatan</option>
+                            <option value="umum">📌 Umum</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-mono text-slate-400 uppercase">Judul *</label>
+                        <input type="text" id="dana_judul" required placeholder="Contoh: Makan siang sekuriti Februari" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white">
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-mono text-slate-400 uppercase">Deskripsi</label>
+                        <textarea id="dana_deskripsi" rows="2" placeholder="Detail keperluan" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-mono text-slate-400 uppercase">Nominal (Rp) *</label>
+                            <input type="number" id="dana_nominal" required placeholder="500000" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs font-mono text-slate-400 uppercase">Periode</label>
+                            <input type="text" id="dana_periode" placeholder="Februari 2025" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-mono text-slate-400 uppercase">Pengaju *</label>
+                            <input type="text" id="dana_pengaju" required placeholder="Nama lengkap" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs font-mono text-slate-400 uppercase">Departemen</label>
+                            <input type="text" id="dana_departemen" placeholder="Umum / Keamanan" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white p-4 rounded-xl font-black tracking-widest uppercase shadow-xl transition-all active:scale-95">
+                        <i class="fas fa-paper-plane mr-2"></i> AJUKAN DANA
+                    </button>
+                    <div id="form-result" class="text-center text-sm font-mono"></div>
+                </form>
+            </div>
+
+            <!-- Riwayat Pengajuan -->
+            <div class="glass-card p-6 rounded-3xl border border-purple-500/30">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <i class="fas fa-history text-purple-500"></i> Riwayat Pengajuan
+                    </h2>
+                    <button id="refresh-dana" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-full">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto scroll-custom max-h-[600px]">
+                    <table class="min-w-full text-xs">
+                        <thead class="bg-slate-800 sticky top-0">
+                            <tr class="text-left text-slate-400">
+                                <th class="p-2">Tanggal</th>
+                                <th class="p-2">Judul</th>
+                                <th class="p-2">Nominal</th>
+                                <th class="p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dana-table-body">
+                            <tr><td colspan="4" class="text-center py-6 text-slate-500">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Link Kembali -->
+        <div class="text-center">
+            <a href="#" onclick="window.closeModule(); return false;" class="text-blue-400 hover:text-blue-300 text-sm">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali ke Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script type="module" src="./dana.js"></script>
+</body>
+</html>
