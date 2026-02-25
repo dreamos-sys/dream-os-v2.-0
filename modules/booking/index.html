@@ -1,0 +1,76 @@
+<div class="max-w-4xl mx-auto p-4">
+    <h2 class="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+        📅 Booking Sarana
+    </h2>
+    
+    <form id="bookingForm" class="space-y-4">
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Nama Pemohon</label>
+            <input type="text" name="nama" required class="w-full p-3 rounded-xl bg-slate-800 border border-slate-600 focus:border-emerald-500 transition">
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Divisi</label>
+            <input type="text" name="divisi" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-600 focus:border-emerald-500 transition">
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">No HP</label>
+            <input type="tel" name="no_hp" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-600 focus:border-emerald-500 transition">
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Pilih Sarana</label>
+            <select name="sarana" id="sarana" required class="w-full p-3 rounded-xl bg-slate-800 border border-slate-600 focus:border-emerald-500 transition">
+                <option value="">-- Pilih Sarana --</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Tanggal</label>
+            <input type="date" name="tgl" id="tgl" required class="w-full p-3 rounded-xl bg-slate-800 border border-slate-600 focus:border-emerald-500 transition">
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm text-slate-400 mb-2">Jam Mulai</label>
+                <input type="time" name="jam_mulai" id="jam_mulai" required class="w-full p-3 rounded-xl bg-slate-800 border border-slate-600 focus:border-emerald-500 transition">
+            </div>
+            <div>
+                <label class="block text-sm text-slate-400 mb-2">Jam Selesai</label>
+                <input type="time" name="jam_selesai" id="jam_selesai" required class="w-full p-3 rounded-xl bg-slate-800 border border-slate-600 focus:border-emerald-500 transition">
+            </div>
+        </div>
+        
+        <!-- Daftar alat (checkboxes) -->
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Peralatan Tambahan</label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 bg-slate-800/50 p-4 rounded-2xl">
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="alat" value="Kursi Futura" class="accent-emerald-500"> Kursi Futura</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="alat" value="Kursi Chitose" class="accent-emerald-500"> Kursi Chitose</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="alat" value="Meja Siswa" class="accent-emerald-500"> Meja Siswa</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="alat" value="Meja Panjang" class="accent-emerald-500"> Meja Panjang</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="alat" value="Meja Oshin" class="accent-emerald-500"> Meja Oshin</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="alat" value="Taplak Meja" class="accent-emerald-500"> Taplak Meja</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="alat" value="Projektor" class="accent-emerald-500"> Projektor</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="alat" value="Screen Projektor" class="accent-emerald-500"> Screen Projektor</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="alat" value="TV" class="accent-emerald-500"> TV</label>
+            </div>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-slate-400 mb-2">Keperluan (opsional)</label>
+            <textarea name="keperluan" rows="2" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-600 focus:border-emerald-500 transition"></textarea>
+        </div>
+        
+        <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white p-4 rounded-xl font-bold transition transform hover:scale-105">
+            <i class="fas fa-paper-plane mr-2"></i> Ajukan Booking
+        </button>
+    </form>
+    
+    <div id="form-result" class="mt-4 text-center text-sm"></div>
+    
+    <button onclick="window.closeModule()" class="mt-6 w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl font-bold cursor-pointer">
+        ← Kembali ke Dashboard
+    </button>
+</div>
