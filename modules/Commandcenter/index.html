@@ -1,0 +1,64 @@
+<div class="glass-card p-6 max-w-6xl mx-auto">
+    <h2 class="title-font text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-red-400">
+        📊 Command Center
+    </h2>
+    
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="glass-card p-4">
+            <h3 class="font-bold text-lg mb-4">📈 Quick Stats</h3>
+            <div id="stats" class="space-y-3">
+                <p class="text-slate-400">Loading...</p>
+            </div>
+        </div>
+        
+        <div class="glass-card p-4">
+            <h3 class="font-bold text-lg mb-4">⏰ Pending Approvals</h3>
+            <div id="approvals" class="space-y-3">
+                <p class="text-slate-400">Loading...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="glass-card p-4">
+        <h3 class="font-bold text-lg mb-4">🔔 Recent Activity</h3>
+        <div id="activity" class="space-y-2">
+            <p class="text-slate-400">No recent activity</p>
+        </div>
+    </div>
+    
+    <button class="mt-6 w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl font-bold cursor-pointer" onclick="closeMod()">
+        ← Back to Dashboard
+    </button>
+</div>
+
+<script>
+async function loadAdminData() {
+    var statsDiv = document.getElementById('stats');
+    var approvalsDiv = document.getElementById('approvals');
+    
+    try {
+        var [booking, k3, dana] = await Promise.all([
+            supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+            supabase.from('k3_reports').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+            supabase.from('pengajuan_dana').select('*', { count: 'exact', head: true }).eq('status', 'pending')
+        ]);
+        
+        var total = (booking.count || 0) + (k3.count || 0) + (dana.count || 0);
+        
+        statsDiv.innerHTML = `
+            <div class="flex justify-between"><span>📅 Booking:</span><span class="font-bold text-blue-400">${booking.count || 0}</span></div>
+            <div class="flex justify-between"><span>⚠️ K3:</span><span class="font-bold text-orange-400">${k3.count || 0}</span></div>
+            <div class="flex justify-between"><span>💰 Dana:</span><span class="font-bold text-purple-400">${dana.count || 0}</span></div>
+            <div class="flex justify-between border-t border-slate-700 pt-2"><span>Total:</span><span class="font-bold text-emerald-400">${total}</span></div>
+        `;
+        
+        approvalsDiv.innerHTML = `<p class="text-emerald-400 font-bold">${total} items need approval</p>`;
+        
+    } catch (err) {
+        statsDiv.innerHTML = '<p class="text-red-400">Error loading stats</p>';
+        approvalsDiv.innerHTML = '<p class="text-red-400">Error</p>';
+    }
+}
+
+loadAdminData();
+</script>
