@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream OS v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0f172a; color: white; min-height: 100vh; font-family: sans-serif; }
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; }
+        .hidden { display: none !important; }
+        .input-field { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 14px; color: white; width: 100%; font-family: monospace; text-align: center; }
+        .input-field:focus { outline: none; border-color: #10b981; }
+        .btn-login { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 16px; padding: 14px; width: 100%; color: white; font-weight: 700; cursor: pointer; }
+        .btn-login:hover { transform: translateY(-2px); }
+        .eye-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: rgba(255,255,255,0.6); }
+        .eye-btn:hover { color: white; }
+        .module-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 1.5rem; text-align: center; cursor: pointer; transition: 0.3s; }
+        .module-card:hover { transform: translateY(-5px); border-color: #10b981; }
+        .toast { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 1rem 2rem; border-radius: 16px; z-index: 10000; }
+    </style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- LOGIN -->
+<div id="loginZone" class="fixed inset-0 flex items-center justify-center p-6">
+    <div class="glass p-8 max-w-sm w-full text-center">
+        <div class="text-5xl mb-4">🚀</div>
+        <h1 class="text-2xl font-bold mb-2">DREAM OS <span class="text-emerald-400">v2.0</span></h1>
+        <p class="text-sm text-white/60 mb-6">Command Center</p>
+        <p class="text-xl text-emerald-300 mb-6">بِسْمِ اللَّهِ</p>
+        
+        <div class="relative mb-6">
+            <input type="password" id="passkey" class="input-field" placeholder="Access Code">
+            <button type="button" class="eye-btn" id="toggleBtn">
+                <i class="fas fa-eye" id="eyeIcon"></i>
+            </button>
+        </div>
+        
+        <button class="btn-login" id="loginBtn">🔓 Access System</button>
+        <p id="errMsg" class="text-red-400 text-xs mt-4 hidden"></p>
+        <p class="text-[8px] text-white/40 mt-8">Dream Team © 2026</p>
+    </div>
+</div>
+
+<!-- DASHBOARD --><div id="dashboard" class="hidden min-h-screen p-6">
+    <div class="glass p-6 mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold">DREAM OS v2.0</h1>
+            <p class="text-xs text-white/60">COMMAND CENTER</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="userRole" class="text-emerald-400 font-bold"></span>
+            <button class="bg-red-600 px-4 py-2 rounded-xl text-xs" id="logoutBtn">Logout</button>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-3 md:grid-cols-5 gap-4" id="moduleGrid"></div>
+    
+    <footer class="text-center py-8 mt-8">
+        <p class="text-[8px] text-white/30">THE POWER SOUL OF SHALAWAT</p>
+    </footer>
+</div>
+
+<!-- MODULE WINDOW -->
+<div id="modWindow" class="hidden fixed inset-0 z-50 p-4" style="background: rgba(0,0,0,0.95);">
+    <div class="max-w-7xl mx-auto">
+        <button class="mb-6 text-emerald-400" id="closeModBtn">← Back</button>
+        <div id="modContent"></div>
+    </div>
+</div>
+
+<script>
+// ===== 12 ACCESS CODES =====
+var ROLES = {
+    "012443410": { role: "DEVELOPER", mods: ['all'] },
+    "Mr.M_Architect_2025": { role: "MASTER", mods: ['all'] },
+    "4dm1n_AF6969@00": { role: "ADMIN", mods: ['all'] },
+    "LHPSsec_AF2025": { role: "SEKURITI", mods: ['sekuriti'] },
+    "CHCS_AF_@003": { role: "JANITOR", mods: ['janitor-indoor','janitor-outdoor'] },
+    "SACS_AF@004": { role: "STOK", mods: ['stok'] },
+    "M41n_4F@234": { role: "MAINTENANCE", mods: ['maintenance'] },
+    "4dm1n_6969@01": { role: "ASSET", mods: ['asset'] },
+    "user_@1234": { role: "USER", mods: ['booking'] },
+    "user_@2345": { role: "USER", mods: ['k3'] }
+};
+
+// ===== 9 MODULES =====
+var MODS = [
+    { id: 'booking', name: 'Booking', icon: '📅' },
+    { id: 'k3', name: 'K3 Report', icon: '⚠️' },
+    { id: 'sekuriti', name: 'Sekuriti', icon: '🛡️' },
+    { id: 'janitor-indoor', name: 'Janitor In', icon: '🧹' },
+    { id: 'janitor-outdoor', name: 'Janitor Out', icon: '🌿' },
+    { id: 'stok', name: 'Alat & Stok', icon: '📦' },    { id: 'maintenance', name: 'Maintenance', icon: '🔧' },
+    { id: 'asset', name: 'Asset', icon: '🏢' },
+    { id: 'commandcenter', name: 'Command', icon: '📊' }
+];
+
+var curMods = [];
+
+// ===== TOAST =====
+function toast(msg, ok) {
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = (ok ? '✅ ' : '❌ ') + msg;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(function() { t.remove(); }, 3000);
+}
+
+// ===== TOGGLE PASSWORD - SIMPLE! =====
+document.getElementById('toggleBtn').addEventListener('click', function() {
+    var pass = document.getElementById('passkey');
+    var icon = document.getElementById('eyeIcon');
+    if (pass.type === 'password') {
+        pass.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        pass.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+});
+
+// ===== LOGIN =====
+document.getElementById('loginBtn').addEventListener('click', function() {
+    var k = document.getElementById('passkey').value.trim();
+    var err = document.getElementById('errMsg');
+    var u = ROLES[k];
+    
+    if (!u) {
+        err.textContent = '❌ Access Denied!';
+        err.className = 'text-red-400 text-xs';
+        toast('Access Denied!', false);
+        setTimeout(function() { err.className = 'hidden'; }, 2000);
+        return;
+    }
+    
+    curMods = u.mods;
+    sessionStorage.setItem('role', u.role);
+    sessionStorage.setItem('mods', JSON.stringify(u.mods));
+    
+    toast('Welcome, ' + u.role + '!', true);
+    
+    document.getElementById('loginZone').classList.add('hidden');    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('userRole').textContent = u.role;
+    
+    renderModules();
+});
+
+// ===== RENDER MODULES =====
+function renderModules() {
+    var grid = document.getElementById('moduleGrid');
+    grid.innerHTML = '';
+    for (var i = 0; i < MODS.length; i++) {
+        var m = MODS[i];
+        if (curMods.indexOf(m.id) !== -1 || curMods.indexOf('all') !== -1) {
+            var c = document.createElement('div');
+            c.className = 'module-card';
+            c.innerHTML = '<div class="text-3xl mb-2">' + m.icon + '</div><div class="text-xs font-bold">' + m.name + '</div>';
+            c.onclick = function(id) { return function() { openModule(id); }; }(m.id);
+            grid.appendChild(c);
+        }
+    }
+}
+
+// ===== OPEN MODULE =====
+function openModule(id) {
+    document.getElementById('modWindow').classList.remove('hidden');
+    document.getElementById('modContent').innerHTML = '<div class="text-center py-20"><p class="text-white/60">Loading ' + id + '...</p></div>';
+}
+
+// ===== CLOSE MODULE =====
+document.getElementById('closeModBtn').addEventListener('click', function() {
+    document.getElementById('modWindow').classList.add('hidden');
+});
+
+// ===== LOGOUT =====
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    sessionStorage.clear();
+    location.reload();
+});
+
+// ===== ENTER KEY LOGIN =====
+document.getElementById('passkey').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('loginBtn').click();
+    }
+});
+
+// ===== CHECK SESSION =====
+function checkSession() {
+    var r = sessionStorage.getItem('role');
+    var m = sessionStorage.getItem('mods');    if (r && m) {
+        curMods = JSON.parse(m);
+        document.getElementById('loginZone').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('userRole').textContent = r;
+        renderModules();
+        toast('Welcome back!', true);
+    }
+}
+
+// ===== INIT =====
+checkSession();
+console.log('✅ Dream OS v2.0 Ready!');
+</script>
+
+</body>
+</html>
