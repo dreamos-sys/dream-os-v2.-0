@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10b981">
+    <title>Dream OS v2.0</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .hidden { display: none !important; }
+        .toast { position: fixed; top: 20px; right: 20px; padding: 12px 24px; border-radius: 12px; color: white; font-weight: 700; font-size: 12px; z-index: 10000; animation: slideIn 0.3s ease-out; }
+        .toast-success { background: #10b981; }
+        .toast-error { background: #ef4444; }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- LOGIN ZONE -->
+<div id="login-zone" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div class="bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/20 max-w-sm w-full mx-4">
+        <div class="text-center">
+            <div class="text-5xl mb-3">🚀</div>
+            <h1 class="text-2xl font-black text-emerald-400 mb-1">Dream OS v2.0</h1>
+            <p class="text-xs text-slate-400 mb-6">The Power Soul of Shalawat</p>
+            <p class="text-lg text-emerald-300 mb-4 font-arabic">بِسْمِ اللَّهِ</p>
+            
+            <div class="relative mb-4">
+                <input type="password" id="passkey" 
+                    class="w-full p-3 pr-12 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-emerald-500 transition text-center font-mono" 
+                    placeholder="Access Code">
+                <button type="button" id="togglePassword" 
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-400 transition">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            
+            <button id="btnLogin" 
+                class="w-full bg-emerald-600 hover:bg-emerald-500 p-3 rounded-xl font-bold transition active:scale-95">
+                🔓 Login
+            </button>
+            
+            <p id="error-msg" class="text-red-400 text-xs mt-3 hidden font-bold"></p>            
+            <p class="text-[8px] text-slate-500 mt-6">🔐 ISO 27001 Certified | Dream Team © 2026</p>
+        </div>
+    </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app-shell" class="hidden max-w-7xl mx-auto p-4">
+    <div class="bg-slate-800/50 rounded-2xl p-4 mb-6 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-emerald-400">Dream OS <span class="text-white">v2.0</span></h1>
+        <div class="flex items-center gap-2">
+            <span id="user-role" class="text-sm text-slate-300"></span>
+            <button onclick="window.logout()" class="bg-red-600 hover:bg-red-500 px-3 py-1 rounded-lg text-xs transition">Logout</button>
+        </div>
+    </div>
+    
+    <div id="grid-modules" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+    
+    <footer class="text-center mt-12 pb-10">
+        <p class="text-[9px] text-slate-500 mb-4">The Power Soul of Shalawat</p>
+        <p class="text-[8px] text-slate-600">Dream Team © 2026 | ISO 27001 / 55001 / 9001</p>
+    </footer>
+</div>
+
+<!-- MODULE WINDOW -->
+<div id="module-window" class="hidden fixed inset-0 bg-slate-900/95 overflow-y-auto p-4 z-50">
+    <div class="max-w-7xl mx-auto">
+        <button onclick="window.closeModule()" class="mb-4 text-emerald-400 hover:text-emerald-300 transition">
+            <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
+        </button>
+        <div id="module-content"></div>
+    </div>
+</div>
+
+<!-- CORE SCRIPTS -->
+<script type="module">
+    // ========== CONFIG ==========
+    const CONFIG = {
+        supabase: {
+            url: 'https://pvznaeppaagylwddirla.supabase.co',
+            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2em5hZXBwYWFneWx3ZGRpcmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTEwNDMsImV4cCI6MjA4NzUyNzA0M30.t9SJi3VfsBDkKmeZ3egZ4rbvljl4xe0WwNkPtfA9-vo'
+        }
+    };
+
+    // ========== SUPABASE CLIENT ==========
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    const supabase = createClient(CONFIG.supabase.url, CONFIG.supabase.key);
+
+    // ========== ACCESS CODES ==========
+    const ROLES = {        "012443410": { role: "DEVELOPER", modules: ['booking','k3','dana','commandcenter'], noLog: true },
+        "Mr.M_Architect_2025": { role: "MASTER", modules: ['booking','k3','dana','commandcenter'], noLog: true },
+        "4dm1n_AF6969@00": { role: "ADMIN", modules: ['booking','k3','dana','commandcenter'] },
+        "LHPSsec_AF2025": { role: "SEKURITI", modules: ['k3'] },
+        "CHCS_AF_@003": { role: "JANITOR", modules: ['k3'] },
+        "user_@1234": { role: "USER_BOOKING", modules: ['booking'] },
+        "user_@2345": { role: "USER_K3", modules: ['k3'] }
+    };
+
+    // ========== MODULES ==========
+    const MODULES = [
+        { id: 'booking', name: 'BOOKING', icon: '📅', color: 'from-blue-500 to-blue-700' },
+        { id: 'k3', name: 'K3 REPORT', icon: '⚠️', color: 'from-orange-500 to-red-600' },
+        { id: 'dana', name: 'PENGAJUAN DANA', icon: '💰', color: 'from-purple-500 to-purple-700' },
+        { id: 'commandcenter', name: 'ADMIN PANEL', icon: '📊', color: 'from-pink-500 to-pink-700' }
+    ];
+
+    // ========== STATE ==========
+    let currentUser = null;
+    let currentRole = null;
+    let currentModules = [];
+
+    // ========== TOAST ==========
+    function showToast(msg, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = msg;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ========== TOGGLE PASSWORD ==========
+    document.getElementById('togglePassword')?.addEventListener('click', function() {
+        const input = document.getElementById('passkey');
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // ========== ENTER KEY LOGIN ==========
+    document.getElementById('passkey')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') document.getElementById('btnLogin').click();    });
+
+    // ========== LOGIN ==========
+    async function login() {
+        const key = document.getElementById('passkey').value.trim();
+        const userData = ROLES[key];
+        const errorMsg = document.getElementById('error-msg');
+
+        if (!userData) {
+            errorMsg.textContent = '❌ Akses Ditolak!';
+            errorMsg.classList.remove('hidden');
+            showToast('Access Denied!', 'error');
+            setTimeout(() => errorMsg.classList.add('hidden'), 2000);
+            return;
+        }
+
+        currentUser = key;
+        currentRole = userData.role;
+        currentModules = userData.modules;
+
+        sessionStorage.setItem('dream_session', key);
+        sessionStorage.setItem('dream_role', userData.role);
+        sessionStorage.setItem('dream_modules', JSON.stringify(userData.modules));
+
+        showToast(`Selamat datang, ${userData.role}!`, 'success');
+
+        document.getElementById('login-zone').classList.add('hidden');
+        document.getElementById('app-shell').classList.remove('hidden');
+        document.getElementById('user-role').textContent = userData.role;
+
+        renderGrid();
+    }
+
+    // ========== RENDER GRID ==========
+    function renderGrid() {
+        const container = document.getElementById('grid-modules');
+        container.innerHTML = '';
+        
+        MODULES.forEach(m => {
+            if (currentModules.includes(m.id) || currentModules.includes('all')) {
+                container.innerHTML += `
+                    <div onclick="loadModule('${m.id}')" class="bg-slate-800 hover:bg-slate-700 p-6 rounded-2xl text-center cursor-pointer transition transform hover:scale-105 border border-slate-700">
+                        <div class="text-4xl mb-3">${m.icon}</div>
+                        <div class="text-xs font-bold uppercase">${m.name}</div>
+                    </div>
+                `;
+            }
+        });
+    }
+    // ========== LOAD MODULE ==========
+    async function loadModule(moduleId) {
+        const moduleWindow = document.getElementById('module-window');
+        const contentDiv = document.getElementById('module-content');
+
+        moduleWindow.classList.remove('hidden');
+        contentDiv.innerHTML = '<div class="text-center py-20"><div class="text-4xl mb-4">⏳</div><p class="text-emerald-400">Loading ' + moduleId + '...</p></div>';
+
+        try {
+            const htmlRes = await fetch(`./modules/${moduleId}/index.html`);
+            if (!htmlRes.ok) throw new Error('Module not found');
+            const html = await htmlRes.text();
+            contentDiv.innerHTML = html;
+
+            const scriptRes = await fetch(`./modules/${moduleId}/module.js`);
+            if (scriptRes.ok) {
+                const scriptCode = await scriptRes.text();
+                const scriptBlob = new Blob([scriptCode], { type: 'application/javascript' });
+                const scriptUrl = URL.createObjectURL(scriptBlob);
+                await import(scriptUrl);
+            }
+        } catch (err) {
+            contentDiv.innerHTML = `<div class="text-center py-20"><div class="text-4xl mb-4">❌</div><p class="text-red-400">${err.message}</p></div>`;
+        }
+    }
+
+    // ========== CLOSE MODULE ==========
+    window.closeModule = function() {
+        document.getElementById('module-window').classList.add('hidden');
+        document.getElementById('module-content').innerHTML = '';
+    };
+
+    // ========== LOGOUT ==========
+    window.logout = function() {
+        sessionStorage.clear();
+        location.reload();
+    };
+
+    // ========== CHECK SESSION ==========
+    function checkSession() {
+        const key = sessionStorage.getItem('dream_session');
+        const role = sessionStorage.getItem('dream_role');
+        const modules = sessionStorage.getItem('dream_modules');
+
+        if (key && role && modules) {
+            currentUser = key;
+            currentRole = role;
+            currentModules = JSON.parse(modules);
+
+            document.getElementById('login-zone').classList.add('hidden');            document.getElementById('app-shell').classList.remove('hidden');
+            document.getElementById('user-role').textContent = role;
+
+            renderGrid();
+            showToast('Selamat datang kembali!', 'success');
+        }
+    }
+
+    // ========== LOGIN BUTTON ==========
+    document.getElementById('btnLogin')?.addEventListener('click', login);
+
+    // ========== INIT ==========
+    checkSession();
+</script>
+
+</body>
+</html>
