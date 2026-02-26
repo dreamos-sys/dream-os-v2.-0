@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok & Inventaris | Dream OS v2.0</title>
+    <style>
+        :root { --emerald: #10b981; --bg: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: transparent; color: white; font-family: 'Rajdhani', sans-serif; padding: 1rem; }
+        .crystal-card { background: var(--bg); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 24px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .input-field { background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 0.75rem; width: 100%; color: white; outline: none; }
+        .input-field:focus { border-color: var(--emerald); }
+        .btn-action { background: linear-gradient(135deg, var(--emerald) 0%, #059669 100%); border: none; border-radius: 12px; padding: 0.75rem 1.5rem; color: white; font-weight: 700; cursor: pointer; width: 100%; margin-top: 1rem; }
+        .item-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+        .badge { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .badge-low { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .badge-normal { background: rgba(16,185,129,0.2); color: #10b981; }
+        .arabic { font-family: 'Amiri', serif; }
+    </style>
+</head>
+<body>
+
+<div class="crystal-card">
+    <h1 class="text-2xl font-bold mb-4 text-emerald-400 flex items-center gap-3">
+        <i class="fas fa-box text-3xl"></i>
+        <span data-id="Stok & Inventaris" data-en="Stock & Inventory">Stok & Inventaris</span>
+    </h1>
+    <p class="arabic text-lg text-emerald-300 text-center mb-4">بِسْمِ اللَّهِ</p>
+    
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="text-center p-3 bg-white/5 rounded-xl">
+            <div class="text-2xl font-bold text-emerald-400" id="stat-total">0</div>
+            <div class="text-xs">Total Items</div>
+        </div>
+        <div class="text-center p-3 bg-white/5 rounded-xl">
+            <div class="text-2xl font-bold text-orange-400" id="stat-low">0</div>
+            <div class="text-xs">Low Stock</div>
+        </div>
+        <div class="text-center p-3 bg-white/5 rounded-xl">
+            <div class="text-2xl font-bold text-blue-400" id="stat-value">0</div>
+            <div class="text-xs">Total Value</div>
+        </div>
+    </div>
+    
+    <!-- Search -->
+    <input type="text" id="searchInput" class="input-field mb-4" placeholder="Cari barang..." onkeyup="searchItems()">
+    
+    <!-- Add Item Button -->    <button onclick="openAddModal()" class="btn-action">
+        <i class="fas fa-plus mr-2"></i> Tambah Barang
+    </button>
+</div>
+
+<!-- Items List -->
+<div class="crystal-card">
+    <h2 class="text-lg font-bold mb-4">Daftar Barang</h2>
+    <div id="itemsList">
+        <div class="text-center py-12 opacity-60">Memuat...</div>
+    </div>
+</div>
+
+<!-- ADD ITEM MODAL -->
+<div id="addModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
+    <div class="crystal-card max-w-md w-full">
+        <h3 class="text-xl font-bold mb-4">Tambah Barang Baru</h3>
+        <input type="text" id="itemName" class="input-field mb-3" placeholder="Nama Barang">
+        <input type="text" id="itemCategory" class="input-field mb-3" placeholder="Kategori">
+        <input type="number" id="itemStock" class="input-field mb-3" placeholder="Stok Awal">
+        <input type="text" id="itemUnit" class="input-field mb-3" placeholder="Satuan (pcs, box, etc)">
+        <input type="number" id="itemPrice" class="input-field mb-3" placeholder="Harga per Unit">
+        <div class="flex gap-3">
+            <button onclick="addItem()" class="btn-action flex-1">Simpan</button>
+            <button onclick="closeAddModal()" class="btn-action flex-1" style="background: rgba(255,255,255,0.1);">Batal</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { supabase } from '../../core/supabase.js';
+    import { showToast } from '../../core/components.js';
+
+    let items = [];
+
+    export function init() {
+        loadItems();
+    }
+
+    async function loadItems() {
+        const { data, error } = await supabase.from('gudang_stok').select('*').order('nama_barang');
+        if (error) {
+            document.getElementById('itemsList').innerHTML = '<p class="text-red-400 text-center">Gagal memuat</p>';
+            return;
+        }
+        items = data || [];
+        renderItems();
+        updateStats();
+    }
+    function renderItems(filter = '') {
+        const container = document.getElementById('itemsList');
+        const filtered = items.filter(item => item.nama_barang.toLowerCase().includes(filter.toLowerCase()));
+        
+        if (filtered.length === 0) {
+            container.innerHTML = '<p class="text-center opacity-60">Tidak ada barang</p>';
+            return;
+        }
+        
+        container.innerHTML = filtered.map(item => {
+            const stockClass = item.stok < 5 ? 'badge-low' : 'badge-normal';
+            return `
+                <div class="item-card">
+                    <div>
+                        <div class="font-bold">${item.nama_barang}</div>
+                        <div class="text-xs opacity-60">${item.kategori || '-'} | ${item.satuan || 'pcs'}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold">Stok: ${item.stok}</div>
+                        <span class="badge ${stockClass}">${item.stok < 5 ? 'Low' : 'OK'}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function updateStats() {
+        document.getElementById('stat-total').textContent = items.length;
+        document.getElementById('stat-low').textContent = items.filter(i => i.stok < 5).length;
+        const totalValue = items.reduce((sum, i) => sum + (i.stok * (i.harga || 0)), 0);
+        document.getElementById('stat-value').textContent = 'Rp ' + totalValue.toLocaleString('id-ID');
+    }
+
+    window.searchItems = function() {
+        const query = document.getElementById('searchInput').value;
+        renderItems(query);
+    };
+
+    window.openAddModal = function() {
+        document.getElementById('addModal').classList.remove('hidden');
+        document.getElementById('addModal').classList.add('flex');
+    };
+
+    window.closeAddModal = function() {
+        document.getElementById('addModal').classList.add('hidden');
+        document.getElementById('addModal').classList.remove('flex');
+    };
+
+    window.addItem = async function() {
+        const nama = document.getElementById('itemName').value;        const kategori = document.getElementById('itemCategory').value;
+        const stok = parseInt(document.getElementById('itemStock').value);
+        const satuan = document.getElementById('itemUnit').value;
+        const harga = parseFloat(document.getElementById('itemPrice').value);
+        
+        if (!nama || !stok) {
+            showToast('Nama dan stok wajib diisi', 'warning');
+            return;
+        }
+        
+        const { error } = await supabase.from('gudang_stok').insert([{
+            nama_barang: nama,
+            kategori,
+            stok,
+            satuan,
+            harga,
+            created_at: new Date().toISOString()
+        }]);
+        
+        if (error) {
+            showToast('Gagal: ' + error.message, 'error');
+        } else {
+            showToast('Barang ditambahkan', 'success');
+            closeAddModal();
+            loadItems();
+        }
+    };
+
+    init();
+</script>
+
+</body>
+</html>
