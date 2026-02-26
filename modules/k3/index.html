@@ -1,20 +1,152 @@
-<div class="crystal-card p-6 max-w-4xl mx-auto">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K3 Report | Dream OS v2.0</title>
+    <style>
+        :root {
+            --emerald: #10b981;
+            --orange: #f59e0b;
+            --bg: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: transparent;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            padding: 1rem;
+        }
+
+        .crystal-card {
+            background: var(--bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 1.5rem;
+            max-width: 4xl;
+            margin: 0 auto;
+        }
+
+        .input-field {
+            background: rgba(255,255,255,0.07);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 16px;
+            padding: 14px;
+            width: 100%;
+            color: white;
+            outline: none;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+        .input-field:focus {
+            border-color: var(--emerald);
+            box-shadow: 0 0 20px rgba(16,185,129,0.3);
+        }
+
+        .btn-submit {            background: linear-gradient(135deg, var(--orange) 0%, #d97706 100%);
+            border: none;
+            border-radius: 18px;
+            padding: 14px;
+            width: 100%;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(245,158,11,0.4);
+        }
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* CAMERA UPLOAD */
+        .camera-upload {
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(255,255,255,0.03);
+        }
+        .camera-upload:hover {
+            border-color: var(--orange);
+            background: rgba(245,158,11,0.1);
+        }
+        .camera-upload i {
+            font-size: 3rem;
+            color: var(--orange);
+            margin-bottom: 1rem;
+        }
+        .camera-preview {
+            margin-top: 1rem;
+            border-radius: 12px;
+            max-width: 100%;
+            max-height: 200px;
+            display: none;
+        }
+
+        /* FORM RESULT */        #formResult {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+        }
+        #formResult.success {
+            background: rgba(16,185,129,0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+        #formResult.error {
+            background: rgba(239,68,68,0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        /* BILINGUAL */
+        [data-en] { display: inline; }
+    </style>
+</head>
+<body>
+
+<div class="crystal-card">
+    <!-- HEADER -->
     <h1 class="text-2xl font-bold mb-6 text-orange-400 flex items-center gap-3">
         <i class="fas fa-exclamation-triangle text-3xl"></i>
-        Laporan K3
+        <span data-id="Laporan K3" data-en="K3 Report">Laporan K3</span>
     </h1>
     
+    <!-- FORM -->
     <form id="k3Form" class="space-y-4">
+        <!-- Tanggal -->
         <div>
-            <label class="text-xs text-white/60 mb-2 block">Tanggal</label>
+            <label class="text-xs text-white/60 mb-2 block" data-id="Tanggal" data-en="Date">Tanggal</label>
             <input type="date" name="tanggal" class="input-field" required>
         </div>
+        
+        <!-- Lokasi -->
         <div>
-            <label class="text-xs text-white/60 mb-2 block">Lokasi</label>
-            <input type="text" name="lokasi" class="input-field" placeholder="Contoh: Gedung A, Lantai 2" required>
+            <label class="text-xs text-white/60 mb-2 block" data-id="Lokasi" data-en="Location">Lokasi</label>
+            <input type="text" name="lokasi" class="input-field" 
+                placeholder="Contoh: Gedung A, Lantai 2" 
+                data-placeholder-id="Contoh: Gedung A, Lantai 2"
+                data-placeholder-en="Example: Building A, Floor 2"
+                required>
         </div>
-        <div>
-            <label class="text-xs text-white/60 mb-2 block">Jenis Laporan</label>
+        
+        <!-- Jenis Laporan -->        <div>
+            <label class="text-xs text-white/60 mb-2 block" data-id="Jenis Laporan" data-en="Report Type">Jenis Laporan</label>
             <select name="jenis_laporan" class="input-field" required>
                 <option value="">-- Pilih Jenis --</option>
                 <option value="kerusakan">🔧 Kerusakan Fasilitas</option>
@@ -25,70 +157,178 @@
                 <option value="lainnya">📌 Lainnya</option>
             </select>
         </div>
+        
+        <!-- Deskripsi -->
         <div>
-            <label class="text-xs text-white/60 mb-2 block">Deskripsi</label>
-            <textarea name="deskripsi" rows="4" class="input-field" placeholder="Jelaskan detail kejadian..." required></textarea>
+            <label class="text-xs text-white/60 mb-2 block" data-id="Deskripsi" data-en="Description">Deskripsi</label>
+            <textarea name="deskripsi" rows="4" class="input-field" 
+                placeholder="Jelaskan detail kejadian..." 
+                data-placeholder-id="Jelaskan detail kejadian..."
+                data-placeholder-en="Describe the incident in detail..."
+                required></textarea>
         </div>
+        
+        <!-- Camera Upload -->
         <div>
-            <label class="text-xs text-white/60 mb-2 block">Pelapor</label>
-            <input type="text" name="pelapor" class="input-field" placeholder="Nama Anda" required>
+            <label class="text-xs text-white/60 mb-2 block" data-id="Foto Bukti (Opsional)" data-en="Evidence Photo (Optional)">Foto Bukti (Opsional)</label>
+            <div class="camera-upload" onclick="document.getElementById('cameraInput').click()">
+                <i class="fas fa-camera"></i>
+                <p class="text-sm" data-id="Klik untuk ambil foto atau upload" data-en="Click to take photo or upload">Klik untuk ambil foto atau upload</p>
+                <p class="text-xs text-white/40 mt-2" data-id="Maksimal 5MB (JPG, PNG)" data-en="Max 5MB (JPG, PNG)">Maksimal 5MB (JPG, PNG)</p>
+            </div>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="previewImage(this)">
+            <img id="imagePreview" class="camera-preview" alt="Preview">
+            <input type="hidden" name="foto_base64" id="fotoBase64">
         </div>
+        
+        <!-- Pelapor -->
         <div>
-            <label class="text-xs text-white/60 mb-2 block">Prioritas</label>
-            <select name="priority" class="input-field">
-                <option value="normal">⚪ Normal</option>
+            <label class="text-xs text-white/60 mb-2 block" data-id="Pelapor" data-en="Reporter">Pelapor</label>
+            <input type="text" name="pelapor" class="input-field" 
+                placeholder="Nama Anda" 
+                data-placeholder-id="Nama Anda"
+                data-placeholder-en="Your Name"
+                required>
+        </div>
+        
+        <!-- Prioritas -->
+        <div>
+            <label class="text-xs text-white/60 mb-2 block" data-id="Prioritas" data-en="Priority">Prioritas</label>
+            <select name="priority" class="input-field">                <option value="normal">⚪ Normal</option>
                 <option value="high">🟡 Tinggi</option>
                 <option value="critical">🔴 Critical</option>
             </select>
         </div>
+        
+        <!-- Submit Button -->
         <button type="submit" class="btn-submit">
-            <i class="fas fa-paper-plane mr-2"></i> Laporkan
+            <i class="fas fa-paper-plane mr-2"></i> 
+            <span data-id="Laporkan" data-en="Submit Report">Laporkan</span>
         </button>
     </form>
     
-    <div id="formResult" class="mt-4 text-center hidden"></div>
-    
-    <button onclick="window.closeModule()" class="mt-6 w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl font-bold">
-        ← Kembali ke Dashboard
-    </button>
+    <!-- Form Result (NO DUPLICATE BACK BUTTON!) -->
+    <div id="formResult" class="hidden"></div>
 </div>
 
 <script type="module">
     import { supabase } from '../../core/supabase.js';
     import { showToast } from '../../core/components.js';
 
-    document.getElementById('k3Form').addEventListener('submit', async (e) => {
+    console.log('[K3] Module loaded - Crystal Prism Edition');
+
+    // IMAGE PREVIEW
+    window.previewImage = function(input) {
+        const file = input.files[0];
+        if (file) {
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('File terlalu besar! Maksimal 5MB', 'error');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                document.getElementById('fotoBase64').value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // FORM SUBMIT
+    document.getElementById('k3Form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData);
+        
+        const formData = new FormData(e.target);        const data = Object.fromEntries(formData);
+        
         const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengirim...';
 
         try {
-            const { error } = await supabase.from('k3_reports').insert([{
+            // Prepare data for Supabase
+            const k3Data = {
                 tanggal: data.tanggal,
                 lokasi: data.lokasi,
                 jenis_laporan: data.jenis_laporan,
                 deskripsi: data.deskripsi,
                 pelapor: data.pelapor,
                 priority: data.priority || 'normal',
-                status: 'pending'
-            }]);
+                status: 'pending',
+                created_at: new Date().toISOString()
+            };
 
+            // Add photo if exists
+            if (data.foto_base64) {
+                k3Data.foto_url = data.foto_base64; // Store base64 or upload to storage
+            }
+
+            const { error } = await supabase
+                .from('k3_reports')
+                .insert([k3Data]);
+            
             if (error) throw error;
-
-            document.getElementById('formResult').innerHTML = '<p class="text-green-400 font-bold">✅ Laporan K3 berhasil dikirim!</p>';
-            document.getElementById('formResult').classList.remove('hidden');
+            
+            // Show success
+            const resultDiv = document.getElementById('formResult');
+            resultDiv.innerHTML = '<p>✅ <span data-id="Laporan K3 berhasil dikirim!" data-en="K3 report submitted successfully!">Laporan K3 berhasil dikirim!</span></p>';
+            resultDiv.className = 'success';
+            resultDiv.classList.remove('hidden');
+            
             showToast('Laporan K3 berhasil', 'success');
             e.target.reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('fotoBase64').value = '';
+            
+            // Hide success after 5 seconds
+            setTimeout(() => {
+                resultDiv.classList.add('hidden');
+            }, 5000);
+            
         } catch (err) {
-            document.getElementById('formResult').innerHTML = '<p class="text-red-400 font-bold">❌ Error: ' + err.message + '</p>';
-            document.getElementById('formResult').classList.remove('hidden');
+            const resultDiv = document.getElementById('formResult');
+            resultDiv.innerHTML = `<p>❌ Error: ${err.message}</p>`;            resultDiv.className = 'error';
+            resultDiv.classList.remove('hidden');
+            
             showToast('Gagal: ' + err.message, 'error');
+            
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Laporkan';
+            btn.innerHTML = originalText;
         }
     });
+
+    // BILINGUAL SUPPORT
+    function applyLanguage(lang) {
+        document.querySelectorAll('[data-id]').forEach(el => {
+            if (lang === 'en') {
+                el.textContent = el.getAttribute('data-en');
+            } else {
+                el.textContent = el.getAttribute('data-id');
+            }
+        });
+        
+        // Update placeholders
+        document.querySelectorAll('[data-placeholder-id]').forEach(el => {
+            if (lang === 'en') {
+                el.placeholder = el.getAttribute('data-placeholder-en');
+            } else {
+                el.placeholder = el.getAttribute('data-placeholder-id');
+            }
+        });
+    }
+
+    // Get language from parent
+    const currentLang = localStorage.getItem('lang') || 'id';
+    applyLanguage(currentLang);
+
+    console.log('[K3] Ready with camera feature!');
 </script>
+
+</body>
+</html>
