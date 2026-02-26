@@ -1,0 +1,188 @@
+<!-- GANTI SEMUA SCRIPT DI BAWAH DENGAN INI -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ===== SUPABASE CONFIG =====
+const SB_URL = 'https://pvznaeppaagylwddirla.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2em5hZXBwYWFneWx3ZGRpcmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTEwNDMsImV4cCI6MjA4NzUyNzA0M30.t9SJi3VfsBDkKmeZ3egZ4rbvljl4xe0WwNkPtfA9-vo';
+const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+// ===== 12 ACCESS CODES =====
+const ACCESS_CODES = {
+    "012443410": { role: "DEVELOPER", modules: ['all'] },
+    "Mr.M_Architect_2025": { role: "MASTER", modules: ['all'] },
+    "4dm1n_AF6969@00": { role: "ADMIN", modules: ['all'] },
+    "LHPSsec_AF2025": { role: "SEKURITI", modules: ['sekuriti'] },
+    "CHCS_AF_@003": { role: "JANITOR", modules: ['janitor-indoor','janitor-outdoor'] },
+    "SACS_AF@004": { role: "STOK", modules: ['stok'] },
+    "M41n_4F@234": { role: "MAINTENANCE", modules: ['maintenance'] },
+    "4dm1n_6969@01": { role: "ASSET", modules: ['asset'] },
+    "4dm1n_9696@02": { role: "GUDANG", modules: ['stok'] },
+    "4553Tumum_AF@1112": { role: "ASSET", modules: ['asset'] },
+    "user_@1234": { role: "USER", modules: ['booking'] },
+    "user_@2345": { role: "USER", modules: ['k3'] }
+};
+
+// ===== 9 MODULES =====
+const MODULES = [
+    { id: 'booking', name: 'BOOKING', icon: '📅' },
+    { id: 'k3', name: 'K3 REPORT', icon: '⚠️' },
+    { id: 'sekuriti', name: 'SEKURITI', icon: '🛡️' },
+    { id: 'janitor-indoor', name: 'JANITOR IN', icon: '🧹' },
+    { id: 'janitor-outdoor', name: 'JANITOR OUT', icon: '🌿' },
+    { id: 'stok', name: 'STOK', icon: '📦' },
+    { id: 'maintenance', name: 'MAINTENANCE', icon: '🔧' },
+    { id: 'asset', name: 'ASSET', icon: '🏢' },
+    { id: 'commandcenter', name: 'COMMAND', icon: '📊' }
+];
+
+// ===== STATE =====
+let sessionTimer = null;
+let sessionTime = 300;
+
+// ===== TOAST =====
+function showToast(msg, ok) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = (ok ? '✅ ' : '❌ ') + msg;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+// ===== SHOW/HIDE PASSWORD =====
+document.getElementById('toggleBtn').addEventListener('click', function() {
+    const pass = document.getElementById('passkey');
+    const icon = document.getElementById('eyeIcon');
+    pass.type = pass.type === 'password' ? 'text' : 'password';
+    icon.className = pass.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+});
+
+// ===== RENDER MODULES =====
+function renderGrid(modules) {
+    const container = document.getElementById('grid-modules');
+    container.innerHTML = '';
+    MODULES.forEach(m => {
+        if (modules.includes(m.id) || modules.includes('all')) {
+            const card = document.createElement('div');
+            card.className = 'module-card';
+            card.onclick = () => openModule(m.id);
+            card.innerHTML = `
+                <div class="crystal-icon">${m.icon}</div>
+                <div class="text-xs font-bold uppercase tracking-wider">${m.name}</div>
+            `;
+            container.appendChild(card);
+        }
+    });
+}
+
+// ===== OPEN MODULE =====
+function openModule(id) {
+    document.getElementById('module-window').classList.remove('hidden');
+    document.getElementById('module-content').innerHTML = '<div class="shalawat-loading"><div class="arabic">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</div><p class="text-slate-400 mt-4">Loading ' + id + '...</p></div>';
+    
+    fetch('./modules/' + id + '/index.html')
+        .then(r => r.text())
+        .then(h => { document.getElementById('module-content').innerHTML = h; })
+        .catch(e => { document.getElementById('module-content').innerHTML = '<div class="text-center py-20"><p class="text-red-400">Module not found: ' + id + '</p></div>'; });
+}
+
+// ===== CLOSE MODULE =====
+function doCloseModule() {
+    document.getElementById('module-window').classList.add('hidden');
+}
+
+// ===== SESSION TIMER =====
+function startSessionTimer() {
+    sessionTime = 300;
+    const display = document.getElementById('timerDisplay');
+    sessionTimer = setInterval(() => {
+        sessionTime--;
+        const m = Math.floor(sessionTime / 60);
+        const s = sessionTime % 60;        display.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        if (sessionTime <= 0) {
+            clearInterval(sessionTimer);
+            showToast('Session expired!', false);
+            sessionStorage.clear();
+            location.reload();
+        }
+    }, 1000);
+}
+
+// ===== PRAYER TIME =====
+function updatePrayerTheme() {
+    const hour = new Date().getHours();
+    const body = document.body;
+    const prayer = document.getElementById('prayerTime');
+    
+    body.className = '';
+    
+    if (hour >= 4 && hour < 6) { body.classList.add('theme-fajr'); prayer.textContent = '🌅 Fajr'; }
+    else if (hour >= 6 && hour < 12) { body.classList.add('theme-dhuhr'); prayer.textContent = '☀️ Dhuhr'; }
+    else if (hour >= 12 && hour < 15) { body.classList.add('theme-asr'); prayer.textContent = '🌤️ Asr'; }
+    else if (hour >= 15 && hour < 18) { body.classList.add('theme-maghrib'); prayer.textContent = '🌅 Maghrib'; }
+    else { body.classList.add('theme-isha'); prayer.textContent = '🌙 Isha'; }
+}
+
+// ===== LOGIN FUNCTION =====
+document.getElementById('btnLogin').addEventListener('click', async () => {
+    const key = document.getElementById('passkey').value.trim();
+    const msg = document.getElementById('error-msg');
+    
+    if (!key) {
+        msg.textContent = '❌ Masukkan Access Code!';
+        return;
+    }
+    
+    const userData = ACCESS_CODES[key];
+    
+    if (!userData) {
+        msg.textContent = '❌ Access Denied!';
+        showToast('Invalid access code!', false);
+        setTimeout(() => msg.textContent = '', 2000);
+        return;
+    }
+    
+    // SUCCESS!
+    sessionStorage.setItem('role', userData.role);
+    sessionStorage.setItem('modules', JSON.stringify(userData.modules));
+    
+    document.getElementById('login-zone').classList.add('hidden');
+    document.getElementById('app-shell').classList.remove('hidden');    document.getElementById('prayerIndicator').classList.remove('hidden');
+    document.getElementById('sessionTimer').classList.remove('hidden');
+    document.getElementById('user-role').textContent = userData.role;
+    
+    renderGrid(userData.modules);
+    startSessionTimer();
+    updatePrayerTheme();
+    showToast('Welcome, ' + userData.role + '!', true);
+});
+
+// ===== LOGOUT =====
+function doLogout() {
+    sessionStorage.clear();
+    location.reload();
+}
+
+// ===== ENTER KEY =====
+document.getElementById('passkey').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') document.getElementById('btnLogin').click();
+});
+
+// ===== CHECK SESSION =====
+window.addEventListener('load', () => {
+    const role = sessionStorage.getItem('role');
+    const modules = JSON.parse(sessionStorage.getItem('modules') || '[]');
+    
+    if (role) {
+        document.getElementById('login-zone').classList.add('hidden');
+        document.getElementById('app-shell').classList.remove('hidden');
+        document.getElementById('prayerIndicator').classList.remove('hidden');
+        document.getElementById('sessionTimer').classList.remove('hidden');
+        document.getElementById('user-role').textContent = role;
+        renderGrid(modules);
+        startSessionTimer();
+        updatePrayerTheme();
+    }
+});
+
+console.log('💎 Dream OS v2.0 - NO CORE DEPENDENCY!');
+console.log('🔓 Show/Hide: WORKING | 🔑 Login: 12 CODES | 📱 9 Modules');
+</script>
