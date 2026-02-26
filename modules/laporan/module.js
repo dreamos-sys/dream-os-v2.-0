@@ -92,3 +92,37 @@ function generateExcel(type, data, start, end) {
     XLSX.utils.book_append_sheet(wb, ws, type);
     XLSX.writeFile(wb, `laporan_${type}_${start}_${end}.xlsx`);
 }
+
+// ===== CETAK LANGSUNG KE PRINTER =====
+window.printReport = async function() {
+    const type = document.getElementById('report-type').value;
+    const start = document.getElementById('report-start').value;
+    const end = document.getElementById('report-end').value;
+    
+    if (!start || !end) {
+        showToast('Pilih rentang tanggal!', 'warning');
+        return;
+    }
+    
+    showToast('Menyiapkan laporan...', 'info');
+    
+    try {
+        // Ambil data sesuai type (sama seperti export)
+        let data = [];
+        let title = 'Laporan';
+        // ... (sama seperti di generateReport)
+        
+        // Generate PDF (reuse fungsi yang sudah ada)
+        const pdfBlob = await generatePDFBlob(type, data, start, end, title);
+        
+        // Buka di tab baru dan langsung print
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const printWindow = window.open(pdfUrl);
+        printWindow.onload = function() {
+            printWindow.print();
+        };
+        
+    } catch (err) {
+        showToast('Gagal: ' + err.message, 'error');
+    }
+};
