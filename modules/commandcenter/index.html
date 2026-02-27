@@ -722,6 +722,38 @@ function showSuccess(msg) {
         console.error('[COMMANDCENTER] Fatal error:', err);
         showError('Terjadi kesalahan fatal: ' + err.message);
     }
+
+    <!-- ═══════════════════════════════════ -->
+<!-- NAVIGATION FIX                      -->
+<!-- ═══════════════════════════════════ -->
+<script>
+// Ensure navigation works even if module.js fails
+(function() {
+    console.log('[NAV FIX] Initializing navigation...');
+    
+    // Backup goToModule
+    if (!window.goToModule) {
+        window.goToModule = function(id) {
+            console.log('[NAV FIX] Navigating to:', id);
+            if (id === 'all') {
+                document.getElementById('_toast').textContent = 'Pilih modul spesifik';
+                document.getElementById('_toast').className = 'show';
+                setTimeout(() => document.getElementById('_toast').className = '', 3000);
+                return;
+            }
+            window.location.href = './' + id + '/index.html';
+        };
+    }
+    
+    // Also export as openSubModule for compatibility
+    window.openSubModule = window.openSubModule || window.goToModule;
+    
+    console.log('[NAV FIX] Ready!');
+})();
+</script>
+
+</body>
+</html>
 })();
 </script>
 </body>
