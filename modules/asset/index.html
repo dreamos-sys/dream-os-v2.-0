@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset & Inventory | Dream OS v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --emerald: #10b981; --blue: #3b82f6; --orange: #f59e0b; --purple: #a855f7; --bg: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: linear-gradient(135deg, #020617 0%, #1e293b 100%); color: white; font-family: 'Rajdhani', sans-serif; padding: 1rem; min-height: 100vh; }
+        .crystal-card { background: var(--bg); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 24px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .input-field { background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 0.75rem; width: 100%; color: white; outline: none; }
+        .input-field:focus { border-color: var(--emerald); }
+        .btn-action { background: linear-gradient(135deg, var(--emerald) 0%, #059669 100%); border: none; border-radius: 12px; padding: 0.75rem 1.5rem; color: white; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(16,185,129,0.4); }
+        .btn-blue { background: linear-gradient(135deg, var(--blue) 0%, #1d4ed8 100%); }
+        .btn-orange { background: linear-gradient(135deg, var(--orange) 0%, #d97706 100%); }
+        .asset-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1rem; margin-bottom: 0.75rem; transition: 0.3s; }
+        .asset-card:hover { border-color: var(--emerald); transform: translateX(5px); }
+        .arabic { font-family: 'Amiri', serif; }
+        .tab-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; color: white; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: var(--emerald); border-color: var(--emerald); }
+        .stat-box { background: rgba(255,255,255,0.03); border-radius: 16px; padding: 1rem; text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: 700; }
+        .badge { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .badge-good { background: rgba(16,185,129,0.2); color: var(--emerald); }
+        .badge-warning { background: rgba(245,158,11,0.2); color: var(--orange); }
+        .badge-danger { background: rgba(239,68,68,0.2); color: var(--red); }
+        .back-btn { position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 0.75rem 1rem; color: var(--emerald); cursor: pointer; z-index: 100; }
+        .shalawat-top { text-align: center; padding: 1.5rem 1rem; margin-bottom: 1.5rem; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2); border-radius: 24px; backdrop-filter: blur(20px); }
+        .bismillah { font-family: 'Amiri', serif; font-size: 2rem; color: var(--emerald); margin-bottom: 1rem; }
+        @media (max-width: 480px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+
+<!-- BACK BUTTON -->
+<button class="back-btn" onclick="window.history.back()">
+    <i class="fas fa-arrow-left"></i> <span>Kembali</span>
+</button>
+
+<!-- SHALAWAT SECTION -->
+<div class="shalawat-top">
+    <p class="bismillah">بِسْمِ اللَّهِ</p>
+    <p class="arabic text-lg text-emerald-400">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</p>
+    <p class="text-[8px] text-white/30 tracking-[3px]">THE POWER SOUL OF SHALAWAT</p>
+</div>
+<!-- HEADER -->
+<div class="crystal-card">
+    <h1 class="text-2xl font-bold mb-2 text-blue-400 flex items-center gap-3">
+        <i class="fas fa-building text-3xl"></i>
+        <span>Asset & Inventory Management</span>
+    </h1>
+    <p class="text-sm opacity-60">Inventaris + Gudang Umum</p>
+</div>
+
+<!-- STATS GRID -->
+<div class="stats-grid grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="stat-box">
+        <div class="stat-value text-blue-400" id="stat-total-asset">0</div>
+        <div class="text-xs">Total Asset</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-value text-emerald-400" id="stat-total-inventory">0</div>
+        <div class="text-xs">Total Inventory</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-value text-orange-400" id="stat-low-stock">0</div>
+        <div class="text-xs">Low Stock</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-value text-purple-400" id="stat-total-value">0</div>
+        <div class="text-xs">Total Value</div>
+    </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-container flex gap-2 mb-6 overflow-x-auto">
+    <button class="tab-btn active" data-tab="asset">🏢 Asset</button>
+    <button class="tab-btn" data-tab="inventory">📦 Inventory</button>
+    <button class="tab-btn" data-tab="gudang">🏭 Gudang</button>
+    <button class="tab-btn" data-tab="report">📊 Report</button>
+</div>
+
+<!-- ASSET TAB -->
+<div id="tab-asset" class="tab-content">
+    <div class="crystal-card">
+        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+            <h2 class="text-lg font-bold">Daftar Asset</h2>
+            <button onclick="openAssetModal()" class="btn-action btn-blue text-sm">
+                <i class="fas fa-plus mr-2"></i> Tambah Asset
+            </button>
+        </div>
+        <input type="text" id="searchAsset" class="input-field mb-4" placeholder="Cari asset...">
+        <div id="assetList" class="space-y-2">
+            <div class="text-center py-12 opacity-60">                <i class="fas fa-circle-notch spin text-2xl mb-3"></i>
+                <p>Memuat...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- INVENTORY TAB -->
+<div id="tab-inventory" class="tab-content hidden">
+    <div class="crystal-card">
+        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+            <h2 class="text-lg font-bold">Inventory Items</h2>
+            <button onclick="openInventoryModal()" class="btn-action text-sm">
+                <i class="fas fa-plus mr-2"></i> Tambah Item
+            </button>
+        </div>
+        <input type="text" id="searchInventory" class="input-field mb-4" placeholder="Cari item...">
+        <div id="inventoryList" class="space-y-2">
+            <div class="text-center py-12 opacity-60">Memuat...</div>
+        </div>
+    </div>
+</div>
+
+<!-- GUDANG TAB -->
+<div id="tab-gudang" class="tab-content hidden">
+    <div class="crystal-card">
+        <h2 class="text-lg font-bold mb-4">🏭 Gudang Umum</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="gudangList">
+            <div class="text-center py-12 opacity-60">Memuat...</div>
+        </div>
+    </div>
+</div>
+
+<!-- REPORT TAB -->
+<div id="tab-report" class="tab-content hidden">
+    <div class="crystal-card">
+        <h2 class="text-lg font-bold mb-4">📊 Laporan</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="stat-box">
+                <h3 class="font-bold mb-2">Asset per Kategori</h3>
+                <div id="assetCategoryChart" class="text-center py-8 opacity-60">Memuat...</div>
+            </div>
+            <div class="stat-box">
+                <h3 class="font-bold mb-2">Inventory Status</h3>
+                <div id="inventoryStatusChart" class="text-center py-8 opacity-60">Memuat...</div>
+            </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+            <button onclick="exportCSV()" class="btn-action btn-blue flex-1">
+                <i class="fas fa-file-csv mr-2"></i> Export CSV            </button>
+            <button onclick="printQR()" class="btn-action flex-1">
+                <i class="fas fa-qrcode mr-2"></i> Print QR
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ASSET MODAL -->
+<div id="assetModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
+    <div class="crystal-card max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <h3 class="text-xl font-bold mb-4">Tambah Asset Baru</h3>
+        <input type="text" id="assetName" class="input-field mb-3" placeholder="Nama Asset">
+        <input type="text" id="assetCategory" class="input-field mb-3" placeholder="Kategori (Elektronik, Furnitur, dll)">
+        <input type="text" id="assetLocation" class="input-field mb-3" placeholder="Lokasi">
+        <input type="text" id="assetSerial" class="input-field mb-3" placeholder="Serial Number">
+        <input type="number" id="assetPrice" class="input-field mb-3" placeholder="Harga (Rp)">
+        <input type="date" id="assetDate" class="input-field mb-3">
+        <select id="assetCondition" class="input-field mb-3">
+            <option value="baik">Baik</option>
+            <option value="rusak_ringan">Rusak Ringan</option>
+            <option value="rusak_berat">Rusak Berat</option>
+        </select>
+        <div class="flex gap-3">
+            <button onclick="saveAsset()" class="btn-action flex-1">Simpan</button>
+            <button onclick="closeAssetModal()" class="btn-action flex-1" style="background: rgba(255,255,255,0.1);">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- INVENTORY MODAL -->
+<div id="inventoryModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
+    <div class="crystal-card max-w-md w-full">
+        <h3 class="text-xl font-bold mb-4">Tambah Inventory</h3>
+        <input type="text" id="invName" class="input-field mb-3" placeholder="Nama Barang">
+        <input type="text" id="invCategory" class="input-field mb-3" placeholder="Kategori">
+        <input type="number" id="invQty" class="input-field mb-3" placeholder="Jumlah">
+        <input type="text" id="invUnit" class="input-field mb-3" placeholder="Satuan (Pcs, Box, dll)">
+        <input type="number" id="invMin" class="input-field mb-3" placeholder="Minimal Stok">
+        <input type="text" id="invLocation" class="input-field mb-3" placeholder="Lokasi Rak">
+        <div class="flex gap-3">
+            <button onclick="saveInventory()" class="btn-action flex-1">Simpan</button>
+            <button onclick="closeInventoryModal()" class="btn-action flex-1" style="background: rgba(255,255,255,0.1);">Batal</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { supabase } from '../../core/supabase.js';
+    import { showToast } from '../../core/components.js';
+    let assets = [];
+    let inventory = [];
+
+    // INIT
+    async function init() {
+        console.log('🏢 Asset & Inventory Module Loaded');
+        await loadData();
+        setupTabs();
+        setupSearch();
+    }
+
+    // LOAD ALL DATA
+    async function loadData() {
+        await Promise.all([loadAssets(), loadInventory()]);
+        updateStats();
+    }
+
+    // LOAD ASSETS
+    async function loadAssets() {
+        const container = document.getElementById('assetList');
+        try {
+            const { data, error } = await supabase.from('assets').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            assets = data || [];
+            renderAssets(assets);
+        } catch (err) {
+            console.error('[ASSET] Error:', err);
+            container.innerHTML = '<p class="text-center text-red-400">Gagal memuat asset</p>';
+        }
+    }
+
+    // LOAD INVENTORY
+    async function loadInventory() {
+        const container = document.getElementById('inventoryList');
+        try {
+            const { data, error } = await supabase.from('inventory').select('*').order('nama_barang');
+            if (error) throw error;
+            inventory = data || [];
+            renderInventory(inventory);
+            renderGudang(inventory);
+        } catch (err) {
+            console.error('[INVENTORY] Error:', err);
+            container.innerHTML = '<p class="text-center text-red-400">Gagal memuat inventory</p>';
+        }
+    }
+
+    // RENDER ASSETS
+    function renderAssets(items) {
+        const container = document.getElementById('assetList');        if (!container || items.length === 0) {
+            container.innerHTML = '<p class="text-center opacity-60">Belum ada asset</p>';
+            return;
+        }
+        container.innerHTML = items.map(a => `
+            <div class="asset-card">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="font-bold">${a.nama_asset || a.nama_barang || '-'}</div>
+                        <div class="text-xs opacity-60">${a.kategori || '-'} | ${a.lokasi || '-'}</div>
+                        <div class="text-xs opacity-40 mt-1">S/N: ${a.serial_number || '-'}</div>
+                    </div>
+                    <div class="text-right">
+                        <span class="badge ${a.kondisi === 'baik' ? 'badge-good' : a.kondisi === 'rusak_ringan' ? 'badge-warning' : 'badge-danger'}">
+                            ${a.kondisi || 'baik'}
+                        </span>
+                        <button onclick="window.showQR('${a.id}', '${a.nama_asset || a.nama_barang}')" class="text-emerald-400 text-sm mt-2 block">
+                            <i class="fas fa-qrcode"></i> QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // RENDER INVENTORY
+    function renderInventory(items) {
+        const container = document.getElementById('inventoryList');
+        if (!container || items.length === 0) {
+            container.innerHTML = '<p class="text-center opacity-60">Belum ada inventory</p>';
+            return;
+        }
+        container.innerHTML = items.map(i => {
+            const isLow = i.jumlah <= i.minimal_stok;
+            return `
+                <div class="asset-card ${isLow ? 'border-red-500' : ''}">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-bold">${i.nama_barang}</div>
+                            <div class="text-xs opacity-60">${i.kategori || '-'} | ${i.lokasi_rak || '-'}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold ${isLow ? 'text-red-400' : 'text-emerald-400'}">${i.jumlah} ${i.satuan || ''}</div>
+                            <div class="text-xs opacity-60">Min: ${i.minimal_stok || 0}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    // RENDER GUDANG
+    function renderGudang(items) {
+        const container = document.getElementById('gudangList');
+        if (!container || items.length === 0) {
+            container.innerHTML = '<p class="text-center opacity-60 col-span-2">Belum ada data gudang</p>';
+            return;
+        }
+        const categories = {};
+        items.forEach(i => {
+            const cat = i.kategori || 'Umum';
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push(i);
+        });
+        container.innerHTML = Object.entries(categories).map(([cat, items]) => `
+            <div class="stat-box">
+                <h3 class="font-bold mb-3 text-left">${cat}</h3>
+                <div class="space-y-2 text-left">
+                    ${items.map(i => `
+                        <div class="flex justify-between text-sm">
+                            <span>${i.nama_barang}</span>
+                            <span class="${i.jumlah <= i.minimal_stok ? 'text-red-400' : 'text-emerald-400'}">${i.jumlah} ${i.satuan || ''}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // UPDATE STATS
+    function updateStats() {
+        document.getElementById('stat-total-asset').textContent = assets.length;
+        document.getElementById('stat-total-inventory').textContent = inventory.length;
+        document.getElementById('stat-low-stock').textContent = inventory.filter(i => i.jumlah <= i.minimal_stok).length;
+        const totalValue = assets.reduce((sum, a) => sum + (a.harga || 0), 0);
+        document.getElementById('stat-total-value').textContent = totalValue.toLocaleString('id-ID');
+    }
+
+    // SETUP TABS
+    function setupTabs() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
+                document.getElementById(`tab-${this.dataset.tab}`).classList.remove('hidden');
+            });
+        });
+    }
+    // SETUP SEARCH
+    function setupSearch() {
+        document.getElementById('searchAsset')?.addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            renderAssets(assets.filter(a => (a.nama_asset || a.nama_barang || '').toLowerCase().includes(q)));
+        });
+        document.getElementById('searchInventory')?.addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            renderInventory(inventory.filter(i => i.nama_barang.toLowerCase().includes(q)));
+        });
+    }
+
+    // MODAL FUNCTIONS
+    window.openAssetModal = () => document.getElementById('assetModal').classList.remove('hidden') || document.getElementById('assetModal').classList.add('flex');
+    window.closeAssetModal = () => document.getElementById('assetModal').classList.add('hidden') || document.getElementById('assetModal').classList.remove('flex');
+    window.openInventoryModal = () => document.getElementById('inventoryModal').classList.remove('hidden') || document.getElementById('inventoryModal').classList.add('flex');
+    window.closeInventoryModal = () => document.getElementById('inventoryModal').classList.add('hidden') || document.getElementById('inventoryModal').classList.remove('flex');
+
+    // SAVE ASSET
+    window.saveAsset = async () => {
+        const data = {
+            nama_asset: document.getElementById('assetName').value,
+            kategori: document.getElementById('assetCategory').value,
+            lokasi: document.getElementById('assetLocation').value,
+            serial_number: document.getElementById('assetSerial').value,
+            harga: parseFloat(document.getElementById('assetPrice').value) || 0,
+            tanggal_beli: document.getElementById('assetDate').value,
+            kondisi: document.getElementById('assetCondition').value,
+            status: 'active',
+            created_at: new Date().toISOString()
+        };
+        const { error } = await supabase.from('assets').insert([data]);
+        if (error) {
+            showToast('Gagal: ' + error.message, 'error');
+        } else {
+            showToast('Asset disimpan', 'success');
+            closeAssetModal();
+            loadAssets();
+            updateStats();
+        }
+    };
+
+    // SAVE INVENTORY
+    window.saveInventory = async () => {
+        const data = {
+            nama_barang: document.getElementById('invName').value,
+            kategori: document.getElementById('invCategory').value,
+            jumlah: parseInt(document.getElementById('invQty').value) || 0,
+            satuan: document.getElementById('invUnit').value,
+            minimal_stok: parseInt(document.getElementById('invMin').value) || 0,            lokasi_rak: document.getElementById('invLocation').value,
+            created_at: new Date().toISOString()
+        };
+        const { error } = await supabase.from('inventory').insert([data]);
+        if (error) {
+            showToast('Gagal: ' + error.message, 'error');
+        } else {
+            showToast('Inventory disimpan', 'success');
+            closeInventoryModal();
+            loadInventory();
+            updateStats();
+        }
+    };
+
+    // SHOW QR
+    window.showQR = (id, name) => {
+        alert(`QR Code untuk ${name}\nID: ${id}\n\n(Fitur QR lengkap coming soon!)`);
+    };
+
+    // EXPORT CSV
+    window.exportCSV = () => {
+        let csv = 'Type,Name,Category,Location,Status/Qty\n';
+        assets.forEach(a => csv += `Asset,${a.nama_asset},${a.kategori},${a.lokasi},${a.kondisi}\n`);
+        inventory.forEach(i => csv += `Inventory,${i.nama_barang},${i.kategori},${i.lokasi_rak},${i.jumlah}\n`);
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `asset_inventory_${Date.now()}.csv`;
+        a.click();
+        showToast('CSV exported', 'success');
+    };
+
+    // PRINT QR
+    window.printQR = () => {
+        showToast('Print QR coming soon!', 'info');
+    };
+
+    // INIT
+    init();
+</script>
+
+</body>
+</html>
