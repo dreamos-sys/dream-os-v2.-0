@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center | Dream OS v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --emerald: #10b981;
+            --gold: #fbbf24;
+            --blue: #3b82f6;
+            --orange: #f59e0b;
+            --purple: #a855f7;
+            --red: #ef4444;
+            --bg: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: transparent;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            padding: 1rem;
+        }
+
+        .crystal-card {
+            background: var(--bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* AI INSIGHT BOX */
+        .ai-insight {
+            background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.1) 100%);
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .ai-insight::before {            content: '🤖 AI';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.75rem;
+            background: rgba(16,185,129,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            color: var(--emerald);
+        }
+
+        /* SECURITY STATUS */
+        .security-status {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        .status-safe {
+            background: rgba(16,185,129,0.2);
+            color: var(--emerald);
+            border: 1px solid var(--emerald);
+        }
+        .status-warning {
+            background: rgba(245,158,11,0.2);
+            color: var(--orange);
+            border: 1px solid var(--orange);
+        }
+        .status-danger {
+            background: rgba(239,68,68,0.2);
+            color: var(--red);
+            border: 1px solid var(--red);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .stat-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--emerald);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        /* TAB NAVIGATION */
+        .tab-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex: 1 1 auto;
+            text-align: center;
+        }
+        .tab-btn.active {
+            background: var(--emerald);
+            border-color: var(--emerald);
+        }
+        .tab-btn:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+        }
+        /* SUBMENU GRID */
+        .submenu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .submenu-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+        .submenu-item:hover {
+            border-color: var(--emerald);
+            transform: translateY(-2px);
+            background: rgba(16,185,129,0.1);
+        }
+        .submenu-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        .submenu-name {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .submenu-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(245,158,11,0.2);
+            color: var(--orange);
+            border-radius: 12px;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+
+        /* CONTENT AREA */
+        .content-area {
+            min-height: 200px;
+        }
+
+        /* ACTIVITY FEED */        .activity-feed {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(16,185,129,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .activity-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .activity-meta {
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+
+        /* PREDICTIVE INSIGHTS */
+        .predictive-list {
+            list-style: none;
+        }
+        .predictive-item {
+            background: rgba(255,255,255,0.03);
+            border-left: 3px solid var(--emerald);
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;            border-radius: 0 12px 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+        }
+        .predictive-item.high {
+            border-left-color: var(--orange);
+        }
+        .predictive-item.critical {
+            border-left-color: var(--red);
+        }
+
+        /* SYSTEM HEALTH */
+        .health-item {
+            margin-bottom: 1rem;
+        }
+        .health-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+        .health-bar {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            height: 6px;
+            overflow: hidden;
+        }
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--emerald), var(--blue));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* EXPORT BUTTONS */
+        .export-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+        .btn-action {
+            background: linear-gradient(135deg, var(--emerald) 0%, #059669 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex: 1 1 auto;
+            min-width: 120px;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16,185,129,0.4);
+        }
+        .btn-blue {
+            background: linear-gradient(135deg, var(--blue) 0%, #1d4ed8 100%);
+        }
+        .btn-purple {
+            background: linear-gradient(135deg, var(--purple) 0%, #7c3aed 100%);
+        }
+
+        /* BACK BUTTON */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--emerald);
+            cursor: pointer;
+            z-index: 100;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .back-btn:hover {
+            background: rgba(16,185,129,0.2);
+            transform: translateX(-3px);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .tab-btn { padding: 0.5rem 1rem; font-size: 0.75rem; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .submenu-grid { grid-template-columns: repeat(4, 1fr); }
+            .back-btn { padding: 0.5rem; font-size: 0.75rem; }        }
+
+        /* ARABIC */
+        .arabic { font-family: 'Amiri', serif; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(16,185,129,0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(16,185,129,0.5);
+        }
+    </style>
+</head>
+<body>
+
+<!-- BACK BUTTON -->
+<button class="back-btn" onclick="goBack()">
+    <i class="fas fa-arrow-left"></i>
+    <span>Back</span>
+</button>
+
+<!-- AI INSIGHT BOX -->
+<div class="ai-insight">
+    <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+        <i class="fas fa-brain text-emerald-400"></i>
+        <span data-id="AI Insight" data-en="AI Insight">AI Insight</span>
+    </h3>
+    <p id="aiMessage" class="text-sm text-white/70" data-id="Menganalisis data sistem..." data-en="Analyzing system data...">Menganalisis data sistem...</p>
+</div>
+
+<!-- SECURITY STATUS -->
+<div class="crystal-card">
+    <h3 class="text-sm font-bold mb-3 text-white/60" data-id="Status Keamanan" data-en="Security Status">Status Keamanan</h3>
+    <div class="security-status status-safe" id="securityStatus">
+        <i class="fas fa-shield-check mr-2"></i>
+        <span data-id="AMAN" data-en="SAFE">AMAN</span>
+    </div>
+</div>
+
+<!-- QUICK STATS -->
+<div class="stats-grid">    <div class="stat-box" onclick="filterByStatus('all')">
+        <div class="stat-value" style="color: var(--blue);" id="stat-total">0</div>
+        <div class="stat-label" data-id="Total Pending" data-en="Total Pending">Total Pending</div>
+    </div>
+    <div class="stat-box" onclick="openSubModule('booking')">
+        <div class="stat-value" style="color: var(--emerald);" id="stat-booking">0</div>
+        <div class="stat-label" data-id="Booking" data-en="Booking">Booking</div>
+    </div>
+    <div class="stat-box" onclick="openSubModule('k3')">
+        <div class="stat-value" style="color: var(--orange);" id="stat-k3">0</div>
+        <div class="stat-label" data-id="K3" data-en="K3">K3</div>
+    </div>
+    <div class="stat-box" onclick="openSubModule('dana')">
+        <div class="stat-value" style="color: var(--purple);" id="stat-dana">0</div>
+        <div class="stat-label" data-id="Dana" data-en="Dana">Dana</div>
+    </div>
+    <div class="stat-box" onclick="openSubModule('stok')">
+        <div class="stat-value" style="color: #06b6d4;" id="stat-stok">0</div>
+        <div class="stat-label" data-id="Stok Menipis" data-en="Low Stock">Stok Menipis</div>
+    </div>
+    <div class="stat-box" onclick="openSubModule('maintenance')">
+        <div class="stat-value" style="color: var(--gold);" id="stat-maintenance">0</div>
+        <div class="stat-label" data-id="Maintenance" data-en="Maintenance">Maintenance</div>
+    </div>
+</div>
+
+<!-- TAB NAVIGATION -->
+<div class="tab-container">
+    <div class="tab-btn active" data-tab="dashboard">📊 Dashboard</div>
+    <div class="tab-btn" data-tab="kerja">🏢 R. Kerja</div>
+    <div class="tab-btn" data-tab="dana">💰 Dana</div>
+</div>
+
+<!-- SUBMENU -->
+<div id="submenu-container" class="submenu-grid"></div>
+
+<!-- CONTENT AREA -->
+<div id="content-area" class="content-area crystal-card">
+    <div class="text-center py-8 opacity-60">Memuat dashboard...</div>
+</div>
+
+<!-- FOOTER -->
+<div class="text-center mt-6">
+    <p class="arabic text-lg text-emerald-400 mb-2">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</p>
+    <p class="text-[8px] text-white/30 tracking-[3px]" data-id="THE POWER SOUL OF SHALAWAT" data-en="THE POWER SOUL OF SHALAWAT">THE POWER SOUL OF SHALAWAT</p>
+    <p class="text-[8px] text-white/20 mt-2">Dream Team © 2026 | ISO 27001 • ISO 55001 • ISO 9001</p>
+</div>
+
+<script type="module">
+    import { supabase } from '../../core/supabase.js';    import { showToast } from '../../core/components.js';
+
+    console.log('[COMMANDCENTER] Loaded');
+
+    let currentLang = localStorage.getItem('lang') || 'id';
+    let currentTab = 'dashboard';
+    let cachedStats = {};
+
+    const modulesByTab = {
+        dashboard: [
+            { id: 'analytics', name: 'Analytics', icon: '📈' },
+            { id: 'pengajuan', name: 'Pengajuan', icon: '📋' },
+            { id: 'laporan', name: 'Laporan', icon: '📄' },
+            { id: 'ai', name: 'AI', icon: '🤖' },
+            { id: 'slide', name: 'Slide', icon: '🖼️' },
+            { id: 'files', name: 'Files', icon: '📁' },
+            { id: 'backup', name: 'Backup', icon: '💾' },
+            { id: 'qr', name: 'QR', icon: '📱' },
+            { id: 'approval', name: 'Approval', icon: '✅' }
+        ],
+        kerja: [
+            { id: 'booking', name: 'Booking', icon: '📅' },
+            { id: 'k3', name: 'K3', icon: '⚠️' },
+            { id: 'sekuriti', name: 'Sekuriti', icon: '🛡️' },
+            { id: 'janitor-indoor', name: 'Janitor In', icon: '🧹' },
+            { id: 'janitor-outdoor', name: 'Janitor Out', icon: '🌿' },
+            { id: 'stok', name: 'Stok', icon: '📦' },
+            { id: 'maintenance', name: 'Maintenance', icon: '🔧' },
+            { id: 'asset', name: 'Asset', icon: '🏢' },
+            { id: 'gudang', name: 'Gudang', icon: '🏭' }
+        ],
+        dana: [
+            { id: 'dana', name: 'Dana', icon: '💰' },
+            { id: 'approval', name: 'Approval', icon: '✅' },
+            { id: 'qr', name: 'QR', icon: '📱' },
+            { id: 'backup', name: 'Backup', icon: '💾' },
+            { id: 'laporan', name: 'Laporan', icon: '📄' },
+            { id: 'analytics', name: 'Analytics', icon: '📈' }
+        ]
+    };
+
+    // INIT
+    async function init() {
+        console.log('[COMMANDCENTER] Initializing...');
+        await loadAllStats();
+        setupTabs();
+        renderSubmenu('dashboard');
+        renderDashboardContent();
+        startAutoRefresh();
+    }
+    // LOAD STATS
+    async function loadAllStats() {
+        try {
+            const [booking, k3, dana, stok, maintenance] = await Promise.all([
+                supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from('k3_reports').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from('pengajuan_dana').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from('inventory').select('*').lt('jumlah', 'minimal_stok'),
+                supabase.from('maintenance_tasks').select('*', { count: 'exact', head: true }).in('status', ['pending', 'proses'])
+            ]);
+
+            cachedStats = {
+                booking: booking.count || 0,
+                k3: k3.count || 0,
+                dana: dana.count || 0,
+                stok: stok.data?.length || 0,
+                maintenance: maintenance.count || 0,
+                total: (booking.count||0) + (k3.count||0) + (dana.count||0) + (maintenance.count||0)
+            };
+
+            // Update UI
+            document.getElementById('stat-total').textContent = cachedStats.total;
+            document.getElementById('stat-booking').textContent = cachedStats.booking;
+            document.getElementById('stat-k3').textContent = cachedStats.k3;
+            document.getElementById('stat-dana').textContent = cachedStats.dana;
+            document.getElementById('stat-stok').textContent = cachedStats.stok;
+            document.getElementById('stat-maintenance').textContent = cachedStats.maintenance;
+
+            updateSecurityStatus(cachedStats.total);
+            generateAIInsights(cachedStats);
+
+        } catch (err) {
+            console.error('[COMMANDCENTER] Stats error:', err);
+            showToast('Gagal memuat data', 'error');
+        }
+    }
+
+    // UPDATE SECURITY STATUS
+    function updateSecurityStatus(total) {
+        const status = document.getElementById('securityStatus');
+        if (!status) return;
+        
+        status.className = 'security-status';
+        if (total === 0) {
+            status.classList.add('status-safe');
+            status.innerHTML = '<i class="fas fa-shield-check mr-2"></i><span>AMAN</span>';
+        } else if (total < 10) {
+            status.classList.add('status-warning');
+            status.innerHTML = '<i class="fas fa-triangle-exclamation mr-2"></i><span>WASPADA</span>';        } else {
+            status.classList.add('status-danger');
+            status.innerHTML = '<i class="fas fa-circle-exclamation mr-2"></i><span>BAHAYA</span>';
+        }
+    }
+
+    // GENERATE AI INSIGHTS
+    function generateAIInsights(counts) {
+        const aiMessage = document.getElementById('aiMessage');
+        if (!aiMessage) return;
+
+        const insights = [];
+        if (counts.booking > 5) insights.push('📈 Booking tinggi');
+        if (counts.k3 > 3) insights.push('⚠️ Review K3');
+        if (counts.dana > 5) insights.push('💰 Dana pending');
+        if (counts.stok > 0) insights.push('📦 Stok menipis');
+        if (insights.length === 0) insights.push('✅ Semua optimal');
+
+        aiMessage.textContent = insights.join(' | ');
+    }
+
+    // SETUP TABS
+    function setupTabs() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTab = btn.dataset.tab;
+                renderSubmenu(currentTab);
+                if (currentTab === 'dashboard') {
+                    renderDashboardContent();
+                } else {
+                    document.getElementById('content-area').innerHTML = 
+                        '<div class="text-center py-8 opacity-60">Pilih submenu untuk melihat detail</div>';
+                }
+            });
+        });
+    }
+
+    // RENDER SUBMENU
+    function renderSubmenu(tab) {
+        const container = document.getElementById('submenu-container');
+        if (!container) return;
+        
+        const modules = modulesByTab[tab] || [];
+        container.innerHTML = modules.map(mod => `
+            <div class="submenu-item" onclick="openSubModule('${mod.id}')">
+                <span class="submenu-icon">${mod.icon}</span>
+                <span class="submenu-name">${mod.name}</span>
+                ${cachedStats[mod.id] ? `<span class="submenu-badge">${cachedStats[mod.id]}</span>` : ''}            </div>
+        `).join('');
+    }
+
+    // RENDER DASHBOARD CONTENT
+    function renderDashboardContent() {
+        const content = document.getElementById('content-area');
+        if (!content) return;
+        
+        content.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="text-sm font-bold mb-3">📋 Aktivitas Terbaru</h4>
+                    <div id="activityFeed" class="activity-feed">Memuat...</div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold mb-3">🔮 Prediksi AI</h4>
+                    <ul id="predictiveList" class="predictive-list">
+                        <li class="predictive-item"><i class="fas fa-spinner fa-spin"></i> Menganalisis...</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h4 class="text-sm font-bold mb-3">📊 Kesehatan Sistem</h4>
+                <div class="health-item">
+                    <div class="health-header"><span>Database</span><span>98%</span></div>
+                    <div class="health-bar"><div class="health-fill" style="width:98%"></div></div>
+                </div>
+                <div class="health-item">
+                    <div class="health-header"><span>API</span><span>100%</span></div>
+                    <div class="health-bar"><div class="health-fill" style="width:100%"></div></div>
+                </div>
+                <div class="health-item">
+                    <div class="health-header"><span>Storage</span><span>75%</span></div>
+                    <div class="health-bar"><div class="health-fill" style="width:75%"></div></div>
+                </div>
+                <div class="health-item">
+                    <div class="health-header"><span>Security</span><span>100%</span></div>
+                    <div class="health-bar"><div class="health-fill" style="width:100%"></div></div>
+                </div>
+            </div>
+            <div class="export-buttons">
+                <button class="btn-action" onclick="createBackup()"><i class="fas fa-download"></i> Backup</button>
+                <button class="btn-action btn-blue"><i class="fas fa-file-excel"></i> Excel</button>
+                <button class="btn-action btn-purple"><i class="fas fa-file-pdf"></i> PDF</button>
+            </div>
+        `;
+        loadRecentActivities();
+        generatePredictions();
+    }
+    // LOAD ACTIVITIES
+    async function loadRecentActivities() {
+        const feed = document.getElementById('activityFeed');
+        if (!feed) return;
+        
+        try {
+            const { data, error } = await supabase
+                .from('audit_logs')
+                .select('action, detail, created_at')
+                .order('created_at', { ascending: false })
+                .limit(10);
+            
+            if (error || !data || data.length === 0) {
+                feed.innerHTML = '<div class="text-center py-4 opacity-60">Belum ada aktivitas</div>';
+                return;
+            }
+            
+            feed.innerHTML = data.map(a => `
+                <div class="activity-item">
+                    <div class="activity-icon"><i class="fas fa-circle text-emerald-400" style="font-size: 0.5rem;"></i></div>
+                    <div class="activity-content">
+                        <div class="activity-title">${a.action}</div>
+                        <div class="activity-meta">${new Date(a.created_at).toLocaleString('id-ID')}</div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            feed.innerHTML = '<div class="text-center py-4 opacity-60">Gagal memuat</div>';
+        }
+    }
+
+    // GENERATE PREDICTIONS
+    function generatePredictions() {
+        const list = document.getElementById('predictiveList');
+        if (!list) return;
+
+        const predictions = [
+            { level: 'normal', icon: 'fa-check-circle', text: '📊 Booking stabil 7 hari' },
+            { level: 'high', icon: 'fa-exclamation-circle', text: '⚠️ 3 K3 butuh perhatian' },
+            { level: 'critical', icon: 'fa-exclamation-triangle', text: '🔴 Storage 75%' }
+        ];
+
+        list.innerHTML = predictions.map(p => `
+            <li class="predictive-item ${p.level}">
+                <i class="fas ${p.icon}"></i> <span>${p.text}</span>
+            </li>
+        `).join('');
+    }
+    // OPEN SUB MODULE
+    window.openSubModule = function(id) {
+        console.log('Opening module:', id);
+        window.location.href = `../${id}/index.html`;
+    };
+
+    // GO BACK
+    window.goBack = function() {
+        window.location.href = '../index.html';
+    };
+
+    // CREATE BACKUP
+    window.createBackup = async function() {
+        try {
+            showToast('Membuat backup...', 'success');
+            const tables = ['bookings', 'k3_reports', 'pengajuan_dana', 'inventory'];
+            const backup = {};
+            for (const table of tables) {
+                const { data } = await supabase.from(table).select('*');
+                backup[table] = data || [];
+            }
+            backup.timestamp = new Date().toISOString();
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dream-os-backup-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Backup berhasil', 'success');
+        } catch (err) {
+            showToast('Backup gagal: ' + err.message, 'error');
+        }
+    };
+
+    // AUTO REFRESH
+    let refreshInterval;
+    function startAutoRefresh() {
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(loadAllStats, 30000);
+    }
+
+    // INIT ON LOAD
+    init();
+</script>
+
+</body>
+</html>
