@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center | Dream OS v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --emerald: #10b981;
+            --gold: #fbbf24;
+            --blue: #3b82f6;
+            --orange: #f59e0b;
+            --purple: #a855f7;
+            --red: #ef4444;
+            --bg: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: linear-gradient(135deg, #020617 0%, #1e293b 100%); color: white; font-family: 'Rajdhani', sans-serif; padding: 1rem; min-height: 100vh; }
+        .crystal-card { background: var(--bg); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 24px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .ai-insight { background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.1) 100%); border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; position: relative; }
+        .ai-insight::before { content: '🤖 AI'; position: absolute; top: 10px; right: 10px; font-size: 0.75rem; background: rgba(16,185,129,0.2); padding: 4px 12px; border-radius: 12px; color: var(--emerald); }
+        .security-status { padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 700; text-transform: uppercase; text-align: center; }
+        .status-safe { background: rgba(16,185,129,0.2); color: var(--emerald); border: 1px solid var(--emerald); }
+        .status-warning { background: rgba(245,158,11,0.2); color: var(--orange); border: 1px solid var(--orange); }
+        .status-danger { background: rgba(239,68,68,0.2); color: var(--red); border: 1px solid var(--red); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1.5rem 1rem; text-align: center; transition: 0.3s; cursor: pointer; }
+        .stat-box:hover { transform: translateY(-3px); border-color: var(--emerald); background: rgba(16,185,129,0.1); }
+        .stat-value { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+        .tab-container { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .tab-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-weight: 600; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; flex: 1; text-align: center; }
+        .tab-btn.active { background: var(--emerald); border-color: var(--emerald); }
+        .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
+        .submenu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+        .submenu-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 1rem 0.5rem; text-align: center; cursor: pointer; transition: 0.3s; position: relative; }
+        .submenu-item:hover { border-color: var(--emerald); transform: translateY(-2px); background: rgba(16,185,129,0.1); }
+        .submenu-icon { font-size: 1.5rem; margin-bottom: 0.25rem; display: block; }
+        .submenu-name { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+        .submenu-badge { position: absolute; top: 5px; right: 5px; background: rgba(245,158,11,0.2); color: var(--orange); border-radius: 12px; padding: 0.2rem 0.5rem; font-size: 0.6rem; font-weight: 700; }
+        .content-area { min-height: 150px; }
+        .back-btn { position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 0.75rem 1rem; color: var(--emerald); cursor: pointer; z-index: 100; transition: 0.3s; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+        .back-btn:hover { background: rgba(16,185,129,0.2); transform: translateX(-3px); }
+        .arabic { font-family: 'Amiri', serif; }
+        @media (max-width: 480px) { .tab-btn { padding: 0.5rem 1rem; font-size: 0.75rem; } .stats-grid { grid-template-columns: repeat(3, 1fr); } .submenu-grid { grid-template-columns: repeat(4, 1fr); } .back-btn { padding: 0.5rem; font-size: 0.75rem; } }
+    </style></head>
+<body>
+
+<!-- BACK BUTTON -->
+<button class="back-btn" onclick="goBack()">
+    <i class="fas fa-arrow-left"></i>
+    <span>Back</span>
+</button>
+
+<!-- AI INSIGHT -->
+<div class="ai-insight">
+    <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+        <i class="fas fa-brain text-emerald-400"></i>
+        <span>AI Insight</span>
+    </h3>
+    <p id="aiMessage" class="text-sm text-white/70">Memuat...</p>
+</div>
+
+<!-- SECURITY STATUS -->
+<div class="crystal-card">
+    <h3 class="text-sm font-bold mb-3 text-white/60">Status Keamanan</h3>
+    <div class="security-status status-safe" id="securityStatus">
+        <i class="fas fa-shield-check mr-2"></i>
+        <span>AMAN</span>
+    </div>
+</div>
+
+<!-- STATS GRID -->
+<div class="stats-grid">
+    <div class="stat-box" onclick="goToModule('all')">
+        <div class="stat-value" style="color: var(--blue);" id="stat-total">0</div>
+        <div class="stat-label">Total Pending</div>
+    </div>
+    <div class="stat-box" onclick="goToModule('booking')">
+        <div class="stat-value" style="color: var(--emerald);" id="stat-booking">0</div>
+        <div class="stat-label">Booking</div>
+    </div>
+    <div class="stat-box" onclick="goToModule('k3')">
+        <div class="stat-value" style="color: var(--orange);" id="stat-k3">0</div>
+        <div class="stat-label">K3</div>
+    </div>
+    <div class="stat-box" onclick="goToModule('dana')">
+        <div class="stat-value" style="color: var(--purple);" id="stat-dana">0</div>
+        <div class="stat-label">Dana</div>
+    </div>
+    <div class="stat-box" onclick="goToModule('stok')">
+        <div class="stat-value" style="color: #06b6d4;" id="stat-stok">0</div>
+        <div class="stat-label">Stok</div>
+    </div>
+    <div class="stat-box" onclick="goToModule('maintenance')">        <div class="stat-value" style="color: var(--gold);" id="stat-maintenance">0</div>
+        <div class="stat-label">Maintenance</div>
+    </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-container">
+    <div class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</div>
+    <div class="tab-btn" onclick="switchTab('kerja')">🏢 R. Kerja</div>
+    <div class="tab-btn" onclick="switchTab('dana')">💰 Dana</div>
+</div>
+
+<!-- SUBMENU -->
+<div id="submenu-container" class="submenu-grid"></div>
+
+<!-- CONTENT -->
+<div id="content-area" class="content-area crystal-card">
+    <div class="text-center py-8 opacity-60">Memuat...</div>
+</div>
+
+<!-- FOOTER -->
+<div class="text-center mt-6">
+    <p class="arabic text-lg text-emerald-400 mb-2">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</p>
+    <p class="text-[8px] text-white/30 tracking-[3px]">THE POWER SOUL OF SHALAWAT</p>
+    <p class="text-[8px] text-white/20 mt-2">Dream Team © 2026</p>
+</div>
+
+<!-- GLOBAL FUNCTIONS - MUST BE BEFORE MODULE -->
+<script>
+window.goToModule = function(id) {
+    console.log('🚀 Going to:', id);
+    window.location.href = './' + id + '/index.html';
+};
+
+window.goBack = function() {
+    window.history.back();
+};
+
+window.switchTab = function(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderSubmenu(tab);
+};
+</script>
+
+<!-- MAIN SCRIPT -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// SUPABASE CONFIG
+const SB_URL = 'https://pvznaeppaagylwddirla.supabase.co';const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2em5hZXBwYWFneWx3ZGRpcmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTEwNDMsImV4cCI6MjA4NzUyNzA0M30.t9SJi3VfsBDkKmeZ3egZ4rbvljl4xe0WwNkPtfA9-vo';
+const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+// MODULES
+const modulesByTab = {
+    dashboard: [
+        { id: 'analytics', name: 'Analytics', icon: '📈' },
+        { id: 'pengajuan', name: 'Pengajuan', icon: '📋' },
+        { id: 'laporan', name: 'Laporan', icon: '📄' },
+        { id: 'ai', name: 'AI', icon: '🤖' },
+        { id: 'slide', name: 'Slide', icon: '🖼️' },
+        { id: 'files', name: 'Files', icon: '📁' },
+        { id: 'backup', name: 'Backup', icon: '💾' },
+        { id: 'qr', name: 'QR', icon: '📱' },
+        { id: 'approval', name: 'Approval', icon: '✅' }
+    ],
+    kerja: [
+        { id: 'booking', name: 'Booking', icon: '📅' },
+        { id: 'k3', name: 'K3', icon: '⚠️' },
+        { id: 'sekuriti', name: 'Sekuriti', icon: '🛡️' },
+        { id: 'janitor-indoor', name: 'Janitor In', icon: '🧹' },
+        { id: 'janitor-outdoor', name: 'Janitor Out', icon: '🌿' },
+        { id: 'stok', name: 'Stok', icon: '📦' },
+        { id: 'maintenance', name: 'Maintenance', icon: '🔧' },
+        { id: 'asset', name: 'Asset', icon: '🏢' },
+        { id: 'gudang', name: 'Gudang', icon: '🏭' }
+    ],
+    dana: [
+        { id: 'dana', name: 'Dana', icon: '💰' },
+        { id: 'approval', name: 'Approval', icon: '✅' },
+        { id: 'qr', name: 'QR', icon: '📱' },
+        { id: 'backup', name: 'Backup', icon: '💾' },
+        { id: 'laporan', name: 'Laporan', icon: '📄' },
+        { id: 'analytics', name: 'Analytics', icon: '📈' }
+    ]
+};
+
+let cachedStats = {};
+
+// INIT
+async function init() {
+    console.log('[COMMANDCENTER] Init...');
+    await loadAllStats();
+    renderSubmenu('dashboard');
+    renderContent();
+}
+
+// LOAD STATS
+async function loadAllStats() {
+    try {        const [booking, k3, dana, stok, maintenance] = await Promise.all([
+            supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+            supabase.from('k3_reports').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+            supabase.from('pengajuan_dana').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+            supabase.from('inventory').select('*').lt('jumlah', 'minimal_stok'),
+            supabase.from('maintenance_tasks').select('*', { count: 'exact', head: true }).in('status', ['pending', 'proses'])
+        ]);
+
+        cachedStats = {
+            booking: booking.count || 0,
+            k3: k3.count || 0,
+            dana: dana.count || 0,
+            stok: stok.data?.length || 0,
+            maintenance: maintenance.count || 0,
+            total: (booking.count||0) + (k3.count||0) + (dana.count||0) + (maintenance.count||0)
+        };
+
+        document.getElementById('stat-total').textContent = cachedStats.total;
+        document.getElementById('stat-booking').textContent = cachedStats.booking;
+        document.getElementById('stat-k3').textContent = cachedStats.k3;
+        document.getElementById('stat-dana').textContent = cachedStats.dana;
+        document.getElementById('stat-stok').textContent = cachedStats.stok;
+        document.getElementById('stat-maintenance').textContent = cachedStats.maintenance;
+
+        updateSecurityStatus(cachedStats.total);
+        generateAIInsights(cachedStats);
+
+    } catch (err) {
+        console.error('Stats error:', err);
+    }
+}
+
+// SECURITY STATUS
+function updateSecurityStatus(total) {
+    const status = document.getElementById('securityStatus');
+    if (!status) return;
+    status.className = 'security-status';
+    if (total === 0) {
+        status.classList.add('status-safe');
+        status.innerHTML = '<i class="fas fa-shield-check mr-2"></i><span>AMAN</span>';
+    } else if (total < 10) {
+        status.classList.add('status-warning');
+        status.innerHTML = '<i class="fas fa-triangle-exclamation mr-2"></i><span>WASPADA</span>';
+    } else {
+        status.classList.add('status-danger');
+        status.innerHTML = '<i class="fas fa-circle-exclamation mr-2"></i><span>BAHAYA</span>';
+    }
+}
+
+// AI INSIGHTSfunction generateAIInsights(counts) {
+    const aiMessage = document.getElementById('aiMessage');
+    if (!aiMessage) return;
+    const insights = [];
+    if (counts.booking > 5) insights.push('📈 Booking tinggi');
+    if (counts.k3 > 3) insights.push('⚠️ Review K3');
+    if (counts.dana > 5) insights.push('💰 Dana pending');
+    if (counts.stok > 0) insights.push('📦 Stok menipis');
+    if (insights.length === 0) insights.push('✅ Semua optimal');
+    aiMessage.textContent = insights.join(' | ');
+}
+
+// RENDER SUBMENU
+function renderSubmenu(tab) {
+    const container = document.getElementById('submenu-container');
+    if (!container) return;
+    const modules = modulesByTab[tab] || [];
+    container.innerHTML = modules.map(mod => `
+        <div class="submenu-item" onclick="goToModule('${mod.id}')">
+            <span class="submenu-icon">${mod.icon}</span>
+            <span class="submenu-name">${mod.name}</span>
+            ${cachedStats[mod.id] ? `<span class="submenu-badge">${cachedStats[mod.id]}</span>` : ''}
+        </div>
+    `).join('');
+}
+
+// RENDER CONTENT
+function renderContent() {
+    const content = document.getElementById('content-area');
+    if (!content) return;
+    content.innerHTML = `
+        <div class="text-center py-8">
+            <div class="text-4xl mb-4">🚀</div>
+            <p class="text-lg font-bold">Dream OS Command Center</p>
+            <p class="text-sm opacity-60 mt-2">Klik modul di atas untuk membuka</p>
+        </div>
+    `;
+}
+
+// START
+init();
+</script>
+
+</body>
+</html>
