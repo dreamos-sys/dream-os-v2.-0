@@ -356,3 +356,64 @@ function startAutoRefresh() {
   if (refreshTimer) clearInterval(refreshTimer);
   refreshTimer = setInterval(loadAllStats, 30000);
 }
+
+// ── WINDOW GLOBALS ────────────────────────────────────
+// FIX: Make BOTH function names work for compatibility
+
+window.openSubModule = function(id) {
+    // Role check for developer
+    if (id === 'developer') {
+        const user = store.get('user');
+        if (!user || !['DEVELOPER','MASTER'].includes(user.role)) {
+            showToast('⛔ Akses ditolak — hanya DEVELOPER/MASTER', 'error');
+            return;
+        }
+    }
+    
+    // Try loadModule from core
+    if (typeof window.loadModule === 'function') {
+        window.loadModule(id);
+        return;
+    }
+    
+    // Fallback: direct navigation
+    console.log('[module.js] Fallback navigation to:', id);
+    window.location.href = './' + id + '/index.html';
+};
+
+// ALSO export as goToModule for HTML compatibility
+window.goToModule = window.openSubModule;
+
+window.createBackup = async function() {
+    showToast('⏳ Membuat backup...', 'success');
+    const tables = ['bookings','k3_reports','pengajuan_dana','inventory','assets',
+        'maintenance_tasks','sekuriti_reports','janitor_indoor','janitor_outdoor'];
+    const backup = { version:'2.1', timestamp: new Date().toISOString(), tables:{} };
+    for (const t of tables) {
+        const { data } = await supabase.from(t).select('*');
+        backup.tables[t] = data || [];
+    }
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type:'application/json' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = `dream-os-backup-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('✅ Backup berhasil!', 'success');
+};
+
+window.exportToExcel = function() { showToast('📊 Fitur Excel dalam pengembangan', 'info'); };
+window.exportToPDF   = function() { showToast('📄 Fitur PDF dalam pengembangan', 'info'); };
+
+// ── AUTO REFRESH ─────────────────────────────────────
+function startAutoRefresh() {
+    if (refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(loadAllStats, 30000);
+}
+
+// ═══════════════════════════════════════════════════════
+// CONFIRM NAVIGATION IS READY
+// ═══════════════════════════════════════════════════════
+console.log('[COMMANDCENTER] ✅ Navigation ready:');
+console.log('  - window.goToModule:', typeof window.goToModule);
+console.log('  - window.openSubModule:', typeof window.openSubModule);
