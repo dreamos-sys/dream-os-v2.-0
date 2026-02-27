@@ -5,6 +5,7 @@ import { store } from '../store.js';
 const originalConsoleError = console.error;
 let errorBuffer = [];
 
+// Override console.error dengan safety
 console.error = (...args) => {
     try {
         captureError({ message: args.join(' '), source: 'console', severity: 'medium' });
@@ -12,6 +13,30 @@ console.error = (...args) => {
     originalConsoleError.apply(console, args);
 };
 
+// Fungsi untuk mendapatkan modul aktif saat ini (bisa dari router atau state)
+function getCurrentActiveModules() {
+    // Coba ambil dari store jika ada, atau dari URL
+    const path = window.location.hash || window.location.pathname;
+    return [path] || [];
+}
+
+// Generate error ID dengan normalisasi line number
+function generateErrorId(error) {
+    // Normalisasi: hilangkan angka baris dan lokasi stack
+    const normalized = (error.message || '')
+        .replace(/line \d+/gi, 'line X')
+        .replace(/\bat\s+.+:\d+:\d+/g, '');
+    
+    const str = `${normalized}|${error.source || 'unknown'}`;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash).toString(16);
+}
+
+// Capture error dengan metadata
 function captureError(errorData) {
     const user = store.get('user');
     const error = {
@@ -21,23 +46,18 @@ function captureError(errorData) {
         user_role: user?.role || 'guest',
         url: window.location.href,
         browser_info: navigator.userAgent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        metadata: {
+            session_id: sessionStorage.getItem('dream_session'),
+            last_actions: store.get('action_history')?.slice(-5) || [],
+            component_tree: getCurrentActiveModules()
+        }
     };
     errorBuffer.push(error);
     if (errorBuffer.length >= 10) flushErrors();
 }
 
-function generateErrorId(error) {
-    let str = `${error.message}|${error.source}`;
-    if (error.stack) str += `|${error.stack.split('\n')[0]}`;
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        hash |= 0;
-    }
-    return Math.abs(hash).toString(16);
-}
-
+// Kirim error ke Supabase (batch)
 async function flushErrors() {
     if (errorBuffer.length === 0) return;
     const errors = [...errorBuffer];
@@ -50,7 +70,10 @@ async function flushErrors() {
     }
 }
 
+// Flush tiap 5 detik
 setInterval(flushErrors, 5000);
+
+// Tangkap unhandled rejection
 window.addEventListener('unhandledrejection', (event) => {
     captureError({
         message: event.reason?.message || 'Unhandled Promise Rejection',
@@ -59,6 +82,8 @@ window.addEventListener('unhandledrejection', (event) => {
         severity: 'high'
     });
 });
+
+// Tangkap error global
 window.addEventListener('error', (event) => {
     captureError({
         message: event.message,
