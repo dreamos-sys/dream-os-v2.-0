@@ -334,10 +334,10 @@
 
             // ========== KONFIGURASI ==========
             const CONFIG = {
-                supabase: {
-                    url: 'https://rqpodzjexghrvcpyacyo.supabase.co',
-                    key: 'sb_publishable_U9MbSdPJOMSmaw3BsHJcVQ_PDiOy-UM'
-                },
+             
+                   
+                 
+                
                 weather: {
                     lat: -6.4,
                     lon: 106.8,
@@ -395,17 +395,17 @@
                 setTimeout(() => toast.remove(), 3000);
             }
 
-            // ========== TOGGLE PASSWORD ==========
-            window.togglePass = function(icon) {
-                const input = document.getElementById('access-key');
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
-                } else {
-                    input.type = 'password';
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
-                }
-            };
+           
+            
+             
+                
+           
+            
+               
+               
+     
+                
+            
 
             // ========== LOGIN ==========
             window.checkAccess = async function() {
@@ -730,9 +730,6 @@
     </script>
 </body>
 </html>
-
-
-diatas adalah index.html ver. 13 dan ini index.html v. 2
 
 <!DOCTYPE html>
 <html lang="id">
@@ -1747,7 +1744,8 @@ ini ver. 2.0 : <!DOCTYPE html>
     // CHECK SESSION
     if (checkSession()) {
         const user = store.get('user');
-        document.getElementById('login-zone').classList.add('hidden');
+        document.getElementById('login-zone').classList.add('hidde
+                                                            n');
         document.getElementById('app-shell').classList.remove('hidden');
         document.getElementById('prayerIndicator').classList.remove('hidden');
         document.getElementById('sessionTimer').classList.remove('hidden');
