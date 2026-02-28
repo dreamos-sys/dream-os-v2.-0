@@ -65,3 +65,11 @@ export async function catchAsync(promise, context = 'unknown') {
         throw err; // tetap lempar error agar bisa ditangani lebih lanjut
     }
 }
+// core/error.js
+import { showToast } from './components.js';
+
+export function handleError(error, context = 'unknown') {
+    console.error(`[ERROR][${context}]`, error);
+    showToast('Terjadi kesalahan: ' + error.message, 'error');
+    // Nanti bisa dikirim ke error collector jika ada
+}
