@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login Dream OS</title>
+</head>
+<body>
+    <h2>Test Login</h2>
+    <input type="password" id="passkey" placeholder="Masukkan password">
+    <button id="btnLogin">Login</button>
+
+    <script>
+        document.getElementById('btnLogin').addEventListener('click', function() {
+            const key = document.getElementById('passkey').value;
+            if (key === '012443410') {
+                alert('Login berhasil!');
+            } else {
+                alert('Akses ditolak!');
+            }
+        });
+    </script>
+</body>
+</html>
