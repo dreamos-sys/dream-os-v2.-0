@@ -37,3 +37,24 @@ export function showModal(title, content, onConfirm) {
         modal.remove();
     };
 }
+// core/components.js
+export function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.background = type === 'success' ? 'rgba(16,185,129,0.95)' : 'rgba(239,68,68,0.95)';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+export function showLoading(containerId, message = 'Loading...') {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = `
+            <div class="shalawat-loading">
+                <div class="arabic">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</div>
+                <p class="text-slate-400 mt-4">${message}</p>
+            </div>
+        `;
+    }
+}
