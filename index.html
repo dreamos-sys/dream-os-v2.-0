@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Login Dream OS</title>
+    <title>Dream OS v2.0</title>
 </head>
 <body>
-    <h2>Test Login</h2>
-    <input type="password" id="passkey" placeholder="Masukkan password">
+    <h2>Dream OS v2.0</h2>
+    <input type="password" id="passkey" placeholder="Access Code">
     <button id="btnLogin">Login</button>
+    <p id="error-msg"></p>
 
-    <script>
-        document.getElementById('btnLogin').addEventListener('click', function() {
+    <script type="module">
+        import { login } from './core/auth.js';
+
+        document.getElementById('btnLogin').addEventListener('click', async () => {
             const key = document.getElementById('passkey').value;
-            if (key === '012443410') {
-                alert('Login berhasil!');
+            const success = await login(key);
+            if (success) {
+                alert('Login berhasil dengan core!');
             } else {
-                alert('Akses ditolak!');
+                document.getElementById('error-msg').textContent = '❌ Access Denied!';
             }
         });
     </script>
