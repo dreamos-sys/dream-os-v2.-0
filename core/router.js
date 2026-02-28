@@ -1,20 +1,10 @@
+import { showLoading } from './components.js';
 import { store } from './store.js';
-import { showToast, showLoading } from './components.js';
-import { handleError } from './error.js';
+import { showToast } from './components.js';
 
-// Dynamic imports untuk semua modul (tambah sesuai kebutuhan)
 const modules = {
-    booking: () => import('../modules/booking/module.js'),
-    k3: () => import('../modules/k3/module.js'),
-    sekuriti: () => import('../modules/sekuriti/module.js'),
-    'janitor-indoor': () => import('../modules/janitor-indoor/module.js'),
-    'janitor-outdoor': () => import('../modules/janitor-outdoor/module.js'),
-    stok: () => import('../modules/stok/module.js'),
-    maintenance: () => import('../modules/maintenance/module.js'),
-    asset: () => import('../modules/asset/module.js'),
-    dana: () => import('../modules/dana/module.js'),
     commandcenter: () => import('../modules/commandcenter/module.js'),
-    qr: () => import('../modules/qr/module.js')
+    // nanti tambah modul lain
 };
 
 export async function loadModule(moduleId) {
@@ -24,27 +14,23 @@ export async function loadModule(moduleId) {
         return;
     }
 
-    const moduleWindow = document.getElementById('module-window');
-    const contentDiv = document.getElementById('module-content');
+    const win = document.getElementById('module-window');
+    const content = document.getElementById('module-content');
+    if (!win || !content) return;
 
-    moduleWindow.classList.remove('hidden');
-    showLoading('module-content', `Memuat modul ${moduleId}...`);
+    win.classList.remove('hidden');
+    content.innerHTML = `<div class="shalawat-loading"><div class="arabic">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</div><p class="text-slate-400 mt-4">Memuat...</p></div>`;
 
     try {
-        const htmlRes = await fetch(`./modules/${moduleId}/index.html`);
-        if (!htmlRes.ok) throw new Error('Modul tidak ditemukan');
-        const html = await htmlRes.text();
-        contentDiv.innerHTML = html;
-
         const mod = await modules[moduleId]();
         if (mod && typeof mod.init === 'function') {
-            mod.init();
+            await mod.init();
         } else {
-            console.warn(`Modul ${moduleId} tidak memiliki fungsi init()`);
+            throw new Error('Modul tidak memiliki fungsi init');
         }
     } catch (err) {
-        handleError(err);
-        contentDiv.innerHTML = `<div class="text-center py-20 text-red-400">❌ Gagal memuat modul: ${err.message}</div>`;
+        console.error(err);
+        content.innerHTML = `<div class="text-center py-20 text-red-400">❌ Gagal: ${err.message}</div>`;
     }
 }
 
