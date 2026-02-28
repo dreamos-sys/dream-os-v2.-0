@@ -1,0 +1,78 @@
+<script type="module">
+    import { store } from './core/store.js';
+    import { login, logout, checkSession } from './core/auth.js';
+    import { loadModule, closeModule } from './core/router.js';
+    import { showToast } from './core/components.js';
+
+    window.loadModule = loadModule;
+    window.doCloseModule = closeModule;
+    window.doLogout = logout;
+
+    const MODULES = [
+        { id: 'commandcenter', name: 'COMMAND', icon: '📊' },
+        { id: 'booking', name: 'BOOKING', icon: '📅' },
+        { id: 'k3', name: 'K3', icon: '⚠️' },
+        { id: 'sekuriti', name: 'SEKURITI', icon: '🛡️' },
+        { id: 'janitor-indoor', name: 'JANITOR IN', icon: '🧹' },
+        { id: 'janitor-outdoor', name: 'JANITOR OUT', icon: '🌿' },
+        { id: 'stok', name: 'STOK', icon: '📦' },
+        { id: 'maintenance', name: 'MAINTENANCE', icon: '🔧' },
+        { id: 'asset', name: 'ASSET', icon: '🏢' }
+    ];
+
+    function renderGrid(modules) {
+        const container = document.getElementById('grid-modules');
+        if (!container) return;
+        container.innerHTML = '';
+        MODULES.forEach(m => {
+            if (modules.includes(m.id) || modules.includes('all')) {
+                const card = document.createElement('div');
+                card.className = 'module-card';
+                card.onclick = () => loadModule(m.id);
+                card.innerHTML = `<div class="crystal-icon">${m.icon}</div><div class="text-xs font-bold uppercase">${m.name}</div>`;
+                container.appendChild(card);
+            }
+        });
+    }
+
+    // Toggle password
+    document.getElementById('toggleBtn')?.addEventListener('click', function() {
+        const pass = document.getElementById('passkey');
+        const icon = document.getElementById('eyeIcon');
+        if (pass && icon) {
+            pass.type = pass.type === 'password' ? 'text' : 'password';
+            icon.className = pass.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        }
+    });
+
+    // Login
+    document.getElementById('btnLogin').addEventListener('click', async () => {
+        const key = document.getElementById('passkey').value;
+        const success = await login(key);
+        if (success) {
+            const user = store.get('user');
+            document.getElementById('login-zone').classList.add('hidden');
+            document.getElementById('app-shell').classList.remove('hidden');
+            document.getElementById('user-role').textContent = user.role;
+            renderGrid(user.modules);
+            showToast('Welcome, ' + user.role + '!', true);
+        } else {
+            document.getElementById('error-msg').textContent = '❌ Access Denied!';
+            setTimeout(() => document.getElementById('error-msg').textContent = '', 2000);
+        }
+    });
+
+    // Enter key
+    document.getElementById('passkey').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') document.getElementById('btnLogin').click();
+    });
+
+    // Check session
+    if (checkSession()) {
+        const user = store.get('user');
+        document.getElementById('login-zone').classList.add('hidden');
+        document.getElementById('app-shell').classList.remove('hidden');
+        document.getElementById('user-role').textContent = user.role;
+        renderGrid(user.modules);
+    }
+</script>
