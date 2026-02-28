@@ -1,0 +1,193 @@
+/**
+ * 🏛️ DREAM OS V2.0 - COMMAND CENTER (ADAPTED FROM V13.4)
+ * Compatible with V2.0 modular architecture
+ * Uses window.supabase from CDN
+ */
+
+(function() {
+    'use strict';
+
+    // ========== V2.0 CONFIG ==========
+    const SB_URL = 'https://pvznaeppaagylwddirla.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2em5hZXBwYWFneWx3ZGRpcmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTEwNDMsImV4cCI6MjA4NzUyNzA0M30.t9SJi3VfsBDkKmeZ3egZ4rbvljl4xe0WwNkPtfA9-vo';
+
+    const TABLES = {
+        bookings: 'bookings',
+        k3: 'k3_reports',
+        maintenance: 'maintenance_tasks',
+        inventory: 'inventory',
+        dana: 'pengajuan_dana',
+        gudang: 'gudang_stok',
+        audit_logs: 'audit_logs',
+        janitor_indoor: 'janitor_indoor',
+        janitor_outdoor: 'janitor_outdoor'
+    };
+
+    // ========== DEBUG CONSOLE ==========
+    const debugDiv = document.createElement('div');
+    debugDiv.id = 'debug-console';
+    debugDiv.style.cssText = 'position:fixed; bottom:10px; right:10px; background:#111; color:#0f0; padding:8px; border-radius:8px; font-size:10px; font-family:monospace; z-index:9999; max-width:300px; max-height:200px; overflow:auto; border:1px solid #0f0; display:none;';
+    debugDiv.innerHTML = `<div style="position:absolute; top:2px; right:2px; display:flex; gap:4px;">
+        <span id="toggle-debug" style="cursor:pointer; color:white; background:gray; width:16px; height:16px; border-radius:50%;">👁️</span>
+        <span id="close-debug" style="cursor:pointer; color:white; background:red; width:16px; height:16px; border-radius:50%;">×</span>
+    </div><div style="padding-top:16px"></div>`;
+    document.body.appendChild(debugDiv);
+
+    document.getElementById('toggle-debug').onclick = (e) => {
+        e.stopPropagation();
+        debugDiv.style.display = debugDiv.style.display === 'none' ? 'block' : 'none';
+    };
+    document.getElementById('close-debug').onclick = (e) => {
+        e.stopPropagation();
+        debugDiv.style.display = 'none';
+    };
+
+    window.log = function(msg) {
+        const line = document.createElement('div');
+        line.textContent = `> ${msg}`;
+        const container = debugDiv.querySelector('div:last-child');
+        if (container && debugDiv.style.display !== 'none') {
+            container.appendChild(line);
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+        console.log(msg);
+    };
+
+    log('🚀 Command Center v2.0 starting...');
+
+    // ========== SUPABASE CLIENT ==========
+    let supabase = null;
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabase = window.supabase.createClient(SB_URL, SB_KEY);
+        window.supabase = supabase;
+        log('✅ Supabase client ready');
+
+        // ========== EVENT LISTENERS (INTEGRATION WITH OTHER MODULES) ==========
+        window.addEventListener('stats-update', loadAllStats);
+        window.addEventListener('booking-approved', (e) => {
+            // Use showToast if available (from HTML or core)
+            if (typeof showToast === 'function') {
+                showToast(`✅ Booking ${e.detail.id} disetujui`, 'success');
+            } else if (window.showToast) {
+                window.showToast(`✅ Booking ${e.detail.id} disetujui`, 'success');
+            } else {
+                alert(`✅ Booking ${e.detail.id} disetujui`);
+            }
+            loadAllStats();
+        });
+
+    } else {
+        log('❌ Supabase library not available');
+    }
+
+    // ========== MANAGED INTERVALS ==========
+    const managedIntervals = [];
+    function setManagedInterval(fn, ms) {
+        managedIntervals.push(setInterval(fn, ms));
+    }
+    window.addEventListener('beforeunload', () => managedIntervals.forEach(i => clearInterval(i)));
+
+    // ========== SESSION TIMEOUT ==========
+    let lastActivity = Date.now();
+    function resetSessionTimer() { lastActivity = Date.now(); }
+    function checkSessionTimeout() {
+        if (Date.now() - lastActivity > 300000) {
+            log('⏰ Session timeout');
+            sessionStorage.clear();
+            window.location.href = '/';
+        }
+    }
+    setInterval(checkSessionTimeout, 60000);
+    document.addEventListener('click', resetSessionTimer);
+    document.addEventListener('keypress', resetSessionTimer);
+    log('✅ Session timeout aktif (5 menit)');
+
+    // ========== TAB SYSTEM ==========
+    window.switchTab = function(tabId) {
+        log(`👉 Tab: ${tabId}`);
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        
+        const target = document.getElementById('tab-' + tabId);
+        if (target) target.classList.remove('hidden');
+        
+        const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (btn) btn.classList.add('active');
+        const loaders = {
+            'dashboard': loadAllStats,
+            'kerja': loadRuangKerja,
+            'dana': loadDanaList
+        };
+        if (loaders[tabId]) loaders[tabId]();
+    };
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            resetSessionTimer();
+            window.switchTab(btn.dataset.tab);
+        });
+    });
+
+    // ========== STATS ==========
+    async function loadAllStats() {
+        if (!supabase) return;
+        log('📊 Loading stats...');
+        
+        try {
+            const [booking, k3, dana, maintenance] = await Promise.all([
+                supabase.from(TABLES.bookings).select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from(TABLES.k3).select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from(TABLES.dana).select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from(TABLES.maintenance).select('*', { count: 'exact', head: true }).in('status', ['pending', 'proses'])
+            ]);
+
+            const total = (booking.count||0) + (k3.count||0) + (dana.count||0) + (maintenance.count||0);
+            
+            setEl('stat-total', total);
+            setEl('stat-booking', booking.count || 0);
+            setEl('stat-k3', k3.count || 0);
+            setEl('stat-dana', dana.count || 0);
+            setEl('stat-maintenance', maintenance.count || 0);
+
+            log('✅ Stats updated');
+        } catch (err) {
+            log(`❌ Stats error: ${err.message}`);
+            // Optional: send to error collector
+            if (window.errorCollector) {
+                window.errorCollector.capture(err, 'CommandCenter');
+            }
+        }
+    }
+
+    function setEl(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    }
+
+    // ========== RUANG KERJA ==========
+    async function loadRuangKerja() {
+        if (!supabase) return;
+        log('🏢 Loading Ruang Kerja...');
+        // Implementasi sesuai kebutuhan (misal tampilkan daftar booking aktif)
+        // Bisa diisi nanti
+    }
+
+    // ========== DANA ==========
+    async function loadDanaList() {
+        if (!supabase) return;
+        log('💰 Loading Dana...');
+        // Implementasi sesuai kebutuhan
+    }
+
+    // ========== INIT ==========
+    setManagedInterval(loadAllStats, 30000);
+    
+    setTimeout(() => {
+        loadAllStats();
+        window.switchTab('dashboard');
+    }, 500);
+
+    log('✅ Command Center v2.0 ready!');
+
+})();
