@@ -1,28 +1,25 @@
 class Store {
     constructor() {
         this.state = {};
-        this.listeners = {};
     }
-
     set(key, value) {
         this.state[key] = value;
-        this.emit(key, value);
+        sessionStorage.setItem(key, JSON.stringify(value));
     }
-
     get(key) {
-        return this.state[key];
-    }
-
-    on(key, callback) {
-        if (!this.listeners[key]) this.listeners[key] = [];
-        this.listeners[key].push(callback);
-    }
-
-    emit(key, value) {
-        if (this.listeners[key]) {
-            this.listeners[key].forEach(cb => cb(value));
+        if (this.state[key]) return this.state[key];
+        const stored = sessionStorage.getItem(key);
+        if (stored) {
+            try {
+                this.state[key] = JSON.parse(stored);
+                return this.state[key];
+            } catch {}
         }
+        return null;
+    }
+    clear() {
+        this.state = {};
+        sessionStorage.clear();
     }
 }
-
 export const store = new Store();
