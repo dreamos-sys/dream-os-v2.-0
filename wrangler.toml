@@ -1,0 +1,19 @@
+name = "dream-os-v2-0"
+main = "workers/ai-proxy.js"
+compatibility_date = "2025-02-01"
+
+# Environment variables (public, bisa diakses dari worker)
+[vars]
+ENVIRONMENT = "production"
+DREAM_OS_VERSION = "2.0"
+
+# Secrets (akan dimasukkan via dashboard, jangan commit)
+# [env.production.vars]
+# CEREBRAS_API_KEY = ""
+# NVIDIA_API_KEY = ""
+# SUPABASE_URL = ""
+# SUPABASE_KEY = ""
+
+# Untuk static assets (jika diperlukan)
+[site]
+bucket = "./public"
