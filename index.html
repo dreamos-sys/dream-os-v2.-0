@@ -518,22 +518,28 @@
                 }));
             },
             
-            load() {
-                const saved = localStorage.getItem('dreamos_state');
-                if (saved) {
-                    try {
-                        const state = JSON.parse(saved);
-                        this.isLoggedIn = state.isLoggedIn || false;
-                        this.currentTab = state.currentTab || 'dashboard';
-                        themeMode = state.theme || 0;
-                        autoShalatEnabled = state.autoShalat !== undefined ? state.autoShalat : true;
-                        return true;
-                    } catch (e) {
-                        console.error('Failed to load state', e);
-                    }
-                }
-                return false;
-            },
+            async function loadModule(moduleId) {
+    const win = document.getElementById('module-window');
+    const content = document.getElementById('module-content');
+    win.classList.remove('hidden');
+    content.innerHTML = `<div class="shalawat-loading text-center py-20">
+        <p class="arabic text-2xl text-emerald-400">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</p>
+        <p class="text-slate-400 mt-4">Memuat...</p>
+    </div>`;
+    
+    try {
+        // Import module.js dari folder yang sesuai
+        const mod = await import(`./modules/${moduleId}/module.js`);
+        if (mod.init) {
+            await mod.init();
+        } else {
+            throw new Error('Module tidak memiliki fungsi init');
+        }
+    } catch (err) {
+        content.innerHTML = `<p class="text-center py-20 text-red-400">❌ Gagal memuat modul: ${err.message}</p>`;
+        console.error(err);
+    }
+            }
             
             clear() {
                 localStorage.removeItem('dreamos_state');
