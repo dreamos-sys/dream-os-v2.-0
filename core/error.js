@@ -1,1 +1,8 @@
-export function handleError(err) { console.error(err); }
+// core/error.js
+export class AppError extends Error {
+    constructor(message, code = 'UNKNOWN_ERROR') {
+        super(message);
+        this.name = 'AppError';
+        this.code = code;
+    }
+}
