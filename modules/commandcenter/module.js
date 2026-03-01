@@ -3,6 +3,28 @@ import { supabase } from '../../core/supabase.js';
 import { store } from '../../core/store.js';
 import { eventBus } from '../../core/eventBus.js';
 import { showToast } from '../../core/components.js';
+import moduleConfig from '../../modules.config.js';
+
+console.log('[COMMANDCENTER] Modul dimuat (dengan Module Registry)');
+
+const TABLES = {
+    bookings: 'bookings',
+    k3: 'k3_reports',
+    maintenance: 'maintenance_tasks',
+    inventory: 'inventory',
+    dana: 'pengajuan_dana',
+    gudang: 'gudang_stok',
+    audit_logs: 'audit_logs',
+    janitor_indoor: 'janitor_indoor',
+    janitor_outdoor: 'janitor_outdoor'
+};
+
+// ... (salin semua kode dari versi final yang sudah saya berikan sebelumnya)
+// modules/commandcenter/module.js
+import { supabase } from '../../core/supabase.js';
+import { store } from '../../core/store.js';
+import { eventBus } from '../../core/eventBus.js';
+import { showToast } from '../../core/components.js';
 import moduleConfig from '../../modules.config.js'; // <-- BARU: import konfigurasi modul
 
 console.log('[COMMANDCENTER] Modul dimuat (dengan Module Registry)');
