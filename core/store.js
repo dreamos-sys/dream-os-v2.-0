@@ -1,25 +1,39 @@
-class Store {
-    constructor() {
-        this.state = {};
+// Simple store with localStorage persistence
+const STORE_KEY = 'dreamos_store';
+
+const defaultState = {
+    user: null,
+    theme: 0,
+    autoShalat: true,
+    lastModule: null
+};
+
+let state = { ...defaultState };
+
+// Load from localStorage
+try {
+    const saved = localStorage.getItem(STORE_KEY);
+    if (saved) {
+        state = { ...defaultState, ...JSON.parse(saved) };
     }
-    set(key, value) {
-        this.state[key] = value;
-        sessionStorage.setItem(key, JSON.stringify(value));
-    }
-    get(key) {
-        if (this.state[key]) return this.state[key];
-        const stored = sessionStorage.getItem(key);
-        if (stored) {
-            try {
-                this.state[key] = JSON.parse(stored);
-                return this.state[key];
-            } catch {}
-        }
-        return null;
-    }
-    clear() {
-        this.state = {};
-        sessionStorage.clear();
-    }
+} catch (e) {
+    console.warn('Failed to load store', e);
 }
-export const store = new Store();
+
+function save() {
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+
+export const store = {
+    get(key) {
+        return state[key];
+    },
+    set(key, value) {
+        state[key] = value;
+        save();
+    },
+    clear() {
+        state = { ...defaultState };
+        localStorage.removeItem(STORE_KEY);
+    }
+};
