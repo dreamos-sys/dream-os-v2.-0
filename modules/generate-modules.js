@@ -4,45 +4,45 @@
 const fs = require('fs');
 const path = require('path');
 
-// Daftar modul yang akan dibuat (tambah/edit di sini untuk modul baru)
+// ===== Daftar modul – tambah/edit di sini untuk modul baru =====
 const modules = [
-    // Tab Dashboard
-    { id: 'analytics', name: 'Analytics', icon: '📈', tab: 'dashboard' },
-    { id: 'pengajuan', name: 'Pengajuan', icon: '📋', tab: 'dashboard' },
-    { id: 'approval', name: 'Approval', icon: '✅', tab: 'dashboard' },
-    { id: 'ai', name: 'AI', icon: '🤖', tab: 'dashboard' },
-    { id: 'backup', name: 'Backup', icon: '💾', tab: 'dashboard' },
-    { id: 'files', name: 'Files', icon: '📁', tab: 'dashboard' },
+  // Tab Dashboard
+  { id: 'analytics', name: 'Analytics', icon: '📈', tab: 'dashboard' },
+  { id: 'pengajuan', name: 'Pengajuan', icon: '📋', tab: 'dashboard' },
+  { id: 'approval', name: 'Approval', icon: '✅', tab: 'dashboard' },
+  { id: 'ai', name: 'AI', icon: '🤖', tab: 'dashboard' },
+  { id: 'backup', name: 'Backup', icon: '💾', tab: 'dashboard' },
+  { id: 'files', name: 'Files', icon: '📁', tab: 'dashboard' },
 
-    // Tab Kerja
-    { id: 'booking', name: 'Booking', icon: '📅', tab: 'kerja' },
-    { id: 'k3', name: 'K3', icon: '⚠️', tab: 'kerja' },
-    { id: 'sekuriti', name: 'Sekuriti', icon: '🛡️', tab: 'kerja' },
-    { id: 'stok', name: 'Stok', icon: '📦', tab: 'kerja' },
-    { id: 'maintenance', name: 'Maintenance', icon: '🔧', tab: 'kerja' },
-    { id: 'asset', name: 'Asset', icon: '🏢', tab: 'kerja' },
-    { id: 'janitor-indoor', name: 'Janitor In', icon: '🧹', tab: 'kerja' },
-    { id: 'janitor-outdoor', name: 'Janitor Out', icon: '🌿', tab: 'kerja' },
+  // Tab Kerja
+  { id: 'booking', name: 'Booking', icon: '📅', tab: 'kerja' },
+  { id: 'k3', name: 'K3', icon: '⚠️', tab: 'kerja' },
+  { id: 'sekuriti', name: 'Sekuriti', icon: '🛡️', tab: 'kerja' },
+  { id: 'stok', name: 'Stok', icon: '📦', tab: 'kerja' },
+  { id: 'maintenance', name: 'Maintenance', icon: '🔧', tab: 'kerja' },
+  { id: 'asset', name: 'Asset', icon: '🏢', tab: 'kerja' },
+  { id: 'janitor-indoor', name: 'Janitor In', icon: '🧹', tab: 'kerja' },
+  { id: 'janitor-outdoor', name: 'Janitor Out', icon: '🌿', tab: 'kerja' },
 
-    // Tab Dana
-    { id: 'dana', name: 'Dana', icon: '💰', tab: 'dana' },
-    { id: 'laporan', name: 'Laporan', icon: '📄', tab: 'dana' },
+  // Tab Dana
+  { id: 'dana', name: 'Dana', icon: '💰', tab: 'dana' },
+  { id: 'laporan', name: 'Laporan', icon: '📄', tab: 'dana' },
 
-    // Tab Approval (kita gabung jadi satu modul)
-    { id: 'approval', name: 'Approval', icon: '✅', tab: 'approval' },
+  // Tab Approval (kita gabung jadi satu modul)
+  { id: 'approval', name: 'Approval', icon: '✅', tab: 'approval' },
 
-    // Tab Files
-    { id: 'files-k3', name: 'K3 Foto', icon: '🖼️', tab: 'files' },
-    { id: 'files-spj', name: 'SPJ Foto', icon: '📸', tab: 'files' },
+  // Tab Files
+  { id: 'files-k3', name: 'K3 Foto', icon: '🖼️', tab: 'files' },
+  { id: 'files-spj', name: 'SPJ Foto', icon: '📸', tab: 'files' },
 
-    // Tab Backup
-    { id: 'backup-create', name: 'Create', icon: '💾', tab: 'backup' },
-    { id: 'backup-restore', name: 'Restore', icon: '🔄', tab: 'backup' }
+  // Tab Backup
+  { id: 'backup-create', name: 'Create', icon: '💾', tab: 'backup' },
+  { id: 'backup-restore', name: 'Restore', icon: '🔄', tab: 'backup' }
 ];
 
-// Template module.js (contoh sederhana)
+// ===== Template module.js =====
 function getModuleTemplate(moduleId, moduleName) {
-    return `// modules/${moduleId}/module.js
+  return `// modules/${moduleId}/module.js
 export function init() {
     const area = document.getElementById('module-content');
     if (!area) return;
@@ -57,33 +57,34 @@ export function init() {
             <p class="crystal-text">Modul ${moduleName} dalam pengembangan.</p>
         </div>
     \`;
-}`;
+}
+`;
 }
 
-// Buat folder dan file module.js untuk setiap modul
+// ===== Buat folder dan file module.js untuk setiap modul =====
 modules.forEach(mod => {
-    const folderPath = path.join(__dirname, 'modules', mod.id);
-    if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true });
-        console.log(`📁 Folder dibuat: modules/${mod.id}`);
-    }
-    const filePath = path.join(folderPath, 'module.js');
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, getModuleTemplate(mod.id, mod.name));
-        console.log(`📄 File dibuat: modules/${mod.id}/module.js`);
-    } else {
-        console.log(`⚠️ File sudah ada: modules/${mod.id}/module.js (lewatkan)`);
-    }
+  const folderPath = path.join(__dirname, 'modules', mod.id);
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+    console.log(`📁 Folder dibuat: modules/${mod.id}`);
+  }
+  const filePath = path.join(folderPath, 'module.js');
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, getModuleTemplate(mod.id, mod.name));
+    console.log(`📄 File dibuat: modules/${mod.id}/module.js`);
+  } else {
+    console.log(`⚠️ File sudah ada: modules/${mod.id}/module.js (lewatkan)`);
+  }
 });
 
-// Bangun objek konfigurasi per tab
+// ===== Bangun objek konfigurasi per tab =====
 const config = {};
 modules.forEach(mod => {
-    if (!config[mod.tab]) config[mod.tab] = [];
-    config[mod.tab].push({ id: mod.id, name: mod.name, icon: mod.icon });
+  if (!config[mod.tab]) config[mod.tab] = [];
+  config[mod.tab].push({ id: mod.id, name: mod.name, icon: mod.icon });
 });
 
-// Tulis modules.config.js
+// ===== Tulis modules.config.js =====
 const configPath = path.join(__dirname, 'modules.config.js');
 const configContent = `// Auto-generated by generate-modules.js – JANGAN EDIT MANUAL
 export default ${JSON.stringify(config, null, 2)};
@@ -91,5 +92,6 @@ export default ${JSON.stringify(config, null, 2)};
 fs.writeFileSync(configPath, configContent);
 console.log('✅ modules.config.js berhasil dibuat!');
 
-console.log('\n🎉 SEMUA SELESAI! Jalankan perintah berikut untuk update:');
-console.log('  node generate-modules.js');
+console.log('\n🎉 SEMUA SELESAI! Sekarang:');
+console.log('1. Update modules/commandcenter/module.js (gunakan versi dengan import moduleConfig)');
+console.log('2. Jalankan ulang script jika ada perubahan daftar modul');
