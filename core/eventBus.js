@@ -1,15 +1,17 @@
+// Simple event emitter
 const events = {};
+
 export const eventBus = {
     on(event, callback) {
         if (!events[event]) events[event] = [];
         events[event].push(callback);
     },
-    emit(event, data) {
-        if (!events[event]) return;
-        events[event].forEach(cb => cb(data));
-    },
     off(event, callback) {
         if (!events[event]) return;
         events[event] = events[event].filter(cb => cb !== callback);
+    },
+    emit(event, data) {
+        if (!events[event]) return;
+        events[event].forEach(cb => cb(data));
     }
-};a
+};
