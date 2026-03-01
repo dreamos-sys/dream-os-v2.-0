@@ -1,4 +1,3 @@
-// Simple event emitter
 const events = {};
 
 export const eventBus = {
