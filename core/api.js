@@ -1,4 +1,3 @@
-// core/api.js
 import { supabase } from './supabase.js';
 import { AppError } from './error.js';
 
