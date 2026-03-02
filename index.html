@@ -686,9 +686,77 @@
                     }
                 });            }
             
-            // ========== LOAD MODULE - SIMPLE & WORKING ==========
-            function loadModule(mod) {
-                console.log('🚀 Loading module:', mod.name);
+            // ========== LOAD MODULE - PAKAI FILE MODULE.JS LO ==========
+async function loadModule(mod) {
+    console.log('🚀 Loading module:', mod.name, 'from:', mod.id);
+    
+    // Permission check
+    if (!currentUser.perms.includes('all') && !currentUser.perms.includes(mod.id)) {
+        showToast(`❌ Access denied to ${mod.name}`, 'error');
+        return;
+    }
+    
+    showToast(`📂 Opening ${mod.name}...`, 'info');
+    
+    const win = document.getElementById('module-window');
+    const content = document.getElementById('module-content');
+    
+    win.classList.add('show');
+    content.innerHTML = `
+        <div class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent mx-auto mb-4"></div>
+            <p class="opacity-80">Loading ${mod.name}...</p>
+            <p class="text-xs text-slate-400 mt-2">🕌 اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</p>
+        </div>
+    `;
+    
+    try {
+        // Try to load module.js dari folder modules/[id]/
+        const moduleUrl = `./modules/${mod.id}/module.js`;
+        console.log('📦 Importing from:', moduleUrl);
+        
+        const module = await import(moduleUrl);
+        
+        // Call init function if exists
+        if (module.init && typeof module.init === 'function') {
+            await module.init({ user: currentUser });
+            showToast(`✅ ${mod.name} loaded`, 'success');
+        } else {
+            // Fallback UI
+            content.innerHTML = `
+                <div class="glass-card p-8 text-center">
+                    <div style="font-size:5rem;margin-bottom:1rem;">${mod.icon}</div>
+                    <h2 class="text-3xl font-bold mb-2">${mod.name}</h2>
+                    <p class="text-slate-400 mb-6">Module loaded! 🎉</p>
+                    <div class="glass-card p-4 mb-6 inline-block">
+                        <p class="text-sm">User: <span style="color:${currentUser.color};font-weight:bold">${currentUser.name}</span></p>
+                        <p class="text-sm">Role: ${currentUser.role}</p>
+                    </div>
+                    <button onclick="window.closeModule()" class="btn-crystal" style="max-width:200px;">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </button>
+                </div>
+            `;
+            showToast(`⚠️ ${mod.name} loaded (no init function)`, 'warning');
+        }
+        
+    } catch (err) {
+        console.error('❌ Gagal memuat modul:', err);
+        content.innerHTML = `
+            <div class="glass-card p-8 text-center">
+                <div style="font-size:5rem;margin-bottom:1rem;">${mod.icon}</div>
+                <h2 class="text-3xl font-bold mb-2">${mod.name}</h2>
+                <p class="text-red-400 mb-2">❌ Gagal memuat modul</p>
+                <p class="text-xs text-slate-400 mb-4">${err.message}</p>
+                <div class="flex gap-3 justify-center">
+                    <button onclick="window.closeModule()" class="btn-crystal" style="max-width:120px;">Tutup</button>
+                    <button onclick="window.createPlaceholder('${mod.id}','${mod.name}')" class="btn-crystal" style="max-width:120px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);">Buat Placeholder</button>
+                </div>
+            </div>
+        `;
+        showToast(`❌ Gagal: ${mod.name}`, 'error');
+    }
+}
                 
                 // Permission check
                 if (!currentUser.perms.includes('all') && !currentUser.perms.includes(mod.id)) {
