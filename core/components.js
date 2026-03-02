@@ -1,8 +1,40 @@
-export function showToast(msg, type = 'info') {
-    const toast = document.createElement('div');
-    toast.style.cssText = `position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1e293b; color:white; padding:8px 16px; border-radius:12px; z-index:9999; opacity:0; transition:opacity 0.3s; border:1px solid rgba(16,185,129,0.4);`;
-    toast.textContent = msg;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.style.opacity = '1', 10);
-    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+// core/navigation.js
+import { eventBus } from './eventBus.js';
+
+/**
+ * 🧭 Navigate to any module from anywhere
+ * @param {string} moduleId - Target module ID
+ * @param {object} params - Optional params to pass
+ * @param {boolean} closeCurrent - Close current module first?
+ */
+export function navigateTo(moduleId, params = {}, closeCurrent = true) {
+    eventBus.emit('module:navigate', {
+        moduleId,
+        params,
+        closeCurrent
+    });
 }
+
+/**
+ * 🚪 Close current module
+ */
+export function closeCurrentModule() {
+    eventBus.emit('module:close');
+}
+
+/**
+ * 🔄 Refresh current module
+ */
+export function refreshCurrentModule() {
+    // This requires commandHub to track active module
+    if (window.commandHub?.activeModule) {
+        window.commandHub.reloadModule(window.commandHub.activeModule);
+    }
+}
+
+// Expose to window for inline onclick
+window.navigateTo = navigateTo;
+window.closeModule = closeCurrentModule;
+window.refreshModule = refreshCurrentModule;
+
+console.log('🧭 [Navigation] Helper functions exported');
