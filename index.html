@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="description" content="Dream OS - Sistem Manajemen Terpadu dengan Auto Shalat & Low-end Optimization">
+    <base href="/dream-os-v2.-0/">
+    <title>Dream OS v2.0 | Crystal Prism + Auto Shalat</title>
+    
+    <!-- Tailwind & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --emerald: #10b981; --gold: #fbbf24; --text-primary: white; --text-secondary: #94a3b8; --border: rgba(255,255,255,0.15); --glass-bg: rgba(0,0,0,0.2); }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #020617 0%, #1e293b 100%); color: var(--text-primary); font-family: 'Rajdhani', sans-serif; padding: 0.8rem; min-height: 100vh; transition: background 0.5s ease; }
+        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #020617 0%, #1e293b 100%); display: flex; align-items: center; justify-content: center; z-index: 30000; transition: opacity 0.5s ease; }
+        #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+        .loading-spinner { width: 50px; height: 50px; border: 3px solid rgba(16,185,129,0.3); border-top-color: var(--emerald); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        body.light-mode { --emerald: #059669; --text-primary: #1e1b1a; --text-secondary: #4a4a4a; --border: rgba(0,0,0,0.15); --glass-bg: rgba(255,250,235,0.7); background: linear-gradient(135deg, #f5f0e8 0%, #e8e0d5 100%); }
+        body.sepia-mode { --emerald: #8b6b4d; --text-primary: #5a3e2b; --text-secondary: #7a5a3e; --border: rgba(0,0,0,0.2); --glass-bg: rgba(232, 217, 181, 0.7); background: linear-gradient(135deg, #f4ecd6 0%, #e8d9b5 100%); }
+        body.low-end-device * { animation-duration: 0.01ms !important; transition-duration: 0.1s !important; }
+        body.low-end-device .glass-card, body.low-end-device .crystal-text { backdrop-filter: blur(2px) !important; }
+        body.low-end-device .module-card:hover { transform: translateY(-2px) !important; }
+        .crystal-text { background: var(--glass-bg); backdrop-filter: blur(4px); border: 1px solid var(--border); border-radius: 40px; padding: 0.2rem 1rem; display: inline-block; color: var(--text-primary); font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: all 0.2s ease; }
+        body:not(.low-end-device) .crystal-text:hover { border-color: var(--emerald); transform: translateY(-2px); }
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 24px; padding: 1rem; }
+        .module-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 450px; margin: 0 auto; }
+        .module-card { background: var(--glass-bg); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 20px; padding: 1.2rem 0.3rem; text-align: center; cursor: pointer; transition: all 0.2s ease; color: var(--text-primary); }
+        .module-card:hover { transform: translateY(-3px); border-color: var(--emerald); }
+        .module-card:active { transform: translateY(-1px); }
+        .crystal-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-size: 1.5rem; }
+        .slider-container { position: relative; overflow: hidden; border-radius: 24px; background: var(--glass-bg); backdrop-filter: blur(5px); border: 1px solid var(--border); margin: 1rem 0; }
+        .slider-wrapper { display: flex; transition: transform 0.3s ease; }
+        .slider-slide { min-width: 100%; padding: 1.5rem; text-align: center; }
+        .slider-dots { display: flex; justify-content: center; gap: 0.5rem; padding: 0.8rem; }
+        .slider-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-secondary); cursor: pointer; }
+        .slider-dot.active { background: var(--emerald); transform: scale(1.2); }
+        .slider-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; color: white; font-size: 0.9rem; }
+        .slider-arrow.left { left: 5px; }
+        .slider-arrow.right { right: 5px; }
+        .slide-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--emerald); }
+        .input-crystal { background: var(--glass-bg); border: 2px solid var(--border); border-radius: 16px; padding: 12px; width: 100%; color: var(--text-primary); outline: none; text-align: center; font-size: 1rem; }
+        .input-crystal:focus { border-color: var(--emerald); }
+        .btn-crystal { background: linear-gradient(135deg, var(--emerald) 0%, #059669 100%); border: none; border-radius: 16px; padding: 12px; width: 100%; color: white; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-crystal:hover { transform: translateY(-2px); }        #geofence-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 20000; padding: 20px; }
+        #geofence-overlay.active { display: flex; }
+        .hidden { display: none !important; }
+        .arabic { font-family: 'Amiri', serif; }
+        .auto-shalat-indicator { display: flex; align-items: center; gap: 0.3rem; }
+        .battery-low { position: fixed; bottom: 10px; left: 10px; background: rgba(255, 0, 0, 0.8); color: white; padding: 5px 10px; border-radius: 40px; font-size: 0.7rem; z-index: 9999; display: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+        .battery-low.show { display: block; }
+        .connection-badge { position: fixed; bottom: 10px; right: 10px; padding: 5px 10px; border-radius: 40px; font-size: 0.7rem; z-index: 9999; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+        .connection-badge.wifi { background: rgba(16, 185, 129, 0.8); color: white; }
+        .connection-badge.cellular { background: rgba(245, 158, 11, 0.8); color: white; }
+        .connection-badge.slow { background: rgba(239, 68, 68, 0.8); color: white; }
+        .offline-indicator { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(239, 68, 68, 0.9); color: white; padding: 5px 15px; border-radius: 40px; font-size: 0.8rem; z-index: 10000; display: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+        .offline-indicator.show { display: block; }
+        @media (max-width: 480px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } .submenu-grid { grid-template-columns: repeat(4, 1fr); } }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="crystal-text">Memuat Dream OS...</p>
+            <p class="text-xs text-slate-400 mt-2">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</p>
+        </div>
+    </div>
+    
+    <div id="offlineIndicator" class="offline-indicator">
+        <i class="fas fa-wifi-slash mr-1"></i> Offline Mode
+    </div>
+    
+    <div id="batteryLow" class="battery-low">
+        <i class="fas fa-battery-quarter mr-1"></i> Battery Low
+    </div>
+    
+    <div id="connectionBadge" class="connection-badge hidden">
+        <i class="fas fa-wifi mr-1"></i> <span id="connectionSpeed">WiFi</span>
+    </div>
+
+    <div id="geofence-overlay">
+        <div class="glass-card max-w-md text-center p-6">
+            <h2 class="text-2xl font-bold text-emerald-400 mb-4 crystal-text">⛔ AREA TERLARANG</h2>
+            <p class="mb-4 crystal-text">Lokasi di luar radius 5 km dari Depok</p>
+            <button onclick="window.forceOverrideGeofence()" class="btn-crystal crystal-text">Override</button>
+        </div>
+    </div>
+
+    <div id="login-zone" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="glass-card max-w-sm w-full text-center p-6">
+            <div class="crystal-icon mx-auto mb-4 w-16 h-16 text-2xl">🚀</div>
+            <h1 class="text-2xl font-bold mb-1 crystal-text">Dream OS <span style="color: var(--emerald);">v2.0</span></h1>            <p class="text-xs text-secondary mb-4 crystal-text">Ultimate Edition</p>
+            <p class="arabic text-2xl text-emerald-400 mb-4 crystal-text">بِسْمِ اللَّهِ</p>
+            <div class="relative mb-4">
+                <input type="password" id="passkey" class="input-crystal" placeholder="Access Code">
+                <button type="button" id="toggleBtn" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <i class="fas fa-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+            <button id="btnLogin" class="btn-crystal crystal-text mb-2">ACCESS SYSTEM</button>
+            <p id="error-msg" class="text-red-400 text-xs h-4"></p>
+            <p class="text-[8px] text-secondary mt-4">ISO 27001 · ISO 9001 · ISO 45001</p>
+        </div>
+    </div>
+
+    <div id="app-shell" class="hidden max-w-7xl mx-auto">
+        <div class="text-center mb-6">
+            <p class="arabic text-2xl text-emerald-400 mb-2 crystal-text">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+            <p class="arabic text-xl text-emerald-300 mb-1 crystal-text">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</p>
+            <p class="text-xs tracking-[4px] text-slate-400 crystal-text">THE POWER SOUL OF SHALAWAT</p>
+        </div>
+        
+        <div class="glass-card mb-4 p-3 flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center gap-2">
+                <div class="text-2xl crystal-icon w-10 h-10">🚀</div>
+                <h1 class="text-lg font-bold crystal-text">Dream OS <span class="text-emerald-400">v2.0</span></h1>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <div class="auto-shalat-indicator crystal-text" id="autoShalatIndicator">
+                    <i class="fas fa-sun"></i>
+                    <span id="waktuShalatDisplay">Subuh</span>
+                </div>
+                <button id="autoShalatToggle" class="crystal-icon w-8 h-8" title="Toggle Auto Shalat"><i class="fas fa-clock"></i></button>
+                <button id="themeToggle" class="crystal-icon w-8 h-8" title="Change Theme"><i class="fas fa-moon"></i></button>
+                <span id="user-role" class="crystal-text text-xs">ADMIN</span>
+                <button onclick="window.doLogout()" class="bg-red-600 text-white px-3 py-1 rounded-xl text-xs crystal-text">LOGOUT</button>
+            </div>
+        </div>
+
+        <div class="slider-container">
+            <div class="slider-wrapper" id="sliderWrapper"></div>
+            <div class="slider-arrow left" onclick="window.prevSlide()"><i class="fas fa-chevron-left"></i></div>
+            <div class="slider-arrow right" onclick="window.nextSlide()"><i class="fas fa-chevron-right"></i></div>
+            <div class="slider-dots" id="sliderDots"></div>
+        </div>
+
+        <div class="module-grid" id="grid-modules"></div>
+
+        <footer class="text-center py-4 mt-4 border-t border-slate-700/50">
+            <p class="text-[7px] text-secondary crystal-text">DREAM TEAM © 2026 · AUTO SHALAT · OPTIMIZED</p>
+        </footer>    </div>
+
+    <div id="module-window" class="hidden fixed inset-0 z-50 p-4 overflow-y-auto" style="background: rgba(0,0,0,0.95);">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="window.doCloseModule()" class="crystal-text"><i class="fas fa-arrow-left mr-2"></i> BACK</button>
+                <button onclick="window.doCloseModule()" class="crystal-icon w-8 h-8"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="module-content"></div>
+        </div>
+    </div>
+
+    <div id="storageIndicator" style="display: none;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (function() {
+            // Fix base href untuk local testing
+            if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                const base = document.querySelector('base');
+                if (base) base.remove();
+            }
+        })();
+
+        const AppState = {
+            isLoggedIn: false, currentTab: 'dashboard', theme: 0, autoShalat: true,
+            save() { localStorage.setItem('dreamos_state', JSON.stringify({ isLoggedIn: this.isLoggedIn, currentTab: this.currentTab, theme: themeMode, autoShalat: autoShalatEnabled })); },
+            load() { const saved = localStorage.getItem('dreamos_state'); if (saved) { try { const state = JSON.parse(saved); this.isLoggedIn = state.isLoggedIn || false; this.currentTab = state.currentTab || 'dashboard'; themeMode = state.theme || 0; autoShalatEnabled = state.autoShalat !== undefined ? state.autoShalat : true; return true; } catch (e) { console.error('Failed to load state', e); } } return false; },
+            clear() { localStorage.removeItem('dreamos_state'); this.isLoggedIn = false; this.currentTab = 'dashboard'; }
+        };
+
+        function initOfflineDetection() {
+            const offlineIndicator = document.getElementById('offlineIndicator');
+            function updateOnlineStatus() { if (!navigator.onLine) { offlineIndicator.classList.add('show'); document.body.classList.add('low-end-device'); } else { offlineIndicator.classList.remove('show'); } }
+            window.addEventListener('online', updateOnlineStatus); window.addEventListener('offline', updateOnlineStatus); updateOnlineStatus();
+        }
+
+        function initBatteryCheck() { if (navigator.getBattery) { navigator.getBattery().then(battery => { function updateBatteryStatus() { const batteryLow = document.getElementById('batteryLow'); if (battery.level < 0.2) { batteryLow.classList.add('show'); document.body.classList.add('low-end-device'); } else { batteryLow.classList.remove('show'); } } updateBatteryStatus(); battery.addEventListener('levelchange', updateBatteryStatus); }); } }
+        
+        function initConnectionCheck() { const badge = document.getElementById('connectionBadge'); const speedSpan = document.getElementById('connectionSpeed'); function updateConnectionStatus() { if (navigator.connection) { const connection = navigator.connection; const speed = connection.downlink; badge.classList.remove('hidden', 'wifi', 'cellular', 'slow'); if (connection.type === 'wifi') { badge.classList.add('wifi'); speedSpan.innerHTML = `WiFi ${speed} Mbps`; } else { badge.classList.add('cellular'); speedSpan.innerHTML = `${speed} Mbps`; } if (speed < 1) { badge.classList.add('slow'); badge.classList.remove('wifi', 'cellular'); speedSpan.innerHTML = 'Slow Connection'; document.body.classList.add('low-end-device'); } connection.addEventListener('change', updateConnectionStatus); } } updateConnectionStatus(); }
+        
+        function initStorageCheck() { if (navigator.storage && navigator.storage.estimate) { navigator.storage.estimate().then(estimate => { const usedMB = estimate.usage / 1024 / 1024; if (usedMB > 100) { document.body.classList.add('low-end-device'); } localStorage.setItem('dreamos_storage', `${usedMB.toFixed(2)}MB`); }); } }
+
+        function detectLowEndDevice() { const memory = navigator.deviceMemory || 4; const cores = navigator.hardwareConcurrency || 4; const ua = navigator.userAgent.toLowerCase(); const isSamsungA12 = ua.includes('sm-a125') || ua.includes('sm-a127'); if (memory <= 4 || cores <= 4 || isSamsungA12) { document.body.classList.add('low-end-device'); localStorage.setItem('dreamos_device', 'low-end'); } else { localStorage.setItem('dreamos_device', 'high-end'); } }
+
+        window.supabase = supabase.createClient('https://rqpodzjexghrvcpyacyo.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxcG9kempleGdocnZjcHlhY3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzQyMTMsImV4cCI6MjA4Njk1MDIxM30.elXwh437xIqITUH7ZwiNqOXB2clTWd9_OlS51O-lNxw');
+
+        const overlay = document.getElementById('geofence-overlay'); const appShell = document.getElementById('app-shell');
+        window.forceOverrideGeofence = function() { overlay.classList.remove('active'); appShell.style.display = 'block'; AppState.save(); };
+        function checkGeofence() { if (!navigator.geolocation) return; navigator.geolocation.getCurrentPosition((pos) => { const lat = pos.coords.latitude; const lng = pos.coords.longitude; const distance = Math.sqrt(Math.pow(lat + 6.4, 2) + Math.pow(lng - 106.8, 2)) * 111; if (distance > 5) { overlay.classList.add('active'); appShell.style.display = 'none'; } else { overlay.classList.remove('active'); appShell.style.display = 'block'; } AppState.save(); }, () => { overlay.classList.remove('active'); appShell.style.display = 'block'; AppState.save(); }); }
+        function getShalatTime() { const h = new Date().getHours(); const m = new Date().getMinutes(); const t = h * 60 + m; if (t >= 4*60 && t <= 5*60+30) return 'subuh'; if (t >= 5*60+31 && t <= 6*60) return 'syuruq'; if (t >= 12*60 && t <= 14*60+30) return 'dzuhur'; if (t >= 14*60+31 && t <= 17*60+30) return 'ashar'; if (t >= 17*60+31 && t <= 18*60+30) return 'maghrib'; if (t >= 18*60+31 && t <= 19*60) return 'isya'; return 'malam'; }
+
+        const shalatColors = { subuh: 'linear-gradient(135deg, #0e1c2f 0%, #2a3f5e 100%)', syuruq: 'linear-gradient(135deg, #f7b267 0%, #f79d65 100%)', dzuhur: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', ashar: 'linear-gradient(135deg, #d8b4a0 0%, #c38e70 100%)', maghrib: 'linear-gradient(135deg, #d14d4d 0%, #9d4d6b 100%)', isya: 'linear-gradient(135deg, #0b1a2e 0%, #1a2f3f 100%)', malam: 'linear-gradient(135deg, #030712 0%, #111827 100%)' };
+        const shalatNames = { subuh: 'Subuh 🌅', syuruq: 'Syuruq ☀️', dzuhur: 'Dzuhur ☀️', ashar: 'Ashar 🌤️', maghrib: 'Maghrib 🌇', isya: 'Isya 🌙', malam: 'Malam 🌃' };
+
+        let autoShalatEnabled = true; let themeMode = 0;
+        function updateBackground() { if (!autoShalatEnabled) return; const waktu = getShalatTime(); document.body.style.background = shalatColors[waktu]; document.getElementById('waktuShalatDisplay').textContent = shalatNames[waktu]; AppState.save(); }
+        document.getElementById('autoShalatToggle').addEventListener('click', () => { autoShalatEnabled = !autoShalatEnabled; if (autoShalatEnabled) updateBackground(); AppState.save(); });
+        setInterval(updateBackground, 60000);
+
+        const themeToggle = document.getElementById('themeToggle'); const themeIcon = themeToggle.querySelector('i');
+        themeToggle.addEventListener('click', () => { autoShalatEnabled = false; themeMode = (themeMode + 1) % 3; document.body.classList.remove('light-mode', 'sepia-mode'); if (themeMode === 0) { themeIcon.className = 'fas fa-moon'; document.body.style.background = 'linear-gradient(135deg, #020617 0%, #1e293b 100%)'; } else if (themeMode === 1) { document.body.classList.add('light-mode'); themeIcon.className = 'fas fa-sun'; } else { document.body.classList.add('sepia-mode'); themeIcon.className = 'fas fa-scroll'; } AppState.save(); });
+
+        const MODULES = [ { id: 'commandcenter', name: 'COMMAND', icon: '📊' }, { id: 'booking', name: 'BOOKING', icon: '📅' }, { id: 'k3', name: 'K3', icon: '⚠️' }, { id: 'sekuriti', name: 'SEKURITI', icon: '🛡️' }, { id: 'janitor-indoor', name: 'JANITOR IN', icon: '🧹' }, { id: 'janitor-outdoor', name: 'JANITOR OUT', icon: '🌿' }, { id: 'stok', name: 'STOK', icon: '📦' }, { id: 'maintenance', name: 'MAINTENANCE', icon: '🔧' }, { id: 'asset', name: 'ASSET', icon: '🏢' } ];
+
+        function renderGrid() { const container = document.getElementById('grid-modules'); container.innerHTML = ''; MODULES.forEach(m => { const card = document.createElement('div'); card.className = 'module-card crystal-text'; card.onclick = () => { loadModule(m.id); AppState.currentTab = m.id; AppState.save(); }; card.innerHTML = `<div class="crystal-icon">${m.icon}</div><div class="text-xs font-bold">${m.name}</div>`; container.appendChild(card); }); }
+
+        async function loadModule(moduleId) {
+            const win = document.getElementById('module-window'); const content = document.getElementById('module-content');
+            win.classList.remove('hidden');
+            content.innerHTML = `<div class="shalawat-loading text-center py-20"><p class="arabic text-2xl text-emerald-400">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</p><p class="text-slate-400 mt-4">Memuat ${moduleId}...</p><div class="loading-spinner mx-auto mt-4"></div></div>`;
+            
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Module loading timeout (10s)')), 10000));
+            const loadPromise = (async () => {
+                try {
+                    const baseUrl = window.location.origin + '/dream-os-v2.-0';
+                    const modulePath = `${baseUrl}/modules/${moduleId}/module.js`;
+                    console.log('Loading module from:', modulePath);
+                    const mod = await import(modulePath);
+                    if (mod.init && typeof mod.init === 'function') { await mod.init(); }
+                    else if (mod.default && typeof mod.default === 'function') { await mod.default(); }
+                    else { throw new Error('Module tidak memiliki fungsi init'); }
+                } catch (err) {
+                    console.log(`Module ${moduleId} JS failed, trying HTML fallback...`, err);
+                    const baseUrl = window.location.origin + '/dream-os-v2.-0';
+                    const htmlPath = `${baseUrl}/modules/${moduleId}/index.html`;
+                    const response = await fetch(htmlPath);
+                    if (response.ok) { const html = await response.text(); content.innerHTML = html; }
+                    else { throw err; }
+                }
+            })();
+            
+            try { await Promise.race([loadPromise, timeoutPromise]); }
+            catch (err) { content.innerHTML = `<div class="text-center py-20"><p class="text-red-400 text-lg mb-4">❌ Gagal memuat modul</p><p class="text-slate-400 mb-6">${err.message}</p><button onclick="window.doCloseModule()" class="btn-crystal max-w-xs"><i class="fas fa-arrow-left mr-2"></i>Kembali</button></div>`; console.error('Module load error:', err); }
+        }
+
+        window.doCloseModule = () => { if (window.__module_cleanup) window.__module_cleanup(); document.getElementById('module-window').classList.add('hidden'); document.getElementById('module-content').innerHTML = ''; };
+        window.doLogout = () => { AppState.clear(); window.location.reload(); };
+        let currentSlide = 0;
+        const slides = [ { title: 'Assalamualaikum', content: 'Selamat datang di Dream OS v2.0' }, { title: 'Booking Hari Ini', content: 'Tidak ada booking' }, { title: 'K3 Hari Ini', content: 'Tidak ada laporan' }, { title: 'Cuaca & Mitigasi', content: '<div class="text-3xl mb-2">🌤️</div><div>26°C, Kelembaban 80%</div><div class="flex gap-2 justify-center mt-3"><span class="px-3 py-1 bg-black/20 rounded-full text-xs">🚦 Lancar</span><span class="px-3 py-1 bg-black/20 rounded-full text-xs">🌋 Aman</span></div>' }, { title: 'Waktu Shalat', content: '<span id="slideWaktuShalat">Subuh 04:30</span>' }, { title: 'Info Tambahan 1', content: 'Healing Colour siap menemani harimu' }, { title: 'Info Tambahan 2', content: 'Auto Shalat Background aktif' } ];
+
+        function renderSlider() { const wrapper = document.getElementById('sliderWrapper'); const dots = document.getElementById('sliderDots'); wrapper.innerHTML = slides.map(s => `<div class="slider-slide"><h3 class="slide-title crystal-text">${s.title}</h3><div class="text-sm crystal-text">${s.content}</div></div>`).join(''); dots.innerHTML = slides.map((_, i) => `<div class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>`).join(''); }
+        window.goToSlide = (i) => { currentSlide = i; document.getElementById('sliderWrapper').style.transform = `translateX(-${i * 100}%)`; document.querySelectorAll('.slider-dot').forEach((d, idx) => d.classList.toggle('active', idx === i)); };
+        window.nextSlide = () => goToSlide((currentSlide + 1) % slides.length);
+        window.prevSlide = () => goToSlide((currentSlide - 1 + slides.length) % slides.length);
+
+        document.getElementById('toggleBtn').addEventListener('click', () => { const pass = document.getElementById('passkey'); pass.type = pass.type === 'password' ? 'text' : 'password'; document.getElementById('eyeIcon').className = pass.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash'; });
+
+        function doLogin() { const key = document.getElementById('passkey').value; if (key === '012443410' || key === '123') { AppState.isLoggedIn = true; AppState.save(); document.getElementById('login-zone').classList.add('hidden'); document.getElementById('app-shell').classList.remove('hidden'); document.getElementById('user-role').textContent = 'ADMIN'; renderGrid(); renderSlider(); setInterval(() => window.nextSlide(), 5000); checkGeofence(); updateBackground(); if (themeMode === 1) { document.body.classList.add('light-mode'); themeIcon.className = 'fas fa-sun'; } else if (themeMode === 2) { document.body.classList.add('sepia-mode'); themeIcon.className = 'fas fa-scroll'; } } else { document.getElementById('error-msg').textContent = '❌ ACCESS DENIED'; setTimeout(() => document.getElementById('error-msg').textContent = '', 2000); } }
+        document.getElementById('btnLogin').addEventListener('click', doLogin);
+        document.getElementById('passkey').addEventListener('keypress', (e) => { if (e.key === 'Enter') doLogin(); });
+
+        async function initApp() {
+            // Auto-login disabled for testing - uncomment if needed
+            /*
+            if (AppState.load() && AppState.isLoggedIn) {
+                document.getElementById('login-zone').classList.add('hidden');
+                document.getElementById('app-shell').classList.remove('hidden');
+                document.getElementById('user-role').textContent = 'ADMIN';
+                renderGrid(); renderSlider(); setInterval(() => window.nextSlide(), 5000); checkGeofence(); updateBackground();
+                if (themeMode === 1) { document.body.classList.add('light-mode'); themeIcon.className = 'fas fa-sun'; }
+                else if (themeMode === 2) { document.body.classList.add('sepia-mode'); themeIcon.className = 'fas fa-scroll'; }
+            }
+            */
+            setTimeout(() => { document.getElementById('loading-screen').classList.add('fade-out'); }, 500);
+        }
+
+        detectLowEndDevice(); initBatteryCheck(); initConnectionCheck(); initStorageCheck(); initOfflineDetection(); initApp();
+    </script>
+</body>
+</html>
