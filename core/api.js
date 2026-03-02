@@ -1,54 +1,100 @@
+// ═══════════════════════════════════════════════════════
+// DREAM OS v2.0 - API WRAPPER
+// ═══════════════════════════════════════════════════════
+
 import { supabase } from './supabase.js';
-import { AppError } from './error.js';
 
 export const api = {
-    async query(table, filters = {}) {
+    /**
+     * Query data from table
+     */
+    async query(table, filters = {}, options = {}) {
         try {
             let query = supabase.from(table).select('*');
-            Object.entries(filters).forEach(([key, value]) => {
-                if (value !== undefined && value !== null) {
-                    query = query.eq(key, value);
-                }
-            });
+            
+            // Apply filters
+            for (const [key, value] of Object.entries(filters)) {
+                query = query.eq(key, value);
+            }
+            
+            // Apply ordering
+            if (options.order) {
+                query = query.order(options.order, { ascending: options.ascending !== false });
+            }
+            
+            // Apply limit
+            if (options.limit) {
+                query = query.limit(options.limit);
+            }
+            
             const { data, error } = await query;
-            if (error) throw new AppError(error.message, error.code);
-            return data;
+            
+            if (error) throw error;
+            return data || [];
+            
         } catch (err) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(err.message, 'QUERY_FAILED');
+            console.error(`API query error (${table}):`, err);
+            throw err;
         }
     },
-
-    async create(table, payload) {
+    
+    /**
+     * Insert data
+     */
+    async insert(table, data) {
         try {
-            const { data, error } = await supabase.from(table).insert([payload]).select();
-            if (error) throw new AppError(error.message, error.code);
-            return data?.[0];
+            const { data: result, error } = await supabase
+                .from(table)
+                .insert(data)
+                .select();
+            
+            if (error) throw error;
+            return result;
+            
         } catch (err) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(err.message, 'CREATE_FAILED');
+            console.error(`API insert error (${table}):`, err);
+            throw err;
         }
     },
-
-    async update(table, id, updates) {
+    
+    /**
+     * Update data
+     */
+    async update(table, id, data) {
         try {
-            const { data, error } = await supabase.from(table).update(updates).eq('id', id).select();
-            if (error) throw new AppError(error.message, error.code);
-            return data?.[0];
+            const { data: result, error } = await supabase
+                .from(table)
+                .update(data)
+                .eq('id', id)
+                .select();
+            
+            if (error) throw error;
+            return result;
+            
         } catch (err) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(err.message, 'UPDATE_FAILED');
+            console.error(`API update error (${table}):`, err);
+            throw err;
         }
     },
-
-    async remove(table, id) {
+    
+    /**
+     * Delete data
+     */
+    async delete(table, id) {
         try {
-            const { error } = await supabase.from(table).delete().eq('id', id);
-            if (error) throw new AppError(error.message, error.code);
+            const { error } = await supabase
+                .from(table)
+                .delete()
+                .eq('id', id);
+            
+            if (error) throw error;
             return true;
+            
         } catch (err) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(err.message, 'DELETE_FAILED');
+            console.error(`API delete error (${table}):`, err);
+            throw err;
         }
     }
 };
+
+console.log('✅ API wrapper initialized');
