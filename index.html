@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="description" content="Dream OS v2.0 - Integrated Management System">
+    <title>Dream OS v2.0 | Ultimate Edition</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ═══════════════════════════════════════════════════════
+           DREAM OS v2.0 - COMPLETE STYLES
+           ═══════════════════════════════════════════════════════ */
+        :root {
+            --emerald: #10b981;
+            --blue: #3b82f6;
+            --orange: #f59e0b;
+            --purple: #a855f7;
+            --red: #ef4444;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #020617 0%, #1e293b 50%, #0f172a 100%);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #020617 0%, #1e293b 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 30000;
+            transition: opacity 0.5s ease;
+        }
+        #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+        
+        .loading-spinner {
+            width: 50px; height: 50px;            border: 3px solid rgba(16,185,129,0.3);
+            border-top-color: var(--emerald);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.85) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border: 1px solid rgba(16, 185, 129, 0.3) !important;
+            border-radius: 24px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        .crystal-text {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 40px;
+            padding: 0.2rem 1rem;
+            display: inline-block;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .crystal-icon {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+        }
+        
+        .input-group {
+            position: relative;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-crystal {
+            width: 100%;
+            height: 56px;
+            padding: 0 50px 0 20px;            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+        .input-crystal:focus {
+            border-color: var(--emerald);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+        
+        #toggleBtn {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            color: var(--emerald);
+            cursor: pointer;
+        }
+        
+        .btn-crystal {
+            width: 100%;
+            height: 56px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-crystal:hover { transform: translateY(-2px); }
+        .btn-crystal:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #error-msg {
+            min-height: 24px;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 0.75rem;
+            color: #ef4444;
+        }
+        
+        .arabic { font-family: 'Amiri', serif; }
+                .module-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 450px;
+            margin: 2rem auto;
+        }
+        .module-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 1.2rem 0.3rem;
+            text-align: center;
+            cursor: pointer;
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--emerald);
+        }
+        
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 99999;
+        }
+        .toast {
+            background: rgba(15, 23, 42, 0.9);
+            border-left: 4px solid var(--emerald);
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-top: 10px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        #login-zone {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background: rgba(0,0,0,0.95);
+        }
+                #module-window {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            padding: 1rem;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.95);
+        }
+        #module-window.hidden { display: none; }
+        
+        @media (max-width: 480px) {
+            .input-crystal, .btn-crystal { height: 60px; }
+            #toggleBtn { width: 44px; height: 44px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="crystal-text">Memuat Dream OS...</p>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Login Zone -->
+    <div id="login-zone">
+        <div class="glass-card max-w-sm w-full text-center">
+            <div class="crystal-icon">🚀</div>
+            <h1 class="text-3xl font-bold mb-2">Dream OS <span style="color: var(--emerald);">v2.0</span></h1>
+            <p class="text-xs text-slate-400 mb-4">Ultimate Edition</p>
+            <p class="arabic text-3xl text-emerald-400 mb-6">بِسْمِ اللَّهِ</p>
+            
+            <div class="input-group">
+                <input type="password" id="passkey" class="input-crystal" placeholder="Enter Access Code">
+                <button type="button" id="toggleBtn"><i class="fas fa-eye"></i></button>
+            </div>
+            
+            <button id="btnLogin" class="btn-crystal mb-3">
+                <i class="fas fa-sign-in-alt mr-2"></i>ACCESS SYSTEM
+            </button>
+            
+            <p id="error-msg"></p>
+            
+            <div class="mt-6 pt-4 border-t border-slate-700/50">
+                <p class="text-xs text-slate-500">Dream Team © 2026</p>
+            </div>        </div>
+    </div>
+
+    <!-- Main App Shell -->
+    <div id="app-shell" class="hidden max-w-7xl mx-auto p-4">
+        <div class="text-center mb-6">
+            <p class="arabic text-3xl text-emerald-400 mb-3">بِسْمِ اللَّهِ</p>
+            <h1 class="text-2xl font-bold">Dream OS v2.0</h1>
+        </div>
+        
+        <div class="glass-card mb-4 p-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div style="font-size: 2rem;">🚀</div>
+                <div>
+                    <h2 class="text-xl font-bold">Dream OS <span style="color: var(--emerald);">v2.0</span></h2>
+                    <p class="text-xs text-slate-400">Integrated System</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="user-role" class="crystal-text text-xs">GUEST</span>
+                <button onclick="window.doLogout()" style="background: #ef4444; padding: 0.5rem 1rem; border-radius: 8px; border: none; color: white; cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="module-grid" id="grid-modules"></div>
+
+        <footer class="text-center py-6 text-xs text-slate-500">
+            <p>DREAM TEAM © 2026</p>
+        </footer>
+    </div>
+
+    <!-- Module Window -->
+    <div id="module-window" class="hidden">
+        <div class="max-w-7xl mx-auto">
+            <button onclick="window.doCloseModule()" style="margin-bottom: 1rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">
+                <i class="fas fa-arrow-left mr-2"></i> BACK
+            </button>
+            <div id="module-content"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         JAVASCRIPT - SEMUA KODE DALAM TAG <script>
+         ═══════════════════════════════════════════════════════ -->
+    <script>
+        // User Database
+        const USER_DATABASE = {
+            '012443410': { username: 'Developer', role: 'developer', permissions: ['all'], noLog: true, color: '#10b981' },            'Mr.M_Architect_2025': { username: 'Master Architect', role: 'master', permissions: ['all'], noLog: true, color: '#3b82f6' },
+            '4dm1n_AF6969@00': { username: 'Administrator', role: 'admin', permissions: ['all'], noLog: false, color: '#8b5cf6' },
+            'LHPSsec_AF2025': { username: 'Security Officer', role: 'sekuriti', permissions: ['sekuriti', 'commandcenter'], noLog: false, color: '#ef4444' },
+            'CHCS_AF_@003': { username: 'Janitor Staff', role: 'janitor', permissions: ['janitor-indoor', 'janitor-outdoor'], noLog: false, color: '#f59e0b' },
+            'SACS_AF@004': { username: 'Stock Manager', role: 'stok', permissions: ['stok'], noLog: false, color: '#06b6d4' },
+            'M41n_4F@234': { username: 'Maintenance Team', role: 'maintenance', permissions: ['maintenance'], noLog: false, color: '#f97316' },
+            '4dm1n_6969@01': { username: 'Inventaris Officer', role: 'inventaris', permissions: ['asset'], noLog: false, color: '#ec4899' },
+            '4dm1n_9696@02': { username: 'Gudang Staff', role: 'gudang', permissions: ['gudang'], noLog: false, color: '#14b8a6' },
+            '4553Tumum_AF@1112': { username: 'Asset Manager', role: 'asset', permissions: ['asset'], noLog: false, color: '#6366f1' },
+            'user_@1234': { username: 'Booking User', role: 'booking', permissions: ['booking'], noLog: false, color: '#84cc16' },
+            'user_@2345': { username: 'K3 Officer', role: 'k3', permissions: ['k3'], noLog: false, color: '#eab308' }
+        };
+
+        const MODULES = [
+            { id: 'commandcenter', name: 'COMMAND', icon: '📊' },
+            { id: 'booking', name: 'BOOKING', icon: '📅' },
+            { id: 'k3', name: 'K3', icon: '⚠️' },
+            { id: 'dana', name: 'DANA', icon: '💰' },
+            { id: 'stok', name: 'STOK', icon: '📦' },
+            { id: 'approval', name: 'APPROVAL', icon: '✅' },
+            { id: 'sekuriti', name: 'SEKURITI', icon: '🛡️' },
+            { id: 'maintenance', name: 'MAINTENANCE', icon: '🔧' },
+            { id: 'asset', name: 'ASSET', icon: '🏢' }
+        ];
+
+        let currentUser = null;
+
+        // Toast Notification
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Login System
+        function initLogin() {
+            const toggleBtn = document.getElementById('toggleBtn');
+            const passkey = document.getElementById('passkey');
+            const eyeIcon = toggleBtn.querySelector('i');
+            const btnLogin = document.getElementById('btnLogin');
+            const errorMsg = document.getElementById('error-msg');
+
+            toggleBtn.addEventListener('click', () => {
+                const isPassword = passkey.type === 'password';
+                passkey.type = isPassword ? 'text' : 'password';
+                eyeIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+            });
+            async function handleLogin() {
+                const password = passkey.value.trim();
+                if (!password) {
+                    errorMsg.textContent = '❌ Please enter access code';
+                    return;
+                }
+
+                btnLogin.disabled = true;
+                btnLogin.innerHTML = '<i class="fas fa-circle-notch spin mr-2"></i>Verifying...';
+
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                const user = USER_DATABASE[password];
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('login-zone').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('login-zone').classList.add('hidden');
+                        document.getElementById('app-shell').classList.remove('hidden');
+                        document.getElementById('user-role').textContent = user.username.toUpperCase();
+                        document.getElementById('user-role').style.color = user.color;
+                        renderModuleGrid();
+                        showToast('✅ Welcome, ' + user.username + '!');
+                    }, 500);
+                } else {
+                    errorMsg.textContent = '❌ Invalid access code';
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>ACCESS SYSTEM';
+                    passkey.value = '';
+                }
+            }
+
+            btnLogin.addEventListener('click', handleLogin);
+            passkey.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleLogin();
+            });
+        }
+
+        function renderModuleGrid() {
+            const grid = document.getElementById('grid-modules');
+            if (!grid || !currentUser) return;
+            
+            grid.innerHTML = '';
+            MODULES.forEach((mod, index) => {
+                const card = document.createElement('div');
+                card.className = 'module-card';
+                card.innerHTML = `<div style="font-size: 2rem; margin-bottom: 0.5rem;">${mod.icon}</div><div class="text-xs font-bold">${mod.name}</div>`;
+                card.onclick = () => {
+                    document.getElementById('module-content').innerHTML = `                        <div class="glass-card p-8 text-center">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">${mod.icon}</div>
+                            <h2 class="text-3xl font-bold mb-4">${mod.name}</h2>
+                            <p>User: ${currentUser.username}</p>
+                            <button onclick="window.doCloseModule()" class="btn-crystal" style="margin-top: 2rem;">
+                                <i class="fas fa-arrow-left mr-2"></i>Back
+                            </button>
+                        </div>
+                    `;
+                    document.getElementById('module-window').classList.remove('hidden');
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        window.doCloseModule = () => {
+            document.getElementById('module-window').classList.add('hidden');
+        };
+
+        window.doLogout = () => {
+            location.reload();
+        };
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('fade-out');
+                initLogin();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
