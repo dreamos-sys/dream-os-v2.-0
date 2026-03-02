@@ -1,0 +1,452 @@
+// ═══════════════════════════════════════════════════════
+// DREAM OS v2.0 - SMART AUTHENTICATION SYSTEM
+// ═══════════════════════════════════════════════════════
+
+// User Database dengan Role & Permissions
+const USER_DATABASE = {
+    '012443410': {
+        username: 'Developer',
+        role: 'developer',
+        level: 'full',
+        permissions: ['all'],
+        noLog: true,
+        color: '#10b981'
+    },
+    'Mr.M_Architect_2025': {
+        username: 'Master Architect',
+        role: 'master',
+        level: 'full',
+        permissions: ['all'],
+        noLog: true,
+        color: '#3b82f6'
+    },
+    '4dm1n_AF6969@00': {
+        username: 'Administrator',
+        role: 'admin',
+        level: 'full',
+        permissions: ['all'],
+        noLog: false,
+        color: '#8b5cf6'
+    },
+    'LHPSsec_AF2025': {
+        username: 'Security Officer',
+        role: 'sekuriti',
+        level: 'limited',
+        permissions: ['sekuriti', 'commandcenter'],
+        noLog: false,
+        color: '#ef4444'
+    },
+    'CHCS_AF_@003': {
+        username: 'Janitor Staff',
+        role: 'janitor',
+        level: 'limited',
+        permissions: ['janitor-indoor', 'janitor-outdoor'],
+        noLog: false,
+        color: '#f59e0b'
+    },
+    'SACS_AF@004': {
+        username: 'Stock Manager',
+        role: 'stok',
+        level: 'limited',        permissions: ['stok', 'inventory'],
+        noLog: false,
+        color: '#06b6d4'
+    },
+    'M41n_4F@234': {
+        username: 'Maintenance Team',
+        role: 'maintenance',
+        level: 'limited',
+        permissions: ['maintenance'],
+        noLog: false,
+        color: '#f97316'
+    },
+    '4dm1n_6969@01': {
+        username: 'Inventaris Officer',
+        role: 'inventaris',
+        level: 'limited',
+        permissions: ['asset', 'inventory'],
+        noLog: false,
+        color: '#ec4899'
+    },
+    '4dm1n_9696@02': {
+        username: 'Gudang Staff',
+        role: 'gudang',
+        level: 'limited',
+        permissions: ['gudang', 'stok'],
+        noLog: false,
+        color: '#14b8a6'
+    },
+    '4553Tumum_AF@1112': {
+        username: 'Asset Manager',
+        role: 'asset',
+        level: 'limited',
+        permissions: ['asset'],
+        noLog: false,
+        color: '#6366f1'
+    },
+    'user_@1234': {
+        username: 'Booking User',
+        role: 'booking',
+        level: 'basic',
+        permissions: ['booking'],
+        noLog: false,
+        color: '#84cc16'
+    },
+    'user_@2345': {
+        username: 'K3 Officer',
+        role: 'k3',
+        level: 'limited',
+        permissions: ['k3'],
+        noLog: false,        color: '#eab308'
+    }
+};
+
+// Module Access Mapping
+const MODULE_ACCESS = {
+    'commandcenter': ['developer', 'master', 'admin'],
+    'booking': ['developer', 'master', 'admin', 'booking'],
+    'k3': ['developer', 'master', 'admin', 'k3'],
+    'dana': ['developer', 'master', 'admin'],
+    'stok': ['developer', 'master', 'admin', 'stok', 'gudang'],
+    'approval': ['developer', 'master', 'admin'],
+    'sekuriti': ['developer', 'master', 'admin', 'sekuriti'],
+    'maintenance': ['developer', 'master', 'admin', 'maintenance'],
+    'asset': ['developer', 'master', 'admin', 'asset', 'inventaris'],
+    'janitor-indoor': ['developer', 'master', 'admin', 'janitor'],
+    'janitor-outdoor': ['developer', 'master', 'admin', 'janitor'],
+    'analytics': ['developer', 'master', 'admin'],
+    'backup': ['developer', 'master', 'admin'],
+    'files': ['developer', 'master', 'admin'],
+    'laporan': ['developer', 'master', 'admin'],
+    'ai': ['developer', 'master', 'admin'],
+    'printer': ['developer', 'master', 'admin'],
+    'qr': ['developer', 'master', 'admin'],
+    'scanner': ['developer', 'master', 'admin'],
+    'gudang': ['developer', 'master', 'admin', 'gudang'],
+    'inventory': ['developer', 'master', 'admin', 'stok', 'inventaris']
+};
+
+// Session Management
+class SessionManager {
+    constructor() {
+        this.currentUser = null;
+        this.sessionStart = null;
+        this.lastActivity = Date.now();
+        this.sessionTimeout = 30 * 60 * 1000; // 30 minutes
+    }
+
+    login(password) {
+        const user = USER_DATABASE[password];
+        if (!user) return { success: false, error: 'Invalid credentials' };
+
+        this.currentUser = {
+            ...user,
+            loginTime: new Date().toISOString(),
+            sessionId: this.generateSessionId()
+        };
+        this.sessionStart = Date.now();
+        this.lastActivity = Date.now();
+        // Log login if not noLog user
+        if (!user.noLog) {
+            this.logActivity('LOGIN', `User ${user.username} logged in`);
+        }
+
+        return { success: true, user: this.currentUser };
+    }
+
+    logout() {
+        if (this.currentUser && !this.currentUser.noLog) {
+            this.logActivity('LOGOUT', `User ${this.currentUser.username} logged out`);
+        }
+        this.currentUser = null;
+        this.sessionStart = null;
+    }
+
+    checkSession() {
+        if (!this.currentUser) return false;
+        
+        const now = Date.now();
+        if (now - this.lastActivity > this.sessionTimeout) {
+            this.logout();
+            return false;
+        }
+        
+        this.lastActivity = now;
+        return true;
+    }
+
+    hasPermission(moduleId) {
+        if (!this.currentUser) return false;
+        if (this.currentUser.permissions.includes('all')) return true;
+        
+        const allowedRoles = MODULE_ACCESS[moduleId] || [];
+        return allowedRoles.includes(this.currentUser.role);
+    }
+
+    logActivity(action, detail) {
+        // In production, this would save to database
+        console.log(`[AUDIT] ${new Date().toISOString()} - ${this.currentUser?.username} - ${action}: ${detail}`);
+        
+        // Save to localStorage for demo
+        const logs = JSON.parse(localStorage.getItem('dreamos_audit_logs') || '[]');
+        logs.push({
+            timestamp: new Date().toISOString(),
+            user: this.currentUser?.username,
+            role: this.currentUser?.role,
+            action,
+            detail,
+            sessionId: this.currentUser?.sessionId        });
+        localStorage.setItem('dreamos_audit_logs', JSON.stringify(logs.slice(-100))); // Keep last 100
+    }
+
+    generateSessionId() {
+        return 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    getCurrentUser() {
+        return this.currentUser;
+    }
+
+    getSessionInfo() {
+        if (!this.currentUser) return null;
+        return {
+            user: this.currentUser,
+            sessionStart: this.sessionStart,
+            duration: Date.now() - this.sessionStart,
+            lastActivity: this.lastActivity
+        };
+    }
+}
+
+// Global Session Manager
+window.sessionManager = new SessionManager();
+
+// ═══════════════════════════════════════════════════════
+// LOGIN SYSTEM dengan SMART VERIFICATION
+// ═══════════════════════════════════════════════════════
+
+function initSmartLogin() {
+    const toggleBtn = document.getElementById('toggleBtn');
+    const passkey = document.getElementById('passkey');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const btnLogin = document.getElementById('btnLogin');
+    const errorMsg = document.getElementById('error-msg');
+
+    // Toggle password visibility
+    toggleBtn?.addEventListener('click', function() {
+        const isPassword = passkey.type === 'password';
+        passkey.type = isPassword ? 'text' : 'password';
+        eyeIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+        
+        // Smooth animation
+        this.style.transform = 'translateY(-50%) scale(' + (isPassword ? '1.1' : '1') + ')';
+        setTimeout(() => {
+            this.style.transform = 'translateY(-50%) scale(1)';
+        }, 200);
+    });
+    // Smart login handler
+    async function handleLogin() {
+        const password = passkey.value.trim();
+        
+        if (!password) {
+            showError('❌ Please enter access code');
+            shakeElement(btnLogin);
+            return;
+        }
+
+        // Show verifying state
+        setLoading(true);
+
+        // Simulate network delay (realistic)
+        await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
+
+        // Attempt login
+        const result = window.sessionManager.login(password);
+
+        if (result.success) {
+            // Success - smooth transition
+            await showToast(`✅ Welcome, ${result.user.username}!`, 'success');
+            
+            // Fade out login
+            document.getElementById('login-zone').style.opacity = '0';
+            document.getElementById('login-zone').style.transition = 'opacity 0.5s ease';
+            
+            setTimeout(() => {
+                document.getElementById('login-zone').classList.add('hidden');
+                document.getElementById('app-shell').classList.remove('hidden');
+                
+                // Set user info
+                document.getElementById('user-role').textContent = result.user.username.toUpperCase();
+                document.getElementById('user-role').style.color = result.user.color;
+                
+                // Render modules based on permissions
+                renderModuleGrid(result.user);
+                
+                // Fade in app
+                document.getElementById('app-shell').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('app-shell').style.opacity = '1';
+                    document.getElementById('app-shell').style.transition = 'opacity 0.5s ease';
+                }, 50);
+                
+                setLoading(false);
+            }, 500);
+        } else {
+            // Failed
+            showError('❌ Invalid access code');            shakeElement(btnLogin);
+            passkey.value = '';
+            passkey.focus();
+            setLoading(false);
+        }
+    }
+
+    function showError(msg) {
+        errorMsg.textContent = msg;
+        errorMsg.style.opacity = '1';
+        setTimeout(() => {
+            errorMsg.style.opacity = '0';
+        }, 3000);
+    }
+
+    function setLoading(loading) {
+        if (loading) {
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<i class="fas fa-circle-notch spin mr-2"></i><span>Verifying...</span>';
+            btnLogin.style.cursor = 'not-allowed';
+        } else {
+            btnLogin.disabled = false;
+            btnLogin.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i><span>ACCESS SYSTEM</span>';
+            btnLogin.style.cursor = 'pointer';
+        }
+    }
+
+    function shakeElement(element) {
+        element.style.animation = 'shake 0.5s ease';
+        setTimeout(() => {
+            element.style.animation = '';
+        }, 500);
+    }
+
+    // Event listeners
+    btnLogin?.addEventListener('click', handleLogin);
+    passkey?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+
+    // Prevent paste for security (optional)
+    passkey?.addEventListener('paste', (e) => {
+        e.preventDefault();
+        showToast('❌ Paste disabled for security', 'warning');
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE RENDER dengan PERMISSION CHECK
+// ═══════════════════════════════════════════════════════
+function renderModuleGrid(user) {
+    const grid = document.getElementById('grid-modules');
+    if (!grid) return;
+    
+    grid.innerHTML = '';
+    
+    // Filter modules based on user permissions
+    const accessibleModules = MODULES.filter(mod => {
+        if (user.permissions.includes('all')) return true;
+        return user.permissions.includes(mod.id);
+    });
+
+    // If no modules accessible, show message
+    if (accessibleModules.length === 0) {
+        grid.innerHTML = '<div class="col-span-3 text-center text-slate-400 py-8">No modules accessible</div>';
+        return;
+    }
+
+    accessibleModules.forEach((mod, index) => {
+        const card = document.createElement('div');
+        card.className = 'module-card crystal-text';
+        card.style.animationDelay = `${index * 0.05}s`;
+        
+        card.onclick = () => {
+            console.log(`📦 Loading module: ${mod.id}`);
+            loadModuleWithPermission(mod, user);
+        };
+        
+        card.innerHTML = `
+            <div class="crystal-icon">${mod.icon}</div>
+            <div class="text-xs font-bold">${mod.name}</div>
+        `;
+        
+        grid.appendChild(card);
+    });
+    
+    console.log(`✅ Rendered ${accessibleModules.length} modules for ${user.role}`);
+}
+
+function loadModuleWithPermission(module, user) {
+    // Check permission
+    if (!window.sessionManager.hasPermission(module.id)) {
+        showToast(`❌ Access denied to ${module.name}`, 'error');
+        return;
+    }
+
+    // Log module access if not noLog
+    if (!user.noLog) {
+        window.sessionManager.logActivity('MODULE_ACCESS', `Accessed ${module.name}`);    }
+
+    showToast(`Loading ${module.name}...`, 'info');
+    
+    // Simulate module load
+    setTimeout(() => {
+        const content = document.getElementById('module-content');
+        if (content) {
+            content.innerHTML = `
+                <div class="glass-card p-8 text-center">
+                    <div class="text-5xl mb-4">${module.icon}</div>
+                    <h2 class="text-3xl font-bold mb-4 crystal-text">${module.name}</h2>
+                    <p class="text-slate-400 mb-6">Module loaded successfully! 🎉</p>
+                    <div class="glass-card p-4 mb-6 inline-block">
+                        <p class="text-sm">User: <span style="color: ${user.color}">${user.username}</span></p>
+                        <p class="text-sm">Role: ${user.role}</p>
+                        <p class="text-sm">Session: ${window.sessionManager.getSessionInfo()?.sessionId}</p>
+                    </div>
+                    <br>
+                    <button onclick="window.doCloseModule()" class="btn-crystal max-w-xs">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                    </button>
+                </div>
+            `;
+            document.getElementById('module-window').classList.remove('hidden');
+            showToast(`✅ ${module.name} loaded`, 'success');
+        }
+    }, 500);
+}
+
+// ═══════════════════════════════════════════════════════
+// GLOBAL FUNCTIONS
+// ═══════════════════════════════════════════════════════
+
+window.doCloseModule = () => {
+    document.getElementById('module-window').classList.add('hidden');
+    document.getElementById('module-content').innerHTML = '';
+};
+
+window.doLogout = () => {
+    if (confirm('Are you sure you want to logout?')) {
+        window.sessionManager.logout();
+        window.location.reload();
+    }
+};
+
+// Session checker (run every minute)
+setInterval(() => {
+    if (!window.sessionManager.checkSession()) {
+        if (document.getElementById('app-shell') && !document.getElementById('app-shell').classList.contains('hidden')) {            showToast('⏰ Session expired. Please login again.', 'warning');
+            setTimeout(() => window.location.reload(), 2000);
+        }
+    }
+}, 60000);
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🔐 Smart Auth System initialized');
+    initSmartLogin();
+});
