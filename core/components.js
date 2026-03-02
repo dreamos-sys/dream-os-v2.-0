@@ -1,40 +1,105 @@
-// core/navigation.js
-import { eventBus } from './eventBus.js';
+// ═══════════════════════════════════════════════════════
+// DREAM OS v2.0 - CORE COMPONENTS
+// ═══════════════════════════════════════════════════════
 
 /**
- * 🧭 Navigate to any module from anywhere
- * @param {string} moduleId - Target module ID
- * @param {object} params - Optional params to pass
- * @param {boolean} closeCurrent - Close current module first?
+ * Toast Notification
+ * @param {string} message - Pesan yang ditampilkan
+ * @param {string} type - success | error | warning | info
  */
-export function navigateTo(moduleId, params = {}, closeCurrent = true) {
-    eventBus.emit('module:navigate', {
-        moduleId,
-        params,
-        closeCurrent
-    });
+export function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) {
+        console.warn('Toast container not found!');
+        alert(message);
+        return;
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    
+    const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
+    
+    toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 /**
- * 🚪 Close current module
+ * Show Loading Overlay
  */
-export function closeCurrentModule() {
-    eventBus.emit('module:close');
-}
-
-/**
- * 🔄 Refresh current module
- */
-export function refreshCurrentModule() {
-    // This requires commandHub to track active module
-    if (window.commandHub?.activeModule) {
-        window.commandHub.reloadModule(window.commandHub.activeModule);
+export function showLoading(message = 'Loading...') {
+    let loader = document.getElementById('global-loader');
+    if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'global-loader';
+        loader.innerHTML = `
+            <div style="position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:99999;">
+                <div style="text-align:center;">
+                    <div style="width:60px;height:60px;border:4px solid rgba(16,185,129,0.3);border-top-color:#10b981;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem;"></div>
+                    <p style="color:white;font-size:1rem;">${message}</p>
+                </div>            </div>
+        `;
+        document.body.appendChild(loader);
     }
 }
 
-// Expose to window for inline onclick
-window.navigateTo = navigateTo;
-window.closeModule = closeCurrentModule;
-window.refreshModule = refreshCurrentModule;
+/**
+ * Hide Loading Overlay
+ */
+export function hideLoading() {
+    const loader = document.getElementById('global-loader');
+    if (loader) {
+        loader.remove();
+    }
+}
 
-console.log('🧭 [Navigation] Helper functions exported');
+/**
+ * Confirm Dialog
+ */
+export function showConfirm(message, onConfirm, onCancel) {
+    if (confirm(message)) {
+        if (onConfirm) onConfirm();
+    } else {
+        if (onCancel) onCancel();
+    }
+}
+
+/**
+ * Format Date to Indonesian
+ */
+export function formatDate(date) {
+    const d = new Date(date);
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/**
+ * Format Time
+ */
+export function formatTime(date) {
+    const d = new Date(date);
+    return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+
+/**
+ * Format Currency (Rupiah)
+ */
+export function formatRupiah(amount) {
+    return new Intl.NumberFormat('id-ID', {        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(amount);
+}
+
+console.log('✅ Core Components loaded');
