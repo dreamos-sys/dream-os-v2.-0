@@ -1,7 +1,24 @@
-export const CONFIG = {
-    supabase: {
-        url: 'https://pvznaeppaagylwddirla.supabase.co',
-        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2em5hZXBwYWFneWx3ZGRpcmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTEwNDMsImV4cCI6MjA4NzUyNzA0M30.t9SJi3VfsBDkKmeZ3egZ4rbvljl4xe0WwNkPtfA9-vo'
+// ═══════════════════════════════════════════════════════
+// DREAM OS v2.0 - CONFIGURATION
+// ═══════════════════════════════════════════════════════
+
+export const config = {
+    appName: 'Dream OS',
+    version: '2.0',
+    baseUrl: window.location.origin + '/dream-os-v2.-0',
+    supabaseUrl: 'https://rqpodzjexghrvcpyacyo.supabase.co',
+    geofence: {
+        lat: -6.4,
+        lng: 106.8,
+        radiusKm: 5
     },
-    appName: 'Dream OS v2.0'
+    prayerTimes: {
+        subuh: { start: '04:30', end: '06:00' },
+        dzuhur: { start: '12:00', end: '14:30' },
+        ashar: { start: '14:31', end: '17:30' },
+        maghrib: { start: '17:31', end: '18:30' },
+        isya: { start: '18:31', end: '04:29' }
+    }
 };
+
+console.log('✅ Config loaded');
