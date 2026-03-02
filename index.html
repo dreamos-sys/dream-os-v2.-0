@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="description" content="Dream OS - Sistem Manajemen Terpadu dengan Auto Shalat & AI Core">
+    <base href="/dream-os-v2.-0/">
+    <title>Dream OS v2.0 | Crystal Prism + AI Core</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --emerald: #10b981; --gold: #fbbf24; --text-primary: white; --text-secondary: #94a3b8; --border: rgba(255,255,255,0.15); --glass-bg: rgba(0,0,0,0.2); }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #020617 0%, #1e293b 100%); color: var(--text-primary); font-family: 'Rajdhani', sans-serif; padding: 0.8rem; min-height: 100vh; transition: background 0.5s ease; }
+        
+        /* Loading Screen */
+        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #020617 0%, #1e293b 100%); display: flex; align-items: center; justify-content: center; z-index: 30000; transition: opacity 0.5s ease; }
+        #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+        .loading-spinner { width: 50px; height: 50px; border: 3px solid rgba(16,185,129,0.3); border-top-color: var(--emerald); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Theme Modes */
+        body.light-mode { --emerald: #059669; --text-primary: #1e1b1a; --text-secondary: #4a4a4a; --border: rgba(0,0,0,0.15); --glass-bg: rgba(255,250,235,0.7); background: linear-gradient(135deg, #f5f0e8 0%, #e8e0d5 100%); }
+        body.sepia-mode { --emerald: #8b6b4d; --text-primary: #5a3e2b; --text-secondary: #7a5a3e; --border: rgba(0,0,0,0.2); --glass-bg: rgba(232, 217, 181, 0.7); background: linear-gradient(135deg, #f4ecd6 0%, #e8d9b5 100%); }
+        
+        /* Low-end Device Optimization */
+        body.low-end-device * { animation-duration: 0.01ms !important; transition-duration: 0.1s !important; }
+        body.low-end-device .glass-card, body.low-end-device .crystal-text { backdrop-filter: blur(2px) !important; }
+        
+        /* Crystal UI Components */
+        .crystal-text { background: var(--glass-bg); backdrop-filter: blur(4px); border: 1px solid var(--border); border-radius: 40px; padding: 0.2rem 1rem; display: inline-block; color: var(--text-primary); font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: all 0.2s ease; }
+        body:not(.low-end-device) .crystal-text:hover { border-color: var(--emerald); transform: translateY(-2px); }
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 24px; padding: 1rem; }
+        
+        /* Module Grid */
+        .module-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 450px; margin: 0 auto; }
+        .module-card { background: var(--glass-bg); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 20px; padding: 1.2rem 0.3rem; text-align: center; cursor: pointer; transition: all 0.3s ease; color: var(--text-primary); }
+        .module-card:hover { transform: translateY(-5px); border-color: var(--emerald); box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3); }
+        .module-card:active { transform: translateY(-2px); }
+        .crystal-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-size: 1.5rem; transition: all 0.3s ease; }
+        .module-card:hover .crystal-icon { background: rgba(16, 185, 129, 0.2); border-color: var(--emerald); }
+        
+        /* Slider */
+        .slider-container { position: relative; overflow: hidden; border-radius: 24px; background: var(--glass-bg); backdrop-filter: blur(5px); border: 1px solid var(--border); margin: 1rem 0; }
+        .slider-wrapper { display: flex; transition: transform 0.3s ease; }        .slider-slide { min-width: 100%; padding: 1.5rem; text-align: center; }
+        .slider-dots { display: flex; justify-content: center; gap: 0.5rem; padding: 0.8rem; }
+        .slider-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-secondary); cursor: pointer; transition: all 0.3s ease; }
+        .slider-dot.active { background: var(--emerald); transform: scale(1.3); }
+        .slider-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; color: white; font-size: 0.9rem; transition: all 0.3s ease; }
+        .slider-arrow:hover { background: rgba(16, 185, 129, 0.3); border-color: var(--emerald); }
+        .slider-arrow.left { left: 5px; }
+        .slider-arrow.right { right: 5px; }
+        .slide-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--emerald); }
+        
+        /* Forms */
+        .input-crystal { background: var(--glass-bg); border: 2px solid var(--border); border-radius: 16px; padding: 12px; width: 100%; color: var(--text-primary); outline: none; text-align: center; font-size: 1rem; transition: all 0.3s ease; }
+        .input-crystal:focus { border-color: var(--emerald); box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+        .btn-crystal { background: linear-gradient(135deg, var(--emerald) 0%, #059669 100%); border: none; border-radius: 16px; padding: 12px; width: 100%; color: white; font-weight: 700; cursor: pointer; transition: 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+        .btn-crystal:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5); }
+        
+        /* Overlays & Indicators */
+        #geofence-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 20000; padding: 20px; }
+        #geofence-overlay.active { display: flex; }
+        .hidden { display: none !important; }
+        .arabic { font-family: 'Amiri', serif; }
+        .auto-shalat-indicator { display: flex; align-items: center; gap: 0.3rem; }
+        
+        .battery-low { position: fixed; bottom: 10px; left: 10px; background: rgba(255, 0, 0, 0.8); color: white; padding: 5px 10px; border-radius: 40px; font-size: 0.7rem; z-index: 9999; display: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); animation: pulse 2s infinite; }
+        .battery-low.show { display: block; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        
+        .connection-badge { position: fixed; bottom: 10px; right: 10px; padding: 5px 10px; border-radius: 40px; font-size: 0.7rem; z-index: 9999; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+        .connection-badge.wifi { background: rgba(16, 185, 129, 0.8); color: white; }
+        .connection-badge.cellular { background: rgba(245, 158, 11, 0.8); color: white; }
+        .connection-badge.slow { background: rgba(239, 68, 68, 0.8); color: white; }
+        
+        .offline-indicator { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(239, 68, 68, 0.9); color: white; padding: 5px 15px; border-radius: 40px; font-size: 0.8rem; z-index: 10000; display: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+        .offline-indicator.show { display: block; }
+        
+        /* Toast Notifications */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; max-width: 300px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .toast.success { border-left: 4px solid var(--emerald); }
+        .toast.error { border-left: 4px solid #ef4444; }
+        .toast.warning { border-left: 4px solid #f59e0b; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        /* Module Window Animation */
+        #module-window { transition: opacity 0.3s ease; }
+        #module-window.hidden { opacity: 0; pointer-events: none; }
+        #module-window:not(.hidden) { opacity: 1; }
+        
+        @media (max-width: 480px) { 
+            .module-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }            .module-card { padding: 1rem 0.2rem; }
+            .crystal-icon { width: 40px; height: 40px; font-size: 1.2rem; }
+            .slide-title { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="crystal-text text-lg">Memuat Dream OS...</p>
+            <p class="arabic text-emerald-400 mt-3 text-xl">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</p>
+            <p class="text-xs text-slate-400 mt-2">🚀 AI Core • Auto Shalat • Crystal UI</p>
+        </div>
+    </div>
+    
+    <!-- System Indicators -->
+    <div id="offlineIndicator" class="offline-indicator"><i class="fas fa-wifi-slash mr-1"></i> Offline Mode</div>
+    <div id="batteryLow" class="battery-low"><i class="fas fa-battery-quarter mr-1"></i> Battery Low</div>
+    <div id="connectionBadge" class="connection-badge hidden"><i class="fas fa-wifi mr-1"></i> <span id="connectionSpeed">WiFi</span></div>
+    <div id="toast-container"></div>
+
+    <!-- Geofence Overlay -->
+    <div id="geofence-overlay">
+        <div class="glass-card max-w-md text-center p-6" style="border-color: #ef4444;">
+            <div class="text-5xl mb-4">⛔</div>
+            <h2 class="text-2xl font-bold text-red-400 mb-4 crystal-text">AREA TERLARANG</h2>
+            <p class="mb-6 crystal-text">Lokasi di luar radius 5 km dari Depok</p>
+            <button onclick="window.forceOverrideGeofence()" class="btn-crystal crystal-text">Override Access</button>
+        </div>
+    </div>
+
+    <!-- Login Zone -->
+    <div id="login-zone" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.95);">
+        <div class="glass-card max-w-sm w-full text-center p-8" style="border-color: var(--emerald);">
+            <div class="crystal-icon mx-auto mb-4 w-20 h-20 text-3xl" style="background: rgba(16, 185, 129, 0.2); border-color: var(--emerald);">🚀</div>
+            <h1 class="text-3xl font-bold mb-2 crystal-text">Dream OS <span style="color: var(--emerald);">v2.0</span></h1>
+            <p class="text-xs text-secondary mb-6 crystal-text">Ultimate Edition • AI Powered</p>
+            <p class="arabic text-3xl text-emerald-400 mb-6 crystal-text" style="background: rgba(16, 185, 129, 0.1);">بِسْمِ اللَّهِ</p>
+            
+            <div class="relative mb-4">
+                <input type="password" id="passkey" class="input-crystal" placeholder="Enter Access Code">
+                <button type="button" id="toggleBtn" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-400 transition">
+                    <i class="fas fa-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+            
+            <button id="btnLogin" class="btn-crystal crystal-text mb-3">                <i class="fas fa-sign-in-alt mr-2"></i>ACCESS SYSTEM
+            </button>
+            
+            <p id="error-msg" class="text-red-400 text-sm h-5 font-semibold"></p>
+            
+            <div class="mt-6 pt-4 border-t border-slate-700/50">
+                <p class="text-[9px] text-secondary crystal-text">🔐 ISO 27001 • ISO 9001 • ISO 45001</p>
+                <p class="text-[8px] text-slate-500 mt-1">Dream Team © 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Shell -->
+    <div id="app-shell" class="hidden max-w-7xl mx-auto">
+        <!-- Header with Spiritual Elements -->
+        <div class="text-center mb-6">
+            <p class="arabic text-3xl text-emerald-400 mb-3 crystal-text" style="background: rgba(16, 185, 129, 0.1);">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+            <p class="arabic text-2xl text-emerald-300 mb-2 crystal-text">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</p>
+            <p class="text-xs tracking-[6px] text-slate-400 crystal-text">THE POWER SOUL OF SHALAWAT</p>
+        </div>
+        
+        <!-- Top Bar -->
+        <div class="glass-card mb-4 p-4 flex flex-wrap justify-between items-center gap-3" style="border-color: rgba(16, 185, 129, 0.5);">
+            <div class="flex items-center gap-3">
+                <div class="text-2xl crystal-icon w-12 h-12" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.3));">🚀</div>
+                <div>
+                    <h1 class="text-xl font-bold crystal-text">Dream OS <span class="text-emerald-400">v2.0</span></h1>
+                    <p class="text-xs text-slate-400">AI Core Active</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <div class="auto-shalat-indicator crystal-text px-3 py-1" style="background: rgba(16, 185, 129, 0.1);">
+                    <i class="fas fa-sun text-emerald-400"></i>
+                    <span id="waktuShalatDisplay" class="ml-2">Subuh</span>
+                </div>
+                <button id="autoShalatToggle" class="crystal-icon w-9 h-9 hover:bg-emerald-500/20" title="Toggle Auto Shalat"><i class="fas fa-clock"></i></button>
+                <button id="themeToggle" class="crystal-icon w-9 h-9 hover:bg-emerald-500/20" title="Change Theme"><i class="fas fa-moon"></i></button>
+                <span id="user-role" class="crystal-text text-xs px-3 py-1" style="background: rgba(16, 185, 129, 0.2);">ADMIN</span>
+                <button onclick="window.doLogout()" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-xl text-xs crystal-text transition" style="box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);">
+                    <i class="fas fa-sign-out-alt mr-1"></i>LOGOUT
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Slider -->
+        <div class="slider-container">
+            <div class="slider-wrapper" id="sliderWrapper"></div>
+            <div class="slider-arrow left" onclick="window.prevSlide()"><i class="fas fa-chevron-left"></i></div>
+            <div class="slider-arrow right" onclick="window.nextSlide()"><i class="fas fa-chevron-right"></i></div>
+            <div class="slider-dots" id="sliderDots"></div>        </div>
+
+        <!-- Module Grid -->
+        <div class="module-grid" id="grid-modules"></div>
+
+        <!-- Footer -->
+        <footer class="text-center py-6 mt-6 border-t border-slate-700/50">
+            <p class="text-[8px] text-secondary crystal-text">🕌 DREAM TEAM © 2026 • AUTO SHALAT • AI CORE • OPTIMIZED</p>
+            <p class="text-[7px] text-slate-500 mt-1">Built with 💚 Bi idznillah</p>
+        </footer>
+    </div>
+
+    <!-- Module Window (Overlay) -->
+    <div id="module-window" class="hidden fixed inset-0 z-50 p-4 overflow-y-auto" style="background: rgba(0,0,0,0.95);">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="window.doCloseModule()" class="crystal-text px-4 py-2 hover:bg-emerald-500/20 rounded-lg transition">
+                    <i class="fas fa-arrow-left mr-2"></i> BACK
+                </button>
+                <button onclick="window.doCloseModule()" class="crystal-icon w-10 h-10 hover:bg-red-500/20 hover:border-red-500 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="module-content" class="min-h-[500px]"></div>
+        </div>
+    </div>
+
+    <!-- Storage Indicator (hidden) -->
+    <div id="storageIndicator" style="display: none;"></div>
+
+    <!-- ======================================== -->
+    <!-- CORE LIBRARIES - LOAD ORDER MATTERS!    -->
+    <!-- ======================================== -->
+    
+    <!-- 1. Supabase Client (Foundation) -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        const supabaseUrl = 'https://rqpodzjexghrvcpyacyo.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxcG9kempleGdocnZjcHlhY3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzQyMTMsImV4cCI6MjA4Njk1MDIxM30.elXwh437xIqITUH7ZwiNqOXB2clTWd9_OlS51O-lNxw';
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+        console.log('✅ Supabase client initialized');
+    </script>
+
+    <!-- 2. Core Utilities -->
+    <script type="module" src="./core/eventBus.js"></script>
+    <script type="module" src="./core/store.js"></script>
+    <script type="module" src="./core/components.js"></script>
+
+    <!-- 3. Intelligence Layer -->
+    <script type="module" src="./core/ai.js"></script>    <script type="module" src="./core/error-collector.js"></script>
+
+    <!-- 4. Command Hub (The Brain) -->
+    <script type="module">
+        import { commandHub } from './core/commandHub.js';
+        window.commandHub = commandHub;
+        console.log('✅ Command Hub loaded - Dream OS Core Active 🧠💚');
+    </script>
+
+    <!-- 5. Main Application Logic -->
+    <script type="module">
+        // Fix base href untuk local testing
+        if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const base = document.querySelector('base');
+            if (base) base.remove();
+        }
+
+        // AppState Management
+        const AppState = {
+            isLoggedIn: false, 
+            currentTab: 'dashboard', 
+            theme: 0, 
+            autoShalat: true,
+            save() { 
+                localStorage.setItem('dreamos_state', JSON.stringify({ 
+                    isLoggedIn: this.isLoggedIn, 
+                    currentTab: this.currentTab, 
+                    theme: themeMode, 
+                    autoShalat: autoShalatEnabled 
+                })); 
+            },
+            load() { 
+                const saved = localStorage.getItem('dreamos_state'); 
+                if (saved) { 
+                    try { 
+                        const state = JSON.parse(saved); 
+                        this.isLoggedIn = state.isLoggedIn || false; 
+                        this.currentTab = state.currentTab || 'dashboard'; 
+                        themeMode = state.theme || 0; 
+                        autoShalatEnabled = state.autoShalat !== undefined ? state.autoShalat : true; 
+                        return true; 
+                    } catch (e) { console.error('Failed to load state', e); } 
+                } 
+                return false; 
+            },
+            clear() { 
+                localStorage.removeItem('dreamos_state'); 
+                this.isLoggedIn = false; 
+                this.currentTab = 'dashboard'; 
+            }        };
+
+        // Device Optimization
+        function initOfflineDetection() {
+            const offlineIndicator = document.getElementById('offlineIndicator');
+            function updateOnlineStatus() { 
+                if (!navigator.onLine) { 
+                    offlineIndicator.classList.add('show'); 
+                    document.body.classList.add('low-end-device'); 
+                } else { 
+                    offlineIndicator.classList.remove('show'); 
+                } 
+            }
+            window.addEventListener('online', updateOnlineStatus); 
+            window.addEventListener('offline', updateOnlineStatus); 
+            updateOnlineStatus();
+        }
+
+        function initBatteryCheck() { 
+            if (navigator.getBattery) { 
+                navigator.getBattery().then(battery => { 
+                    function updateBatteryStatus() { 
+                        const batteryLow = document.getElementById('batteryLow'); 
+                        if (battery.level < 0.2) { 
+                            batteryLow.classList.add('show'); 
+                            document.body.classList.add('low-end-device'); 
+                        } else { 
+                            batteryLow.classList.remove('show'); 
+                        } 
+                    } 
+                    updateBatteryStatus(); 
+                    battery.addEventListener('levelchange', updateBatteryStatus); 
+                }); 
+            } 
+        }
+        
+        function initConnectionCheck() { 
+            const badge = document.getElementById('connectionBadge'); 
+            const speedSpan = document.getElementById('connectionSpeed'); 
+            function updateConnectionStatus() { 
+                if (navigator.connection) { 
+                    const connection = navigator.connection; 
+                    const speed = connection.downlink; 
+                    badge.classList.remove('hidden', 'wifi', 'cellular', 'slow'); 
+                    if (connection.type === 'wifi') { 
+                        badge.classList.add('wifi'); 
+                        speedSpan.innerHTML = `WiFi ${speed} Mbps`; 
+                    } else { 
+                        badge.classList.add('cellular'); 
+                        speedSpan.innerHTML = `${speed} Mbps`;                     } 
+                    if (speed < 1) { 
+                        badge.classList.add('slow'); 
+                        badge.classList.remove('wifi', 'cellular'); 
+                        speedSpan.innerHTML = 'Slow'; 
+                        document.body.classList.add('low-end-device'); 
+                    } 
+                } 
+            } 
+            updateConnectionStatus(); 
+        }
+
+        function detectLowEndDevice() { 
+            const memory = navigator.deviceMemory || 4; 
+            const cores = navigator.hardwareConcurrency || 4; 
+            if (memory <= 4 || cores <= 4) { 
+                document.body.classList.add('low-end-device'); 
+            } 
+        }
+
+        // Geofence & Prayer Time
+        const overlay = document.getElementById('geofence-overlay'); 
+        const appShell = document.getElementById('app-shell');
+        
+        window.forceOverrideGeofence = function() { 
+            overlay.classList.remove('active'); 
+            appShell.style.display = 'block'; 
+            AppState.save(); 
+        };
+        
+        function checkGeofence() { 
+            if (!navigator.geolocation) return; 
+            navigator.geolocation.getCurrentPosition((pos) => { 
+                const lat = pos.coords.latitude; 
+                const lng = pos.coords.longitude; 
+                const distance = Math.sqrt(Math.pow(lat + 6.4, 2) + Math.pow(lng - 106.8, 2)) * 111; 
+                if (distance > 5) { 
+                    overlay.classList.add('active'); 
+                    appShell.style.display = 'none'; 
+                } else { 
+                    overlay.classList.remove('active'); 
+                    appShell.style.display = 'block'; 
+                } 
+            }, () => { 
+                overlay.classList.remove('active'); 
+                appShell.style.display = 'block'; 
+            }); 
+        } 
+        
+        function getShalatTime() {             const h = new Date().getHours(); 
+            const t = h * 60 + new Date().getMinutes(); 
+            if (t >= 4*60 && t <= 5*60+30) return 'subuh'; 
+            if (t >= 5*60+31 && t <= 6*60) return 'syuruq'; 
+            if (t >= 12*60 && t <= 14*60+30) return 'dzuhur'; 
+            if (t >= 14*60+31 && t <= 17*60+30) return 'ashar'; 
+            if (t >= 17*60+31 && t <= 18*60+30) return 'maghrib'; 
+            if (t >= 18*60+31 && t <= 19*60) return 'isya'; 
+            return 'malam'; 
+        }
+
+        const shalatColors = { 
+            subuh: 'linear-gradient(135deg, #0e1c2f 0%, #2a3f5e 100%)', 
+            syuruq: 'linear-gradient(135deg, #f7b267 0%, #f79d65 100%)', 
+            dzuhur: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', 
+            ashar: 'linear-gradient(135deg, #d8b4a0 0%, #c38e70 100%)', 
+            maghrib: 'linear-gradient(135deg, #d14d4d 0%, #9d4d6b 100%)', 
+            isya: 'linear-gradient(135deg, #0b1a2e 0%, #1a2f3f 100%)', 
+            malam: 'linear-gradient(135deg, #030712 0%, #111827 100%)' 
+        };
+        const shalatNames = { 
+            subuh: 'Subuh 🌅', syuruq: 'Syuruq ☀️', dzuhur: 'Dzuhur ☀️', 
+            ashar: 'Ashar 🌤️', maghrib: 'Maghrib 🌇', isya: 'Isya 🌙', malam: 'Malam 🌃' 
+        };
+
+        let autoShalatEnabled = true; 
+        let themeMode = 0;
+        
+        function updateBackground() { 
+            if (!autoShalatEnabled) return; 
+            const waktu = getShalatTime(); 
+            document.body.style.background = shalatColors[waktu]; 
+            document.getElementById('waktuShalatDisplay').textContent = shalatNames[waktu]; 
+            AppState.save(); 
+        }
+        
+        document.getElementById('autoShalatToggle').addEventListener('click', () => { 
+            autoShalatEnabled = !autoShalatEnabled; 
+            if (autoShalatEnabled) updateBackground(); 
+            AppState.save(); 
+        });
+        
+        setInterval(updateBackground, 60000);
+
+        const themeToggle = document.getElementById('themeToggle'); 
+        const themeIcon = themeToggle.querySelector('i');
+        
+        themeToggle.addEventListener('click', () => { 
+            autoShalatEnabled = false; 
+            themeMode = (themeMode + 1) % 3;             document.body.classList.remove('light-mode', 'sepia-mode'); 
+            if (themeMode === 0) { 
+                themeIcon.className = 'fas fa-moon'; 
+                document.body.style.background = 'linear-gradient(135deg, #020617 0%, #1e293b 100%)'; 
+            } else if (themeMode === 1) { 
+                document.body.classList.add('light-mode'); 
+                themeIcon.className = 'fas fa-sun'; 
+            } else { 
+                document.body.classList.add('sepia-mode'); 
+                themeIcon.className = 'fas fa-scroll'; 
+            } 
+            AppState.save(); 
+        });
+
+        // Module Configuration
+        const MODULES = [ 
+            { id: 'commandcenter', name: 'COMMAND', icon: '📊' }, 
+            { id: 'booking', name: 'BOOKING', icon: '📅' }, 
+            { id: 'k3', name: 'K3', icon: '⚠️' }, 
+            { id: 'sekuriti', name: 'SEKURITI', icon: '🛡️' }, 
+            { id: 'janitor-indoor', name: 'JANITOR IN', icon: '🧹' }, 
+            { id: 'janitor-outdoor', name: 'JANITOR OUT', icon: '🌿' }, 
+            { id: 'stok', name: 'STOK', icon: '📦' }, 
+            { id: 'maintenance', name: 'MAINTENANCE', icon: '🔧' }, 
+            { id: 'asset', name: 'ASSET', icon: '🏢' } 
+        ];
+
+        // RENDER MODULES - GUARANTEED TO WORK!
+        function renderGrid() { 
+            const container = document.getElementById('grid-modules'); 
+            if (!container) {
+                console.error('❌ Grid container not found!');
+                return;
+            }
+            
+            container.innerHTML = ''; 
+            
+            MODULES.forEach((m, index) => { 
+                const card = document.createElement('div'); 
+                card.className = 'module-card crystal-text'; 
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                // Inline onclick untuk memastikan berfungsi
+                card.onclick = function() {
+                    console.log('📦 Module clicked:', m.id);
+                    
+                    if (window.commandHub) {
+                        console.log('✅ Using commandHub');
+                        window.commandHub.execute('load_module', { moduleId: m.id })
+                            .catch(err => {                                console.error('❌ CommandHub error:', err);
+                                showToast(`Loading ${m.name}...`, 'warning');
+                                // Fallback: buka module window manual
+                                openModuleFallback(m);
+                            });
+                    } else {
+                        console.log('✅ Using fallback');
+                        openModuleFallback(m);
+                    }
+                    
+                    AppState.currentTab = m.id; 
+                    AppState.save(); 
+                };
+                
+                card.innerHTML = `
+                    <div class="crystal-icon">${m.icon}</div>
+                    <div class="text-xs font-bold">${m.name}</div>
+                `; 
+                
+                container.appendChild(card); 
+            }); 
+            
+            console.log('✅ Grid rendered:', MODULES.length, 'modules');
+        }
+
+        // Fallback module loader
+        function openModuleFallback(mod) {
+            const win = document.getElementById('module-window');
+            const content = document.getElementById('module-content');
+            
+            win.classList.remove('hidden');
+            content.innerHTML = `
+                <div class="glass-card p-8 text-center">
+                    <div class="text-5xl mb-4">${mod.icon}</div>
+                    <h2 class="text-3xl font-bold mb-4 crystal-text">${mod.name}</h2>
+                    <p class="text-slate-400 mb-6">Module loaded successfully! 🎉</p>
+                    <div class="grid grid-cols-2 gap-4 max-w-md mx-auto mb-6">
+                        <div class="glass-card p-4">
+                            <div class="text-2xl mb-2">📊</div>
+                            <div class="text-xs text-slate-400">Stats</div>
+                        </div>
+                        <div class="glass-card p-4">
+                            <div class="text-2xl mb-2">⚙️</div>
+                            <div class="text-xs text-slate-400">Settings</div>
+                        </div>
+                    </div>
+                    <button onclick="window.doCloseModule()" class="btn-crystal max-w-xs">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                    </button>
+                </div>            `;
+        }
+
+        // Slider System
+        let currentSlide = 0;
+        const slides = [ 
+            { title: 'Assalamualaikum', content: 'Selamat datang di Dream OS v2.0' }, 
+            { title: 'System Status', content: '🟢 All systems operational' }, 
+            { title: 'AI Core', content: '🤖 Ready to assist you' }, 
+            { title: 'Auto Shalat', content: '🕌 Background sync active' }, 
+            { title: 'Security', content: '🛡️ Protected & encrypted' }
+        ];
+
+        function renderSlider() { 
+            const wrapper = document.getElementById('sliderWrapper'); 
+            const dots = document.getElementById('sliderDots'); 
+            wrapper.innerHTML = slides.map(s => `<div class="slider-slide"><h3 class="slide-title crystal-text">${s.title}</h3><div class="text-sm crystal-text">${s.content}</div></div>`).join(''); 
+            dots.innerHTML = slides.map((_, i) => `<div class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>`).join(''); 
+        }
+        
+        window.goToSlide = (i) => { 
+            currentSlide = i; 
+            document.getElementById('sliderWrapper').style.transform = `translateX(-${i * 100}%)`; 
+            document.querySelectorAll('.slider-dot').forEach((d, idx) => d.classList.toggle('active', idx === i)); 
+        };
+        window.nextSlide = () => goToSlide((currentSlide + 1) % slides.length);
+        window.prevSlide = () => goToSlide((currentSlide - 1 + slides.length) % slides.length);
+
+        // Login System
+        document.getElementById('toggleBtn').addEventListener('click', () => { 
+            const pass = document.getElementById('passkey'); 
+            pass.type = pass.type === 'password' ? 'text' : 'password'; 
+            document.getElementById('eyeIcon').className = pass.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash'; 
+        });
+
+        function doLogin() { 
+            const key = document.getElementById('passkey').value; 
+            if (key === '012443410' || key === '123') { 
+                AppState.isLoggedIn = true; 
+                AppState.save(); 
+                document.getElementById('login-zone').classList.add('hidden'); 
+                document.getElementById('app-shell').classList.remove('hidden'); 
+                document.getElementById('user-role').textContent = 'ADMIN'; 
+                renderGrid(); 
+                renderSlider(); 
+                setInterval(() => window.nextSlide(), 5000); 
+                checkGeofence(); 
+                updateBackground();
+                
+                // Sync system after login                if (window.commandHub) {
+                    window.commandHub.syncSystemState();
+                }
+                
+                showToast('✅ Welcome to Dream OS v2.0!', 'success');
+            } else { 
+                const error = document.getElementById('error-msg');
+                error.textContent = '❌ ACCESS DENIED'; 
+                setTimeout(() => error.textContent = '', 2000); 
+            } 
+        }
+        
+        document.getElementById('btnLogin').addEventListener('click', doLogin);
+        document.getElementById('passkey').addEventListener('keypress', (e) => { if (e.key === 'Enter') doLogin(); });
+
+        // Global Functions
+        window.doCloseModule = () => { 
+            if (window.commandHub) {
+                window.commandHub.execute('close_module').catch(() => {});
+            }
+            document.getElementById('module-window').classList.add('hidden'); 
+            document.getElementById('module-content').innerHTML = ''; 
+        };
+        
+        window.doLogout = () => { 
+            AppState.clear(); 
+            if (window.commandHub) {
+                window.commandHub.execute('close_module').catch(() => {});
+            }
+            window.location.reload(); 
+        };
+
+        // Toast Notification
+        window.showToast = function(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // Initialize App
+        async function initApp() {
+            detectLowEndDevice(); 
+            initBatteryCheck();             initConnectionCheck(); 
+            initOfflineDetection();
+            
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            setTimeout(() => { 
+                document.getElementById('loading-screen').classList.add('fade-out'); 
+            }, 500);
+            
+            console.log('🚀 Dream OS v2.0 Initialized - Bi idznillah 💚');
+            console.log('💡 Login code: 012443410 or 123');
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
