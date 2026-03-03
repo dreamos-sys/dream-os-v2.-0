@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="description" content="Dream OS v2.0 - Sistem Manajemen Terpadu">
+    <title>Dream OS v2.0 | Ultimate Edition 2026</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Rajdhani:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Eruda: Console untuk Mobile -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    
+    <style>
+        :root {
+            --emerald: #10b981; --blue: #3b82f6; --orange: #f59e0b;
+            --purple: #a855f7; --red: #ef4444; --cyan: #06b6d4;
+            --bg-dark: #020617; --bg-card: #1e293b;
+            --glass: rgba(15,23,42,0.85); --border: rgba(16,185,129,0.3);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            background: linear-gradient(135deg, var(--bg-dark), var(--bg-card));
+            color: white; font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh; overflow-x: hidden;
+        }
+        .arabic { font-family: 'Amiri', serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .hidden { display: none !important; }
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Loading */
+        #loading { position:fixed; inset:0; background:var(--bg-dark); display:flex; align-items:center; justify-content:center; z-index:50000; transition:opacity .5s; }
+        #loading.fade { opacity:0; pointer-events:none; }
+        
+        /* Glass Card */
+        .glass {
+            background: var(--glass); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 20px;
+            padding: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,.4);
+        }
+        
+        /* Login */
+        #login { position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; padding:1rem; background:rgba(0,0,0,.95); }
+        .input { width:100%; padding:1rem; background:rgba(255,255,255,.08); border:2px solid var(--border); border-radius:16px; color:white; font-size:1rem; outline:none; transition:.3s; }        .input:focus { border-color:var(--emerald); box-shadow:0 0 0 3px rgba(16,185,129,.2); }
+        .btn { width:100%; padding:1rem; background:linear-gradient(135deg,#10b981,#059669); border:none; border-radius:16px; color:white; font-weight:700; cursor:pointer; transition:.3s; display:flex; align-items:center; justify-content:center; gap:.5rem; }
+        .btn:hover { transform:translateY(-2px); }
+        .btn:disabled { opacity:.6; cursor:not-allowed; transform:none !important; }
+        
+        /* Header */
+        .header { text-align:center; padding:1.5rem; background:rgba(16,185,129,.1); border-radius:24px; margin-bottom:1.5rem; border:1px solid var(--border); }
+        .bismillah { font-size:clamp(1.5rem,5vw,2rem); color:var(--emerald); margin-bottom:.5rem; text-shadow:0 2px 10px rgba(16,185,129,.3); }
+        
+        /* Title Bar */
+        .title-bar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding:1rem; background:rgba(15,23,42,.6); border-radius:16px; border:1px solid var(--border); margin-bottom:1.5rem; }
+        .prayer-badge { display:flex; align-items:center; gap:.5rem; padding:.5rem 1rem; background:rgba(245,158,11,.2); border:1px solid rgba(245,158,11,.4); border-radius:12px; color:var(--orange); font-weight:600; font-size:.9rem; }
+        .clock { font-family:'JetBrains Mono',monospace; background:rgba(255,255,255,.1); padding:.5rem 1rem; border-radius:12px; }
+        .user-badge { background:rgba(139,92,246,.2); border:1px solid rgba(139,92,246,.4); padding:.5rem 1rem; border-radius:12px; font-weight:600; }
+        .logout { background:linear-gradient(135deg,#ef4444,#dc2626); border:none; padding:.5rem 1.5rem; border-radius:12px; color:white; font-weight:700; cursor:pointer; }
+        
+        /* Module Grid */
+        .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:600px; margin:2rem auto; }
+        .module {
+            background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+            border-radius:20px; padding:1.5rem .5rem; text-align:center; cursor:pointer;
+            transition:all .3s; position:relative; overflow:hidden;
+        }
+        .module:hover { transform:translateY(-5px) scale(1.02); border-color:var(--emerald); box-shadow:0 12px 40px rgba(16,185,129,.3); }
+        .module-icon { width:60px; height:60px; border-radius:50%; background:rgba(16,185,129,.1); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; margin:0 auto .75rem; font-size:2rem; transition:.3s; }
+        .module:hover .module-icon { background:rgba(16,185,129,.2); border-color:var(--emerald); transform:scale(1.1) rotate(5deg); }
+        .badge { background:linear-gradient(135deg,#f59e0b,#b45309); color:white; font-size:.6rem; padding:2px 6px; border-radius:12px; position:absolute; top:5px; right:5px; }
+        
+        /* Toast */
+        #toast { position:fixed; bottom:20px; right:20px; z-index:99999; display:flex; flex-direction:column; gap:10px; }
+        .toast { background:rgba(15,23,42,.95); border-left:4px solid var(--emerald); border-radius:12px; padding:12px 20px; animation:slideIn .3s; max-width:300px; display:flex; align-items:center; gap:8px; }
+        .toast.error { border-left-color:var(--red); }
+        .toast.warning { border-left-color:var(--orange); }
+        @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+        
+        /* Module Window */
+        #module-win { position:fixed; inset:0; z-index:200; padding:1rem; overflow-y:auto; background:rgba(0,0,0,.95); display:none; }
+        #module-win.show { display:block; }
+        .back { margin-bottom:1rem; padding:.75rem 1.5rem; background:rgba(255,255,255,.1); border:none; border-radius:12px; color:white; cursor:pointer; }
+        
+        /* Dev Panel */
+        #dev-panel { position:fixed; bottom:20px; left:20px; width:300px; max-height:400px; background:rgba(15,23,42,.95); border:2px solid #ef4444; border-radius:16px; padding:1rem; z-index:99999; font-family:'JetBrains Mono',monospace; font-size:11px; color:#e2e8f0; display:none; flex-direction:column; }
+        #dev-content { flex:1; overflow-y:auto; max-height:280px; }
+        .dev-log { padding:.25rem 0; border-bottom:1px solid rgba(255,255,255,.1); }
+        .dev-log.error { color:#ef4444; }
+        .dev-log.success { color:#10b981; }
+        
+        /* Responsive */
+        @media(max-width:480px) {
+            .grid { grid-template-columns:repeat(3,1fr); gap:8px; }            .module { padding:1rem .3rem; }
+            .title-bar { flex-direction:column; align-items:stretch; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading -->
+    <div id="loading"><div class="text-center"><div class="spin" style="width:60px;height:60px;border:4px solid rgba(16,185,129,.3);border-top-color:var(--emerald);border-radius:50%;margin:0 auto 1rem"></div><p class="text-lg font-bold">Memuat Dream OS...</p><p class="arabic text-emerald-400 mt-3 text-xl">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</p></div></div>
+    
+    <!-- Toast -->
+    <div id="toast"></div>
+    
+    <!-- Login -->
+    <div id="login">
+        <div class="glass max-w-sm w-full text-center">
+            <div style="width:80px;height:80px;border-radius:50%;background:rgba(16,185,129,.1);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2.5rem;animation:float 3s ease-in-out infinite">🚀</div>
+            @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+            <h1 class="text-3xl font-bold mb-2">Dream OS <span style="color:var(--emerald)">v2.0</span></h1>
+            <p class="arabic text-3xl text-emerald-400 mb-6">بِسْمِ اللَّهِ</p>
+            <input type="password" id="passkey" class="input mb-4" placeholder="Enter Access Code">
+            <button id="btnLogin" class="btn mb-3"><i class="fas fa-sign-in-alt"></i> ACCESS SYSTEM</button>
+            <p id="err" class="text-red-500 min-h-[24px] text-sm"></p>
+            <div class="mt-6 pt-4 border-t border-slate-700/50 text-xs text-slate-500">Dream Team © 2026</div>
+        </div>
+    </div>
+    
+    <!-- Main App -->
+    <div id="app" class="hidden max-w-7xl mx-auto p-4">
+        <!-- Header -->
+        <header class="header">
+            <p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+            <p class="arabic text-emerald-400">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ</p>
+            <p class="text-xs text-slate-400 tracking-widest uppercase">THE POWER SOUL OF SHALAWAT</p>
+        </header>
+        
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <div style="display:flex;align-items:center;gap:1rem">
+                <div style="font-size:2.5rem;animation:float 3s ease-in-out infinite">🚀</div>
+                <div><h1 class="text-xl font-bold">Dream OS <span style="color:var(--emerald)">v2.0</span></h1><p class="text-xs text-slate-400">Limited Edition 2026</p></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+                <div class="prayer-badge"><i class="fas fa-moon" id="pIcon"></i><span id="pName">Isya</span></div>
+                <div class="clock mono" id="clock">--:--:--</div>
+                <span id="role" class="user-badge">GUEST</span>
+                <button onclick="App.logout()" class="logout"><i class="fas fa-sign-out-alt"></i> LOGOUT</button>
+            </div>
+        </div>
+        
+        <!-- Module Grid -->        <div class="grid" id="grid"></div>
+        
+        <!-- Footer -->
+        <footer class="text-center py-6 text-xs text-slate-500">
+            <p>🕌 DREAM TEAM © 2026 · AUTO SHALAT · LIQUID CRYSTAL</p>
+            <p class="mt-1">Built with 💚 Bi idznillah</p>
+            <button onclick="Dev.toggle()" class="mt-2 text-emerald-400 text-xs underline">🔧 Dev Panel</button>
+        </footer>
+    </div>
+    
+    <!-- Module Window -->
+    <div id="module-win">
+        <div class="max-w-4xl mx-auto">
+            <button class="back" onclick="App.closeModule()"><i class="fas fa-arrow-left"></i> BACK</button>
+            <div id="module-content"></div>
+        </div>
+    </div>
+    
+    <!-- Dev Panel -->
+    <div id="dev-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <strong style="color:#ef4444">🔧 Dev Panel</strong>
+            <button onclick="Dev.toggle()" style="background:none;border:none;color:#ef4444;cursor:pointer">✕</button>
+        </div>
+        <div id="dev-content"><div class="dev-log">Ready</div></div>
+        <div style="margin-top:.5rem;display:flex;gap:.5rem">
+            <button onclick="Dev.runTests()" style="flex:1;padding:.25rem .5rem;background:#10b981;border:none;border-radius:4px;color:white;cursor:pointer;font-size:10px">🧪 Test</button>
+            <button onclick="Dev.clear()" style="padding:.25rem .5rem;background:#64748b;border:none;border-radius:4px;color:white;cursor:pointer;font-size:10px">🗑️</button>
+        </div>
+    </div>
+
+    <script>
+    // ========== CONFIG ==========
+    const CONFIG = {
+        supabaseUrl: 'https://pvznaeppaagylwddirla.supabase.co',
+        supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2em5hZXBwYWFneWx3ZGRpcmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTEwNDMsImV4cCI6MjA4NzUyNzA0M30.t9SJi3VfsBDkKmeZ3egZ4rbvljl4xe0WwNkPtfA9-vo',
+        users: {
+            '012443410': {name:'Developer', role:'developer', color:'#10b981', perms:['all']},
+            'Mr.M_Architect_2025': {name:'Master', role:'master', color:'#3b82f6', perms:['all']},
+            '4dm1n_AF6969@00': {name:'Admin', role:'admin', color:'#8b5cf6', perms:['all']},
+            'LHPSsec_AF2025': {name:'Security', role:'sekuriti', color:'#ef4444', perms:['sekuriti','commandcenter']},
+            'CHCS_AF_@003': {name:'Janitor', role:'janitor', color:'#f59e0b', perms:['janitor-indoor','janitor-outdoor']},
+            'SACS_AF@004': {name:'Stock', role:'stok', color:'#06b6d4', perms:['stok']},
+            'M41n_4F@234': {name:'Maintenance', role:'maintenance', color:'#f97316', perms:['maintenance']},
+            '4dm1n_6969@01': {name:'Inventaris', role:'inventaris', color:'#ec4899', perms:['asset']},
+            '4dm1n_9696@02': {name:'Gudang', role:'gudang', color:'#14b8a6', perms:['gudang']},
+            'user_@1234': {name:'Booking', role:'booking', color:'#84cc16', perms:['booking']},
+            'user_@2345': {name:'K3', role:'k3', color:'#eab308', perms:['k3']}
+        },
+        modules: [            {id:'commandcenter', name:'COMMAND', icon:'📊', limited:true},
+            {id:'booking', name:'BOOKING', icon:'📅', limited:false},
+            {id:'k3', name:'K3', icon:'⚠️', limited:false},
+            {id:'dana', name:'DANA', icon:'💰', limited:false},
+            {id:'stok', name:'STOK', icon:'📦', limited:false},
+            {id:'approval', name:'APPROVAL', icon:'✅', limited:true},
+            {id:'sekuriti', name:'SEKURITI', icon:'🛡️', limited:false},
+            {id:'maintenance', name:'MAINTENANCE', icon:'🔧', limited:false},
+            {id:'asset', name:'ASSET', icon:'🏢', limited:false}
+        ],
+        prayers: {
+            'Subuh': {start:270, end:360, icon:'fa-sun', bg:'linear-gradient(135deg,#1e3c72,#2a5298)'},
+            'Dzuhur': {start:720, end:870, icon:'fa-sun', bg:'linear-gradient(135deg,#4facfe,#00f2fe)'},
+            'Ashar': {start:871, end:1050, icon:'fa-cloud-sun', bg:'linear-gradient(135deg,#fa709a,#fee140)'},
+            'Maghrib': {start:1051, end:1110, icon:'fa-moon', bg:'linear-gradient(135deg,#fa709a,#764ba2)'},
+            'Isya': {start:0, end:269, icon:'fa-moon', bg:'linear-gradient(135deg,#0f2027,#203a43)'}
+        }
+    };
+
+    // ========== STATE ==========
+    const State = { user:null, sb:null, currentModule:null };
+
+    // ========== UTILS ==========
+    const U = {
+        $(id) { return document.getElementById(id); },
+        toast(msg, type='success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<span>${type==='success'?'✅':type==='error'?'❌':'⚠️'}</span><span>${msg}</span>`;
+            U.$('toast').appendChild(t);
+            setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+        },
+        timeToNum(t) { const [h,m]=t.split(':').map(Number); return h+m/60; },
+        isWeekend(d) { return new Date(d+'T00:00:00').getDay()===0; },
+        isFriday(d) { return new Date(d+'T00:00:00').getDay()===5; },
+        getMinDate() { const t=new Date(); t.setDate(t.getDate()+1); return t.toISOString().split('T')[0]; },
+        prayerNow() {
+            const h=new Date().getHours(), m=new Date().getMinutes(), total=h*60+m;
+            for(const [name,data] of Object.entries(CONFIG.prayers)) {
+                if(total>=data.start && total<data.end) return {name, ...data};
+            }
+            return CONFIG.prayers.Isya;
+        }
+    };
+
+    // ========== SUPABASE ==========
+    function initSupabase() {
+        State.sb = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+        console.log('✅ Supabase connected');
+    }
+    // ========== AUTH ==========
+    function login() {
+        const code = U.$('passkey').value.trim();
+        if(!code) { U.$('err').textContent='❌ Enter code'; return; }
+        const user = CONFIG.users[code];
+        if(user) {
+            State.user = user;
+            U.$('login').style.opacity='0';
+            setTimeout(()=>{
+                U.$('login').classList.add('hidden');
+                U.$('app').classList.remove('hidden');
+                U.$('role').textContent = user.name.toUpperCase();
+                U.$('role').style.color = user.color;
+                renderModules();
+                startClock();
+                U.toast(`✅ Welcome, ${user.name}!`);
+                if(['developer','master','architect'].includes(user.role.toLowerCase())) Dev.init();
+            }, 500);
+        } else {
+            U.$('err').textContent='❌ Invalid code';
+            U.$('btnLogin').classList.add('spin');
+            setTimeout(()=>{ U.$('err').textContent=''; U.$('btnLogin').classList.remove('spin'); U.$('passkey').value=''; }, 2000);
+        }
+    }
+
+    // ========== MODULES ==========
+    function renderModules() {
+        const grid = U.$('grid'); grid.innerHTML='';
+        CONFIG.modules.forEach((mod,i)=>{
+            if(State.user.perms.includes('all') || State.user.perms.includes(mod.id)) {
+                const card = document.createElement('div');
+                card.className='module';
+                card.innerHTML = `${mod.limited?'<div class="badge">LIMITED</div>':''}<div class="module-icon">${mod.icon}</div><div class="module-name">${mod.name}</div>`;
+                card.onclick = ()=> App.openModule(mod);
+                grid.appendChild(card);
+            }
+        });
+    }
+
+    // ========== APP CONTROLLER ==========
+    const App = {
+        async openModule(mod) {
+            if(!State.user.perms.includes('all') && !State.user.perms.includes(mod.id)) { U.toast('❌ Access denied','error'); return; }
+            State.currentModule = mod.id;
+            U.$('module-win').classList.add('show');
+            U.$('module-content').innerHTML = `<div class="text-center py-12"><div class="spin" style="width:50px;height:50px;border:3px solid rgba(16,185,129,.3);border-top-color:var(--emerald);border-radius:50%;margin:0 auto 1rem"></div><p>Loading ${mod.name}...</p></div>`;
+            
+            try {
+                if(mod.id==='booking') await Modules.booking();                else if(mod.id==='k3') await Modules.k3();
+                else if(mod.id==='dana') await Modules.dana();
+                else if(mod.id==='stok') await Modules.stok();
+                else if(mod.id==='approval') await Modules.approval();
+                else if(mod.id==='sekuriti') await Modules.sekuriti();
+                else if(mod.id==='maintenance') await Modules.maintenance();
+                else if(mod.id==='asset') await Modules.asset();
+                else if(mod.id==='commandcenter') await Modules.commandcenter();
+                else U.$('module-content').innerHTML = `<div class="glass text-center p-8"><h3 class="text-2xl font-bold mb-4">${mod.icon} ${mod.name}</h3><p>Module ready! 🎉</p><button class="btn mt-4" style="max-width:200px" onclick="App.closeModule()">← Back</button></div>`;
+                U.toast(`✅ ${mod.name} loaded`);
+            } catch(e) {
+                console.error(e);
+                U.$('module-content').innerHTML = `<div class="glass text-center p-8 text-red-400"><h3 class="text-xl font-bold mb-2">❌ Error</h3><p>${e.message}</p><button class="btn mt-4" onclick="App.closeModule()">← Back</button></div>`;
+                U.toast('❌ Module failed','error');
+                if(State.user?.role?.toLowerCase().includes('dev')) Dev.log(`Error ${mod.id}: ${e.message}`, 'error');
+            }
+        },
+        closeModule() { U.$('module-win').classList.remove('show'); U.$('module-content').innerHTML=''; State.currentModule=null; },
+        logout() { if(confirm('Logout?')) location.reload(); }
+    };
+
+    // ========== MODULES IMPLEMENTATION ==========
+    const Modules = {
+        async booking() {
+            const c = U.$('module-content');
+            c.innerHTML = `
+                <h3 class="text-xl font-bold mb-4">📅 Form Booking</h3>
+                <form id="bForm" class="glass space-y-4">
+                    <input name="nama" class="input" placeholder="Nama *" required>
+                    <input name="divisi" class="input" placeholder="Divisi">
+                    <input name="no_hp" class="input" placeholder="No HP">
+                    <select name="sarana" class="input" required>
+                        <option value="">-- Pilih Sarana --</option>
+                        ${['Aula SMP','Aula SMA','Saung Besar','Saung Kecil','Mushalla SMA','Serbaguna','Lapangan Basket','Lapangan Volly','Labkom SD','Labkom SMP','Labkom SMA','Perpustakaan SD','Perpustakaan SMP','Perpustakaan SMA'].map(s=>`<option value="${s}">${s}</option>`).join('')}
+                    </select>
+                    <input type="date" name="tgl" class="input" required min="${U.getMinDate()}" value="${U.getMinDate()}">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="time" name="jam_mulai" class="input" required>
+                        <input type="time" name="jam_selesai" class="input" required>
+                    </div>
+                    <textarea name="keperluan" class="input" placeholder="Keperluan (opsional)" rows="2"></textarea>
+                    <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> AJUKAN</button>
+                </form>
+                <div id="bResult" class="mt-4 text-center text-sm"></div>
+            `;
+            
+            U.$('bForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const f = new FormData(e.target);
+                const data = {                    nama_peminjam: f.get('nama'), divisi: f.get('divisi'), no_hp: f.get('no_hp'),
+                    ruang: f.get('sarana'), tanggal: f.get('tgl'), jam_mulai: f.get('jam_mulai'),
+                    jam_selesai: f.get('jam_selesai'), keperluan: f.get('keperluan'),
+                    status: 'pending', created_at: new Date().toISOString()
+                };
+                
+                // Validation
+                if(data.tanggal < U.getMinDate()) { U.$('bResult').innerHTML='<span class="text-red-500">Minimal H+1!</span>'; return; }
+                if(U.isWeekend(data.tanggal)) { U.$('bResult').innerHTML='<span class="text-red-500">Minggu tutup!</span>'; return; }
+                const s=U.timeToNum(data.jam_mulai), e=U.timeToNum(data.jam_selesai);
+                if(s<7.5||e>16||e<=s) { U.$('bResult').innerHTML='<span class="text-red-500">Jam 07:30-16:00!</span>'; return; }
+                if(U.isFriday(data.tanggal) && ['Aula SMP','Serbaguna'].includes(data.ruang)) {
+                    if(s<13 && e>10.5) { U.$('bResult').innerHTML='<span class="text-red-500">Jumat 10:30-13:00 blocked!</span>'; return; }
+                }
+                
+                const btn = e.target.querySelector('button'); btn.disabled=true; btn.innerHTML='<i class="spin">⏳</i>';
+                try {
+                    // Check conflict
+                    const {data:exist} = await State.sb.from('bookings').select('*').eq('ruang',data.ruang).eq('tanggal',data.tanggal).eq('status','approved');
+                    const conflict = exist?.some(b => {
+                        const bs=U.timeToNum(b.jam_mulai), be=U.timeToNum(b.jam_selesai);
+                        return s<be && e>bs;
+                    });
+                    if(conflict) { U.$('bResult').innerHTML='<span class="text-red-500">❌ Bentrok!</span>'; btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> AJUKAN'; return; }
+                    
+                    await State.sb.from('bookings').insert(data);
+                    U.$('bResult').innerHTML='<span class="text-green-500">✅ Success!</span>';
+                    U.toast('Booking submitted!');
+                    e.target.reset(); U.$('bForm').querySelector('[name="tgl"]').value = U.getMinDate();
+                } catch(err) {
+                    U.$('bResult').innerHTML=`<span class="text-red-500">❌ ${err.message}</span>`;
+                    U.toast('Error: '+err.message, 'error');
+                } finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> AJUKAN'; }
+            };
+        },
+
+        async k3() {
+            U.$('module-content').innerHTML = `
+                <h3 class="text-xl font-bold mb-4">⚠️ Laporan K3</h3>
+                <form id="k3Form" class="glass space-y-4">
+                    <input name="pelapor" class="input" placeholder="Pelapor *" required>
+                    <select name="jenis" class="input">
+                        <option value="near_miss">Near Miss</option><option value="accident">Kecelakaan</option>
+                        <option value="hazard">Potensi Bahaya</option><option value="violation">Pelanggaran</option>
+                    </select>
+                    <input name="lokasi" class="input" placeholder="Lokasi *" required>
+                    <textarea name="deskripsi" class="input" placeholder="Deskripsi *" required rows="3"></textarea>
+                    <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> LAPORKAN</button>
+                </form>
+                <div id="k3List" class="mt-6 space-y-3 max-h-60 overflow-y-auto"></div>            `;
+            
+            // Load recent
+            const {data} = await State.sb.from('k3_reports').select('*').order('created_at',{ascending:false}).limit(5);
+            U.$('k3List').innerHTML = data?.map(r=>`<div class="glass p-3 text-sm border-l-4 ${r.priority==='high'?'border-red-500':'border-emerald-500'}"><b>${r.jenis_laporan}</b><br><span class="text-slate-400">${r.lokasi} • ${new Date(r.created_at).toLocaleDateString('id-ID')}</span></div>`).join('') || '<p class="text-slate-400">Belum ada laporan</p>';
+            
+            U.$('k3Form').onsubmit = async (e) => {
+                e.preventDefault();
+                const f = new FormData(e.target);
+                const btn = e.target.querySelector('button'); btn.disabled=true;
+                try {
+                    await State.sb.from('k3_reports').insert({
+                        pelapor: f.get('pelapor'), jenis_laporan: f.get('jenis'), lokasi: f.get('lokasi'),
+                        deskripsi: f.get('deskripsi'), priority: f.get('jenis')==='accident'?'high':'medium',
+                        status: 'pending', created_at: new Date().toISOString()
+                    });
+                    U.toast('✅ Laporan terkirim!'); e.target.reset();
+                    // Refresh list
+                    const {data} = await State.sb.from('k3_reports').select('*').order('created_at',{ascending:false}).limit(5);
+                    U.$('k3List').innerHTML = data?.map(r=>`<div class="glass p-3 text-sm border-l-4 ${r.priority==='high'?'border-red-500':'border-emerald-500'}"><b>${r.jenis_laporan}</b><br><span class="text-slate-400">${r.lokasi}</span></div>`).join('');
+                } catch(err) { U.toast('❌ '+err.message,'error'); }
+                finally { btn.disabled=false; }
+            };
+        },
+
+        async dana() {
+            U.$('module-content').innerHTML = `
+                <h3 class="text-xl font-bold mb-4">💰 Pengajuan Dana</h3>
+                <form id="danaForm" class="glass space-y-4">
+                    <input name="judul" class="input" placeholder="Judul *" required>
+                    <input name="pengaju" class="input" placeholder="Pengaju *" required>
+                    <input name="nominal" type="number" class="input" placeholder="Nominal (Rp) *" required>
+                    <textarea name="keperluan" class="input" placeholder="Keperluan" rows="3"></textarea>
+                    <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> AJUKAN</button>
+                </form>
+            `;
+            U.$('danaForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const f = new FormData(e.target);
+                try {
+                    await State.sb.from('pengajuan_dana').insert({
+                        judul: f.get('judul'), pengaju: f.get('pengaju'), nominal: f.get('nominal'),
+                        keperluan: f.get('keperluan'), status: 'pending', created_at: new Date().toISOString()
+                    });
+                    U.toast('✅ Pengajuan terkirim!'); e.target.reset();
+                } catch(err) { U.toast('❌ '+err.message,'error'); }
+            };
+        },
+
+        async stok() {            U.$('module-content').innerHTML = `<h3 class="text-xl font-bold mb-4">📦 Inventory</h3><div id="stokList" class="space-y-3"></div>`;
+            const {data} = await State.sb.from('inventory').select('*').order('nama_barang');
+            U.$('stokList').innerHTML = data?.map(i=>`<div class="glass p-4 flex justify-between items-center"><div><b>${i.nama_barang}</b><br><span class="text-sm text-slate-400">${i.kategori} • ${i.lokasi||'-'}</span></div><div class="text-right"><span class="text-2xl font-bold ${i.jumlah<=i.minimal_stok?'text-red-400':'text-emerald-400'}">${i.jumlah}</span><br><span class="text-xs text-slate-400">min: ${i.minimal_stok}</span></div></div>`).join('') || '<p class="text-slate-400">Belum ada data</p>';
+        },
+
+        async approval() {
+            U.$('module-content').innerHTML = `<h3 class="text-xl font-bold mb-4">✅ Approval Center</h3><div id="apprList" class="space-y-3"></div>`;
+            // Load pending from all tables
+            const [b,k,d] = await Promise.all([
+                State.sb.from('bookings').select('*').eq('status','pending').limit(5),
+                State.sb.from('k3_reports').select('*').eq('status','pending').limit(5),
+                State.sb.from('pengajuan_dana').select('*').eq('status','pending').limit(5)
+            ]);
+            let html='';
+            if(b.data?.length) html+=b.data.map(i=>`<div class="glass p-4"><b>📅 ${i.nama_peminjam}</b><br><span class="text-sm">${i.ruang} • ${i.tanggal}</span><div class="mt-2 flex gap-2"><button class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded" onclick="App.approve('bookings','${i.id}')">✓</button><button class="px-3 py-1 bg-red-500/20 text-red-400 rounded" onclick="App.reject('bookings','${i.id}')">✗</button></div></div>`).join('');
+            if(k.data?.length) html+=k.data.map(i=>`<div class="glass p-4"><b>⚠️ ${i.jenis_laporan}</b><br><span class="text-sm">${i.lokasi}</span><div class="mt-2"><button class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded" onclick="App.approve('k3_reports','${i.id}','verified')">Verifikasi</button></div></div>`).join('');
+            if(d.data?.length) html+=d.data.map(i=>`<div class="glass p-4"><b>💰 ${i.judul}</b><br><span class="text-sm">Rp ${Number(i.nominal).toLocaleString()}</span><div class="mt-2 flex gap-2"><button class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded" onclick="App.approve('pengajuan_dana','${i.id}')">✓</button><button class="px-3 py-1 bg-red-500/20 text-red-400 rounded" onclick="App.reject('pengajuan_dana','${i.id}')">✗</button></div></div>`).join('');
+            U.$('apprList').innerHTML = html || '<p class="text-slate-400">Tidak ada pending</p>';
+        },
+
+        async sekuriti() { U.$('module-content').innerHTML = `<div class="glass text-center p-8"><h3 class="text-2xl font-bold mb-4">🛡️ SEKURITI</h3><p>Module ready! (Patrol log, access control, incident report)</p></div>`; },
+        async maintenance() { U.$('module-content').innerHTML = `<div class="glass text-center p-8"><h3 class="text-2xl font-bold mb-4">🔧 MAINTENANCE</h3><p>Module ready! (Preventive schedule, work orders)</p></div>`; },
+        async asset() { U.$('module-content').innerHTML = `<div class="glass text-center p-8"><h3 class="text-2xl font-bold mb-4">🏢 ASSET</h3><p>Module ready! (Asset tracking, QR codes, depreciation)</p></div>`; },
+        async commandcenter() {
+            U.$('module-content').innerHTML = `
+                <h3 class="text-xl font-bold mb-4">📊 Command Center</h3>
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="glass text-center p-4"><div class="text-2xl font-bold text-blue-400" id="stat-b">0</div><div class="text-xs text-slate-400">Booking</div></div>
+                    <div class="glass text-center p-4"><div class="text-2xl font-bold text-orange-400" id="stat-k3">0</div><div class="text-xs text-slate-400">K3</div></div>
+                    <div class="glass text-center p-4"><div class="text-2xl font-bold text-purple-400" id="stat-d">0</div><div class="text-xs text-slate-400">Dana</div></div>
+                </div>
+                <div class="glass p-4"><h4 class="font-bold mb-2">📋 Aktivitas Terbaru</h4><div id="actFeed" class="space-y-2 max-h-40 overflow-y-auto text-sm"></div></div>
+            `;
+            // Load stats
+            const [b,k,d] = await Promise.all([
+                State.sb.from('bookings').select('*',{count:'exact',head:true}).eq('status','pending'),
+                State.sb.from('k3_reports').select('*',{count:'exact',head:true}).eq('status','pending'),
+                State.sb.from('pengajuan_dana').select('*',{count:'exact',head:true}).eq('status','pending')
+            ]);
+            U.$('stat-b').textContent = b.count||0; U.$('stat-k3').textContent = k.count||0; U.$('stat-d').textContent = d.count||0;
+            // Load activity
+            const {data:logs} = await State.sb.from('audit_logs').select('action,table_name,created_at').order('created_at',{ascending:false}).limit(10);
+            U.$('actFeed').innerHTML = logs?.map(l=>`<div class="border-l-2 border-emerald-500 pl-3"><b>${l.action}</b> ${l.table_name}<br><span class="text-slate-400 text-xs">${new Date(l.created_at).toLocaleTimeString('id-ID')}</span></div>`).join('') || '<p class="text-slate-400">Belum ada aktivitas</p>';
+        }
+    };
+
+    // Approval helpers
+    App.approve = async (tbl,id,status='approved') => {
+        try { await State.sb.from(tbl).update({status,approved_at:new Date()}).eq('id',id); U.toast('✅ Approved'); Modules.approval(); }
+        catch(e) { U.toast('❌ '+e.message,'error'); }    };
+    App.reject = async (tbl,id) => {
+        try { await State.sb.from(tbl).update({status:'rejected'}).eq('id',id); U.toast('❌ Rejected'); Modules.approval(); }
+        catch(e) { U.toast('❌ '+e.message,'error'); }
+    };
+
+    // ========== CLOCK & PRAYER ==========
+    function startClock() {
+        const upd = () => {
+            const now = new Date();
+            U.$('clock').textContent = now.toLocaleTimeString('id-ID');
+            const p = U.prayerNow();
+            U.$('pName').textContent = p.name; U.$('pIcon').className = `fas ${p.icon}`;
+            document.body.style.background = p.bg;
+        };
+        upd(); setInterval(upd, 1000);
+    }
+
+    // ========== DEV PANEL ==========
+    const Dev = {
+        init() { U.$('dev-panel').style.display='flex'; this.log('👨‍💻 Dev Mode ON'); },
+        toggle() { const p=U.$('dev-panel'); p.style.display = p.style.display==='none'?'flex':'none'; },
+        log(msg,type='info') {
+            const c = U.$('dev-content');
+            const e = document.createElement('div');
+            e.className = `dev-log ${type}`;
+            e.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            c.insertBefore(e, c.firstChild);
+        },
+        clear() { U.$('dev-content').innerHTML = '<div class="dev-log">Cleared</div>'; },
+        async runTests() {
+            this.log('🧪 Running tests...');
+            // Test time utils
+            try {
+                if(U.timeToNum('07:30')!==7.5) throw new Error('timeToNum fail');
+                if(U.isWeekend('2026-03-08')!==true) throw new Error('isWeekend fail');
+                this.log('✅ Utils passed', 'success');
+            } catch(e) { this.log('❌ '+e.message, 'error'); }
+            // Test DB connection
+            try {
+                const {error} = await State.sb.from('system_settings').select('key').limit(1);
+                if(error) throw error;
+                this.log('✅ DB connected', 'success');
+            } catch(e) { this.log('❌ DB: '+e.message, 'error'); }
+        }
+    };
+
+    // ========== INIT ==========
+    function init() {
+        // Eruda for mobile console        if(/Android|iPhone/i.test(navigator.userAgent)) eruda.init();
+        
+        initSupabase();
+        
+        // Login handlers
+        U.$('btnLogin').onclick = login;
+        U.$('passkey').onkeypress = (e)=>{ if(e.key==='Enter') login(); };
+        
+        // Hide loading
+        setTimeout(()=> U.$('loading').classList.add('fade'), 1200);
+        
+        console.log('🚀 Dream OS v2.0 Ready - Bi idznillah 💚');
+    }
+    
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+    </script>
+</body>
+</html>
