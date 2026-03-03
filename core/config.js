@@ -35,7 +35,7 @@ export const config = {
     features: {
         offlineMode: true,
         weatherAlerts: true,
-        aiInsights: false,
+        aiInsights: true,
         biometricAuth: false,
         auditLogging: true
     },
