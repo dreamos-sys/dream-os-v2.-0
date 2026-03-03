@@ -8,7 +8,7 @@ export async function init(params) {
     const content = document.getElementById('module-content');
     content.innerHTML = `
         <div class="max-w-4xl mx-auto p-4">
-            <h2 class="text-2xl font-bold text-orange-400 mb-4">⚠️ Laporan K3</h2>
+            <h2 class="text-2xl font-bold text-orange-400 mb-4">⚠️ Laporan K3 (Sederhana)</h2>
             <form id="k3Form" class="space-y-4">
                 <div>
                     <label class="block text-sm">Tanggal</label>
@@ -65,4 +65,6 @@ export async function init(params) {
     });
 }
 
-export function cleanup() {}
+export function cleanup() {
+    console.log('[K3] Cleanup');
+}
