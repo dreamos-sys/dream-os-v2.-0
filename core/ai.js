@@ -143,3 +143,81 @@ export function generateAIInsights(stats, inventory = [], prayerNow = null) {
         insights.push({
             type: 'critical',
             icon: '⚠️',
+            message: `${stats.k3} laporan K3 menunggu review — prioritas tinggi!`,
+            action: { text: 'Review sekarang', module: 'approval' }
+        });    }
+    
+    // 3. Dana insight
+    if (stats?.dana > 5) {
+        insights.push({
+            type: 'warning',
+            icon: '💰',
+            message: `${stats.dana} pengajuan dana pending — perlu approval segera`,
+            action: { text: 'Proses approval', module: 'approval' }
+        });
+    }
+    
+    // 4. Stock prediction insight (PAKE KODE LU!)
+    const lowStockItems = (inventory || []).filter(i => i.jumlah <= i.minimal_stok);
+    if (lowStockItems.length > 0) {
+        const item = lowStockItems[0];
+        const prediction = predictStock([
+            { date: '2026-01-01', amount: item.minimal_stok + 5 },
+            { date: '2026-01-02', amount: item.minimal_stok + 3 },
+            { date: '2026-01-03', amount: item.jumlah }
+        ]);
+        
+        const recommendation = getPurchaseRecommendations(
+            item.jumlah, 
+            item.minimal_stok, 
+            2 // avg usage per day (bisa diganti dengan data real)
+        );
+        
+        if (recommendation.needPurchase) {
+            insights.push({
+                type: recommendation.urgency === 'critical' ? 'critical' : 'warning',
+                icon: '📦',
+                message: `${item.nama_barang}: ${recommendation.reason}. Butuh ${recommendation.amount} unit.`,
+                action: { text: 'Restock sekarang', module: 'stok' }
+            });
+        }
+    }
+    
+    // 5. Prayer-time insight (Spiritual Layer!)
+    if (prayerNow && config.features.prayerAdaptation) {
+        const prayerMessages = {
+            'Subuh': '🕌 Waktu Subuh — sistem dalam mode tenang. Notifikasi non-kritik ditunda.',
+            'Dzuhur': '🕌 Waktu Dzuhur — ingat shalat, sistem tetap optimal.',
+            'Ashar': '🕌 Waktu Ashar — semangat menyelesaikan tugas sebelum Maghrib!',
+            'Maghrib': '🕌 Waktu Maghrib — sistem adaptif: UI lebih hangat, notifikasi lembut.',
+            'Isya': '🕌 Waktu Isya — mode malam aktif. Tidur cukup, kerja optimal besok!'
+        };
+        insights.push({
+            type: 'spiritual',
+            icon: '🤲',            message: prayerMessages[prayerNow],
+            action: null
+        });
+    }
+    
+    // 6. Default optimistic message
+    if (insights.length === 0) {
+        insights.push({
+            type: 'success',
+            icon: '✅',
+            message: '✨ Semua sistem optimal. Tidak ada tindakan diperlukan. Bi idznillah!',
+            action: null
+        });
+    }
+    
+    return insights;
+}
+
+// ========== EXPORT FOR GLOBAL ACCESS ==========
+if (typeof window !== 'undefined') {
+    window.DreamAI = {
+        predictStock,
+        getPurchaseRecommendations,
+        chatbotResponse,
+        generateAIInsights
+    };
+}
