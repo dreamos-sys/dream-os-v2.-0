@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream OS v2.0 | App Shell</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --emerald: #10b981; --glass-bg: rgba(15, 23, 42, 0.8); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: linear-gradient(135deg, #020617, #1e293b); color: white; font-family: system-ui; min-height: 100vh; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: var(--glass-bg); backdrop-filter: blur(20px); border-right: 1px solid rgba(16,185,129,0.3); padding: 1.5rem; overflow-y: auto; }
+        .main-content { margin-left: 280px; padding: 2rem; min-height: 100vh; }
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 12px; color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.3s; margin-bottom: 0.5rem; }
+        .nav-item:hover, .nav-item.active { background: rgba(16,185,129,0.2); color: var(--emerald); }
+        .nav-item i { width: 20px; text-align: center; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .stat-card { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 1.5rem; text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: var(--emerald); }
+        .stat-label { font-size: 0.875rem; color: rgba(255,255,255,0.6); }
+        #module-container { min-height: 400px; }
+        .hidden { display: none !important; }
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold" style="color: var(--emerald);">🚀 Dream OS</h1>
+            <p class="text-xs text-slate-400">v2.0 | Command Center</p>
+        </div>
+
+        <div class="nav-item active" onclick="loadView('dashboard')">
+            <i class="fas fa-home"></i> Dashboard
+        </div>
+        <div class="nav-item" onclick="loadView('booking')">
+            <i class="fas fa-calendar"></i> Booking
+        </div>
+        <div class="nav-item" onclick="loadView('dana')">
+            <i class="fas fa-money-bill"></i> Pengajuan Dana
+        </div>
+        <div class="nav-item" onclick="loadView('spj')">
+            <i class="fas fa-file-alt"></i> Laporan SPJ        </div>
+        <div class="nav-item" onclick="loadView('k3')">
+            <i class="fas fa-exclamation-triangle"></i> K3
+        </div>
+        <div class="nav-item" onclick="loadView('sekuriti')">
+            <i class="fas fa-shield"></i> Sekuriti
+        </div>
+        <div class="nav-item" onclick="loadView('stok')">
+            <i class="fas fa-box"></i> Stok
+        </div>
+        <div class="nav-item" onclick="loadView('settings')">
+            <i class="fas fa-cog"></i> Settings
+        </div>
+
+        <div class="mt-8 pt-4 border-t border-slate-700">
+            <div class="text-xs text-slate-500 text-center">
+                🕌 Dream Team © 2026<br>
+                Built with 💚 Bi idznillah
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h2 class="text-2xl font-bold" id="page-title">Dashboard</h2>
+                <p class="text-slate-400 text-sm" id="page-subtitle">Command Center - R. Kerja Admin</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="font-bold" id="user-name">Developer</p>
+                    <p class="text-xs text-slate-400" id="user-role">Admin</p>
+                </div>
+                <button onclick="doLogout()" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-xl transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard">
+            <div class="stat-grid mb-6">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-booking">0</div>
+                    <div class="stat-label">Booking Pending</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-dana">0</div>
+                    <div class="stat-label">Pengajuan Dana</div>                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-k3">0</div>
+                    <div class="stat-label">Laporan K3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-users">12</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4"><i class="fas fa-chart-line mr-2"></i>Quick Actions</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button onclick="loadView('booking')" class="p-4 bg-emerald-600/20 border border-emerald-600/40 rounded-xl hover:bg-emerald-600/30 transition">
+                        <i class="fas fa-calendar-plus text-2xl mb-2" style="color: var(--emerald);"></i>
+                        <p class="text-sm">New Booking</p>
+                    </button>
+                    <button onclick="loadView('dana')" class="p-4 bg-blue-600/20 border border-blue-600/40 rounded-xl hover:bg-blue-600/30 transition">
+                        <i class="fas fa-money-bill-wave text-2xl mb-2" style="color: #3b82f6;"></i>
+                        <p class="text-sm">Ajukan Dana</p>
+                    </button>
+                    <button onclick="loadView('spj')" class="p-4 bg-purple-600/20 border border-purple-600/40 rounded-xl hover:bg-purple-600/30 transition">
+                        <i class="fas fa-file-invoice text-2xl mb-2" style="color: #a855f7;"></i>
+                        <p class="text-sm">Laporan SPJ</p>
+                    </button>
+                    <button onclick="loadView('k3')" class="p-4 bg-orange-600/20 border border-orange-600/40 rounded-xl hover:bg-orange-600/30 transition">
+                        <i class="fas fa-hard-hat text-2xl mb-2" style="color: #f59e0b;"></i>
+                        <p class="text-sm">Report K3</p>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4"><i class="fas fa-clock mr-2"></i>Recent Activity</h3>
+                <div id="recent-activity" class="space-y-3">
+                    <p class="text-slate-400 text-sm">Loading activity...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE CONTAINER (Dynamic Load) -->
+        <div id="module-container" class="hidden">
+            <div id="module-content"></div>
+        </div>
+    </main>
+
+    <script>
+        // User State
+        const currentUser = JSON.parse(localStorage.getItem('dreamos_user') || '{"name":"Developer","role":"admin"}');        document.getElementById('user-name').textContent = currentUser.name;
+        document.getElementById('user-role').textContent = currentUser.role;
+
+        // Navigation
+        function loadView(view) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.target.closest('.nav-item')?.classList.add('active');
+
+            const dashboard = document.getElementById('view-dashboard');
+            const moduleContainer = document.getElementById('module-container');
+            const title = document.getElementById('page-title');
+            const subtitle = document.getElementById('page-subtitle');
+
+            if (view === 'dashboard') {
+                dashboard.classList.remove('hidden');
+                moduleContainer.classList.add('hidden');
+                title.textContent = 'Dashboard';
+                subtitle.textContent = 'Command Center - R. Kerja Admin';
+                loadStats();
+            } else {
+                dashboard.classList.add('hidden');
+                moduleContainer.classList.remove('hidden');
+                title.textContent = view.toUpperCase();
+                subtitle.textContent = 'Module View';
+                loadModule(view);
+            }
+        }
+
+        async function loadModule(moduleName) {
+            const container = document.getElementById('module-content');
+            container.innerHTML = '<div class="text-center py-12"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div><p>Loading module...</p></div>';
+
+            try {
+                const module = await import(`../modules/${moduleName}/module.js`);
+                container.innerHTML = '';
+                if (module.init) {
+                    await module.init({ user: currentUser, lang: 'id' });
+                }
+            } catch (err) {
+                container.innerHTML = `
+                    <div class="card text-center">
+                        <h3 class="text-xl font-bold mb-2">⚠️ Module Not Found</h3>
+                        <p class="text-slate-400">${moduleName} module is under development</p>
+                        <button onclick="loadView('dashboard')" class="mt-4 px-6 py-2 bg-emerald-600 rounded-xl">Back to Dashboard</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadStats() {            try {
+                // Mock stats - replace with actual API calls
+                document.getElementById('stat-booking').textContent = '5';
+                document.getElementById('stat-dana').textContent = '3';
+                document.getElementById('stat-k3').textContent = '2';
+                
+                document.getElementById('recent-activity').innerHTML = `
+                    <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
+                        <i class="fas fa-calendar-check text-emerald-500"></i>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium">Booking approved - Aula SMP</p>
+                            <p class="text-xs text-slate-400">2 minutes ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
+                        <i class="fas fa-money-bill text-blue-500"></i>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium">Dana diajukan - Rp 500.000</p>
+                            <p class="text-xs text-slate-400">1 hour ago</p>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                console.error('Stats load error:', err);
+            }
+        }
+
+        function doLogout() {
+            if (confirm('Logout dari Dream OS?')) {
+                localStorage.removeItem('dreamos_user');
+                window.location.href = '../index.html';
+            }
+        }
+
+        // Init
+        loadStats();
+        console.log('✅ App Shell Initialized - Dream OS v2.0');
+    </script>
+</body>
+</html>
