@@ -1,4 +1,3 @@
-
 // ═══════════════════════════════════════════════════════
 // core/aiCore.js - AI CORE ENGINE
 // Dream OS v2.0 | Ocean Logic System
@@ -48,22 +47,20 @@ export const aiCore = {
         const loginAttempts = parseInt(sessionStorage.getItem('login_attempts') || '0');
         const sessionAge = Date.now() - (aiCore.sessionStart || Date.now());
         const isOffline = !navigator.onLine;
-                // 🛡️ Threat Detection Logic
-        if (loginAttempts > 3) {
+                if (loginAttempts > 3) {
             aiCore.mood = 'HOSTILE';
             aiCore.threats++;
             aiCore.triggerDefense();
         } else if (isOffline && config.features.offlineMode === false) {
             aiCore.mood = 'CAUTIOUS';
-        } else if (sessionAge > 300000) { // 5 min idle
+        } else if (sessionAge > 300000) {
             aiCore.mood = 'ALERT';
         } else {
-            // 🕌 Spiritual Layer: Adjust mood based on prayer time
             const prayer = aiCore.getCurrentPrayer();
             if (['Maghrib', 'Isya', 'Subuh'].includes(prayer)) {
-                aiCore.mood = 'PEACEFUL'; // Calm during prayer times
+                aiCore.mood = 'PEACEFUL';
             } else {
-                aiCore.mood = 'PEACEFUL'; // Default
+                aiCore.mood = 'PEACEFUL';
             }
         }
         
@@ -72,20 +69,13 @@ export const aiCore = {
         return aiCore.mood;
     },
     
-    // ========== CALCULATE PULSE (0-100) ==========
+    // ========== CALCULATE PULSE ==========
     calculatePulse: () => {
         let pulse = 100;
-        
-        // Reduce pulse based on threats
         pulse -= aiCore.threats * 15;
-        
-        // Reduce if offline
         if (!navigator.onLine) pulse -= 20;
-        
-        // Boost during prayer times (spiritual synergy)
         const prayer = aiCore.getCurrentPrayer();
         if (['Subuh', 'Maghrib'].includes(prayer)) pulse += 10;
-        
         return Math.max(0, Math.min(100, pulse));
     },
     
@@ -93,41 +83,31 @@ export const aiCore = {
     triggerDefense: () => {
         console.warn('🛡️ DEPOK LIGHTNING STRIKE ACTIVATED');
         
-        // 🧠 AI Core: Log defense activation
-        if (typeof window.api !== 'undefined') {
+        if (typeof window.api !== 'undefined' && config.features.auditLogging) {
             window.api.logAudit('DEFENSE_TRIGGERED', 'ai_core', {
                 threats: aiCore.threats,
-                mood: aiCore.mood,                timestamp: new Date().toISOString()
+                mood: aiCore.mood,
+                timestamp: new Date().toISOString()
             }).catch(() => {});
         }
         
-        // 🔥 Self-destruct after 3 threats
         if (aiCore.threats >= 3) {
             console.log('🔥 Self-destruct protocol: Purifying sensitive data...');
             sessionStorage.clear();
-            // Keep localStorage for non-sensitive prefs only
             const safeKeys = ['dreamos_theme', 'dreamos_lang', 'dreamos_debug'];
-            const allKeys = Object.keys(localStorage);
-            allKeys.forEach(key => {
-                if (!safeKeys.includes(key)) localStorage.removeItem(key);
-            });
+            Object.keys(localStorage).forEach(key => {
+                if (!safeKeys.includes(key)) localStorage.removeItem(key);            });
             console.log('✅ Data purification complete. System secured.');
-            
-            // Reset after cleanup
             aiCore.threats = 0;
             aiCore.mood = 'CAUTIOUS';
         }
     },
     
     // ========== GET AI MESSAGE ==========
-    getMessage: () => {
-        return aiCore.moods[aiCore.mood]?.msg || 'System normal.';
-    },
+    getMessage: () => aiCore.moods[aiCore.mood]?.msg || 'System normal.',
     
     // ========== GET MOOD DATA ==========
-    getMoodData: () => {
-        return aiCore.moods[aiCore.mood] || aiCore.moods.PEACEFUL;
-    },
+    getMoodData: () => aiCore.moods[aiCore.mood] || aiCore.moods.PEACEFUL,
     
     // ========== UPDATE UI AURA ==========
     updateAura: (elementId = 'ai-core-widget') => {
@@ -138,15 +118,12 @@ export const aiCore = {
             widget.style.borderColor = moodData.color;
             widget.style.boxShadow = moodData.glow;
             widget.setAttribute('data-mood', aiCore.mood);
-            
-            // Update inner message if has .ai-message class
             const msgEl = widget.querySelector('.ai-message');
             if (msgEl) msgEl.textContent = aiCore.getMessage();
         }
         
-        // 🎨 Update body filter for hostile mode
         document.body.style.filter = moodData.bodyFilter;
-                // 🧠 Console log for debugging
+        
         if (config.debug) {
             console.log(`🌊 AI Core: ${aiCore.mood} (pulse: ${aiCore.pulse}, threats: ${aiCore.threats})`);
         }
@@ -168,8 +145,7 @@ export const aiCore = {
     // ========== GET CURRENT PRAYER ==========
     getCurrentPrayer: () => {
         const now = new Date();
-        const [h, m] = [now.getHours(), now.getMinutes()];
-        const total = h * 60 + m;
+        const [h, m] = [now.getHours(), now.getMinutes()];        const total = h * 60 + m;
         
         for (const [prayer, times] of Object.entries(config.prayerTimes)) {
             const [startH, startM] = times.start.split(':').map(Number);
@@ -177,7 +153,6 @@ export const aiCore = {
             let startTotal = startH * 60 + startM;
             let endTotal = endH * 60 + endM;
             
-            // Handle overnight (Isya)
             if (endTotal < startTotal) {
                 endTotal += 24 * 60;
                 if (total < startTotal) {
@@ -191,11 +166,12 @@ export const aiCore = {
         return 'Isya';
     },
     
-    // ========== RESET THREATS (Admin Only) ==========
+    // ========== RESET THREATS ==========
     resetThreats: () => {
         if (sessionStorage.getItem('dream_role')?.toLowerCase().includes('admin')) {
             aiCore.threats = 0;
-            aiCore.mood = 'PEACEFUL';            console.log('🌊 AI Core: Threats reset by admin');
+            aiCore.mood = 'PEACEFUL';
+            console.log('🌊 AI Core: Threats reset by admin');
             return true;
         }
         console.warn('⚠️ resetThreats: Admin role required');
@@ -207,37 +183,32 @@ export const aiCore = {
         console.log('🧠 AI Core Engine Initialized - Ocean Logic Active');
         aiCore.sessionStart = Date.now();
         
-        // Periodic pulse check
         setInterval(() => {
             aiCore.checkPulse();
             aiCore.updateAura();
-        }, 5000); // Check every 5 seconds
+        }, 5000);
         
-        // Listen for online/offline events
         window.addEventListener('online', () => {
             aiCore.mood = 'PEACEFUL';
             aiCore.updateAura();
         });
         window.addEventListener('offline', () => {
             if (config.features.offlineMode === false) {
-                aiCore.mood = 'CAUTIOUS';
-                aiCore.updateAura();
+                aiCore.mood = 'CAUTIOUS';                aiCore.updateAura();
             }
         });
         
-        // Initial aura update
         aiCore.updateAura();
     }
 };
 
-// ========== GLOBAL EXPORT ==========
+// Global export
 if (typeof window !== 'undefined') {
     window.aiCore = aiCore;
 }
 
-// Auto-init if in browser
+// Auto-init
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-    // Wait for DOM to be ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => aiCore.init());
     } else {
