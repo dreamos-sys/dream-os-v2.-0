@@ -271,12 +271,17 @@
         </div>
 
         <!-- Quick Actions -->
-        <div class="quick-actions">
-            <div class="qa-btn" onclick="openModule('booking')"><i class="fas fa-calendar-check"></i><span>Booking</span></div>
-            <div class="qa-btn" onclick="openModule('k3')"><i class="fas fa-hard-hat"></i><span>K3</span></div>
-            <div class="qa-btn" onclick="openModule('inventory')"><i class="fas fa-boxes"></i><span>Inventory</span></div>
-            <div class="qa-btn" onclick="openModule('reports')"><i class="fas fa-chart-pie"></i><span>Laporan</span></div>
-        </div>
+<div class="quick-actions" style="grid-template-columns:repeat(3,1fr);gap:.75rem">
+    <div class="qa-btn" onclick="openModule('booking')"><i class="fas fa-calendar-check"></i><span>Booking</span></div>
+    <div class="qa-btn" onclick="openModule('k3')"><i class="fas fa-hard-hat"></i><span>K3</span></div>
+    <div class="qa-btn" onclick="openModule('inventory')"><i class="fas fa-boxes"></i><span>Inventory</span></div>
+    <div class="qa-btn" onclick="openModule('reports')"><i class="fas fa-chart-pie"></i><span>Laporan</span></div>
+    <div class="qa-btn" onclick="openModule('tasks')"><i class="fas fa-tasks"></i><span>Tasks</span></div>
+    <div class="qa-btn" onclick="openModule('calendar')"><i class="fas fa-calendar-alt"></i><span>Kalender</span></div>
+    <div class="qa-btn" onclick="openModule('documents')"><i class="fas fa-file-alt"></i><span>Dokumen</span></div>
+    <div class="qa-btn" onclick="openModule('notifications')"><i class="fas fa-bell"></i><span>Notifikasi</span></div>
+    <div class="qa-btn" onclick="openModule('settings')"><i class="fas fa-cog"></i><span>Settings</span></div>
+</div>
 
         <!-- Dynamic Content Area -->
         <div id="dynamic-content"></div>
