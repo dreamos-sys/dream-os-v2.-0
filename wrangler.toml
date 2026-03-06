@@ -1,4 +1,0 @@
-name = "dream-os-v2--0"
-pages_build_output_dir = "."
-[placement]
-mode = "smart"
