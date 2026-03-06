@@ -1,4 +1,9 @@
-name = "dream-os-v2-0"
-main = "ai-proxy.js"
-compatibility_date = "2025-02-01"
-account_id = "your-account-id"
+# wrangler.toml
+# Dream OS v2.0 — Cloudflare Pages Configuration
+# ISO 9001 · ISO 27001 · ISO 55001
+
+name = "dream-os-v2--0"
+pages_build_output_dir = "/"
+
+[placement]
+mode = "smart"
