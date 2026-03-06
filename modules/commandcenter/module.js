@@ -994,3 +994,44 @@ export default async function initModule(config, utils, supabase, currentUser, s
         console.log('[CC] Cleanup done ✅');
     };
 }
+/**
+ * TAMBAHKAN INI DI BAGIAN PALING BAWAH
+ * modules/commandcenter/module.js
+ *
+ * Wrapper agar support KEDUA cara panggil:
+ * 1. router.js baru  → mod.default(...params) ✅ sudah ada
+ * 2. router.js lama  → mod.init()             ✅ ditambahkan ini
+ */
+
+// ── Tambahkan di baris PALING BAWAH module.js ──────────────
+
+export { initModule as default };
+
+// Support router lama yang panggil mod.init()
+export async function init(params = {}) {
+    // Jika dipanggil dari router lama tanpa params, ambil dari window/store
+    const supabaseClient = params.supabase
+        || window.supabase
+        || window._sb
+        || null;
+
+    const currentUser = params.currentUser
+        || window.store?.get?.('currentUser')
+        || null;
+
+    const showToastFn = params.showToast
+        || window.showToast
+        || ((m, t) => console.log(`[toast:${t}] ${m}`));
+
+    return await initModule(
+        params.config        || {},
+        params.utils         || {},
+        supabaseClient,
+        currentUser,
+        showToastFn,
+        params.showModal     || null,
+        params.loader        || null,
+        params.translations  || {},
+        params.currentLang   || 'id'
+    );
+}
