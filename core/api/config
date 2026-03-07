@@ -1,0 +1,96 @@
+/**
+ * Cloudflare Pages Function: /api/config
+ * 
+ * Serves Dream OS configuration securely from Cloudflare environment variables
+ * 
+ * Setup di Cloudflare Dashboard:
+ * 1. Settings → Environment Variables → Add variables
+ * 2. SUPABASE_URL = https://pvznaeppaagylwddirla.supabase.co
+ * 3. SUPABASE_ANON_KEY = eyJhbGci...
+ * 4. WEATHER_API_KEY = f789...
+ * 5. WEATHER_LOCATION = Depok
+ * 
+ * Bi idznillah 💚
+ */
+
+export async function onRequest(context) {
+    const {
+        request,   // Request object
+        env,       // Environment variables (your API keys!)
+        params,    // Route parameters
+        waitUntil, // Background tasks
+        next,      // Next middleware
+        data,      // Shared data
+    } = context;
+
+    // ✅ CORS Headers - Allow Dream OS frontend to access
+    const corsHeaders = {
+        'Access-Control-Allow-Origin': '*', // Change to your domain for production
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json',
+    };
+
+    // Handle OPTIONS preflight request
+    if (request.method === 'OPTIONS') {
+        return new Response(null, {
+            status: 204,
+            headers: corsHeaders,
+        });
+    }
+
+    // Only allow GET requests
+    if (request.method !== 'GET') {
+        return new Response(JSON.stringify({ 
+            error: 'Method not allowed' 
+        }), {
+            status: 405,
+            headers: corsHeaders,
+        });
+    }
+
+    try {
+        // ✅ Get config from Cloudflare environment variables
+        const config = {
+            url: env.SUPABASE_URL,
+            key: env.SUPABASE_ANON_KEY,
+            wkey: env.WEATHER_API_KEY || 'f7890d7569950ffa34a5827880e8442f',
+            loc: env.WEATHER_LOCATION || 'Depok',
+            version: '2.1',
+            provider: 'cloudflare',
+            timestamp: new Date().toISOString(),
+        };
+
+        // ✅ Validate required config
+        if (!config.url || !config.key) {
+            console.error('[Config API] Missing required environment variables');
+            return new Response(JSON.stringify({ 
+                error: 'Server configuration error',
+                fallback: true,
+            }), {
+                status: 500,
+                headers: corsHeaders,
+            });
+        }
+
+        // ✅ Return config
+        return new Response(JSON.stringify(config), {
+            status: 200,
+            headers: {
+                ...corsHeaders,
+                'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+            },
+        });
+
+    } catch (error) {
+        console.error('[Config API] Error:', error.message);
+        
+        return new Response(JSON.stringify({ 
+            error: 'Internal server error',
+            fallback: true,
+        }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
