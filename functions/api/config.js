@@ -1,50 +1,16 @@
-/**
- * functions/api/config.js
- * Dream OS v2.0 — Cloudflare Pages Function
- * Endpoint: /api/config
- * Menyajikan konfigurasi aman dari Environment Variables
- * ISO 27001 · Zero key exposure to client
- */
-
-export async function onRequestGet(context) {
-    const { env } = context;
-
-    // CORS headers
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'X-Content-Type-Options': 'nosniff'
-    };
-
-    // Validasi environment variables ada
-    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
-        return new Response(JSON.stringify({
-            error: 'Server configuration error',
-            code: 'ENV_MISSING'
-        }), { status: 500, headers });
+export async function onRequest(context) {
+  const { env } = context;
+  
+  return new Response(JSON.stringify({
+    url: env.SUPABASE_URL || 'https://pvznaeppaagylwddirla.supabase.co',
+    key: env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2em5hZXBwYWFneWx3ZGRpcmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTEwNDMsImV4cCI6MjA4NzUyNzA0M30.t9SJi3VfsBDkKmeZ3egZ4rbvljl4xe0WwNkPtfA9-vo',
+    wkey: env.WEATHER_API_KEY || 'f7890d7569950ffa34a5827880e8442f',
+    loc: env.LOCATION || 'Depok'
+  }), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'public, max-age=3600'
     }
-
-    const payload = {
-        url:  env.SUPABASE_URL,
-        key:  env.SUPABASE_ANON_KEY,
-        wkey: env.WEATHER_API_KEY || '',
-        loc:  env.LOCATION || 'Depok',
-        ts:   Date.now()  // cache busting
-    };
-
-    return new Response(JSON.stringify(payload), { status: 200, headers });
-}
-
-// Handle OPTIONS preflight
-export async function onRequestOptions() {
-    return new Response(null, {
-        status: 204,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Max-Age': '86400'
-        }
-    });
+  });
 }
